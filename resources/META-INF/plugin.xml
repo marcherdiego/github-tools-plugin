@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.tal.android.plugin.github</id>
     <name>Tal Github Tools Plugin</name>
-    <version>1.0</version>
+    <version>1.0.0</version>
     <vendor email="dmarcher@theappraisallane.com" url="http://www.theappraisallane.com">The Appraisal Lane</vendor>
 
     <description><![CDATA[
