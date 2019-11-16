@@ -5,8 +5,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.kohsuke.github.GHMyself;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,10 +24,11 @@ import com.tal.android.plugin.github.events.FavoriteRepositoryUpdatedEvent;
 import com.tal.android.plugin.github.ui.tablemodels.GHMyReposTableModel;
 import com.tal.android.plugin.github.ui.tablemodels.GHPullRequestTableModel;
 import com.tal.android.plugin.github.ui.tablemodels.GHReleaseTableModel;
+import com.tal.android.plugin.utils.JTableUtils.SimpleMouseAdapter;
 import com.tal.android.plugin.utils.RepositoryUtils;
 import com.tal.android.plugin.utils.Strings;
 
-public class MyFavoriteReposController extends BaseController {
+public class MyFavoriteReposController extends BaseRepoListController {
 
     private final RepositoryUtils repositoryUtils;
     private final GHMyself myselfGitHub;
@@ -55,34 +54,27 @@ public class MyFavoriteReposController extends BaseController {
         repoReleasesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         repoPullRequestsTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        reposTable.addMouseListener(new MouseAdapter() {
-
-            public void mousePressed(MouseEvent mouseEvent) {
-                int row = ((JTable) mouseEvent.getSource()).rowAtPoint(mouseEvent.getPoint());
-                if (row == -1) {
-                    return;
-                }
+        reposTable.addMouseListener(new SimpleMouseAdapter() {
+            public void mousePressed(int row, int column, int clickCount) {
                 currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(row, GHMyReposTableModel.COLUMN_NAME);
-                if (mouseEvent.getClickCount() == 1) {
+                if (clickCount == 1) {
                     updateRepositoryInfo(currentRepository);
-                } else if (mouseEvent.getClickCount() == 2) {
+                } else if (clickCount == 2) {
                     openWebLink(currentRepository.getFullUrl());
                 }
             }
         });
-        repoReleasesTable.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent mouseEvent) {
-                int row = ((JTable) mouseEvent.getSource()).rowAtPoint(mouseEvent.getPoint());
-                if (mouseEvent.getClickCount() == 2 && row != -1) {
+        repoReleasesTable.addMouseListener(new SimpleMouseAdapter() {
+            public void mousePressed(int row, int column, int clickCount) {
+                if (clickCount == 2) {
                     GHReleaseWrapper release = ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(row);
                     openWebLink(release.getFullUrl());
                 }
             }
         });
-        repoPullRequestsTable.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent mouseEvent) {
-                int row = ((JTable) mouseEvent.getSource()).rowAtPoint(mouseEvent.getPoint());
-                if (mouseEvent.getClickCount() == 2 && row != -1) {
+        repoPullRequestsTable.addMouseListener(new SimpleMouseAdapter() {
+            public void mousePressed(int row, int column, int clickCount) {
+                if (clickCount == 2) {
                     GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoPullRequestsTable.getModel()).getRow(row);
                     openWebLink(pullRequest.getFullUrl());
                 }

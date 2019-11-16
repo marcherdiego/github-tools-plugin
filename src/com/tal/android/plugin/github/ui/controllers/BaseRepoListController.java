@@ -29,7 +29,7 @@ import com.tal.android.plugin.github.ui.tablemodels.GHPullRequestTableModel;
 import com.tal.android.plugin.github.ui.tablemodels.GHReleaseTableModel;
 import com.tal.android.plugin.utils.Strings;
 
-public abstract class BaseController {
+public abstract class BaseRepoListController {
 
     static final int LARGE_PAGE_SIZE = 500;
 
@@ -43,7 +43,7 @@ public abstract class BaseController {
 
     private JLabel repoComments;
 
-    BaseController(JTable reposTable, JTable repoReleasesTable, JTable repoPullRequestsTable, JLabel repoComments) {
+    BaseRepoListController(JTable reposTable, JTable repoReleasesTable, JTable repoPullRequestsTable, JLabel repoComments) {
         this.reposTable = reposTable;
         this.repoReleasesTable = repoReleasesTable;
         this.repoPullRequestsTable = repoPullRequestsTable;
