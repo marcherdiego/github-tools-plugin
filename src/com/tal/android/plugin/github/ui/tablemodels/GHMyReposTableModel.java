@@ -6,7 +6,7 @@ import java.util.List;
 import com.tal.android.plugin.github.domain.gh.GHRepositoryWrapper;
 import com.tal.android.plugin.utils.RepositoryUtils;
 
-public class GHMyReposTableModel extends GHRepoTableModel implements Serializable {
+public class GHMyReposTableModel extends BaseModel<GHRepositoryWrapper> implements Serializable {
     public static final int COLUMN_FAV = 0;
     public static final int COLUMN_NAME = 1;
 
@@ -30,19 +30,15 @@ public class GHMyReposTableModel extends GHRepoTableModel implements Serializabl
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        switch (column) {
-            case COLUMN_FAV:
-                return true;
-        }
-        return false;
+        return column == COLUMN_FAV;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        if (rowIndex < 0 || rowIndex >= repositories.size()) {
+        if (rowIndex < 0 || rowIndex >= items.size()) {
             return null;
         }
-        GHRepositoryWrapper repository = repositories.get(rowIndex);
+        GHRepositoryWrapper repository = items.get(rowIndex);
         switch (columnIndex) {
             case COLUMN_FAV:
                 return repositoryUtils.isFavorite(repository);
@@ -56,7 +52,7 @@ public class GHMyReposTableModel extends GHRepoTableModel implements Serializabl
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
         super.setValueAt(aValue, rowIndex, columnIndex);
         if (aValue instanceof Boolean && columnIndex == COLUMN_FAV) {
-            GHRepositoryWrapper repository = repositories.get(rowIndex);
+            GHRepositoryWrapper repository = items.get(rowIndex);
             repositoryUtils.toggleFavorite(repository);
         }
     }
