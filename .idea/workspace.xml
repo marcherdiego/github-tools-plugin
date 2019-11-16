@@ -2,16 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a92aa8a7-dc4e-41ea-8c3e-91087392e1f1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/AllReposController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/AllReposController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/BaseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/BaseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/MyFavoriteReposController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/MyFavoriteReposController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/MyReposController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/MyReposController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.form" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/ResultDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/ResultDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/utils/ListUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/utils/ListUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/tal/android/plugin/utils/Strings.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/tal/android/plugin/utils/Strings.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-reflect-sources.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-reflect.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-stdlib-jdk7-sources.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-stdlib-jdk7.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-stdlib-jdk8-sources.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-stdlib-jdk8.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-stdlib-sources.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-stdlib.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-test-sources.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/kotlin-test.jar" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -28,8 +28,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="87" column="77" selection-start-line="87" selection-start-column="77" selection-end-line="87" selection-end-column="77" />
+            <state relative-caret-position="281">
+              <caret line="86" column="38" selection-start-line="86" selection-start-column="38" selection-end-line="86" selection-end-column="38" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -53,7 +53,7 @@
         <entry file="file://$PROJECT_DIR$/src/com/tal/android/plugin/utils/ViewUtils.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="255">
-              <caret line="17" column="9" lean-forward="true" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="9" />
+              <caret line="17" column="9" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -74,7 +74,7 @@
         <entry file="file://$PROJECT_DIR$/src/com/tal/android/plugin/utils/Strings.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="240">
-              <caret line="16" column="46" lean-forward="true" selection-start-line="16" selection-start-column="46" selection-end-line="16" selection-end-column="46" />
+              <caret line="16" column="46" selection-start-line="16" selection-start-column="46" selection-end-line="16" selection-end-column="46" />
             </state>
           </provider>
         </entry>
@@ -158,8 +158,8 @@
         <option value="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/ResultDialog.java" />
         <option value="$PROJECT_DIR$/src/com/tal/android/plugin/utils/Strings.java" />
         <option value="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/controllers/BaseController.java" />
-        <option value="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.java" />
         <option value="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.form" />
+        <option value="$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.java" />
       </list>
     </option>
   </component>
@@ -335,32 +335,6 @@
               <item name="tal" type="462c0819:PsiDirectoryNode" />
               <item name="android" type="462c0819:PsiDirectoryNode" />
               <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="windows" type="462c0819:PsiDirectoryNode" />
-              <item name="GitHubTool" type="e9f4de52:FormNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="tal" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="windows" type="462c0819:PsiDirectoryNode" />
-              <item name="ResultDialog" type="e9f4de52:FormNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="tal" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
               <item name="utils" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
@@ -466,9 +440,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1680" height="969" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.1941392" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22039072" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -477,12 +450,12 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.19203748" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.24707259" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3114754" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.12177986" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.498779" weight="0.07377049" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.498779" visible="true" weight="0.5" />
       <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.501221" side_tool="true" weight="0.441452" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.3290398" />
@@ -724,7 +697,7 @@
     <entry file="file://$PROJECT_DIR$/src/com/tal/android/plugin/utils/ViewUtils.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
-          <caret line="17" column="9" lean-forward="true" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="9" />
+          <caret line="17" column="9" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="9" />
         </state>
       </provider>
     </entry>
@@ -760,7 +733,7 @@
     <entry file="file://$PROJECT_DIR$/src/com/tal/android/plugin/utils/Strings.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="240">
-          <caret line="16" column="46" lean-forward="true" selection-start-line="16" selection-start-column="46" selection-end-line="16" selection-end-column="46" />
+          <caret line="16" column="46" selection-start-line="16" selection-start-column="46" selection-end-line="16" selection-end-column="46" />
         </state>
       </provider>
     </entry>
@@ -787,8 +760,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/tal/android/plugin/github/ui/windows/GitHubTool.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="87" column="77" selection-start-line="87" selection-start-column="77" selection-end-line="87" selection-end-column="77" />
+        <state relative-caret-position="281">
+          <caret line="86" column="38" selection-start-line="86" selection-start-column="38" selection-end-line="86" selection-end-column="38" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
