@@ -26,6 +26,7 @@ import com.tal.android.plugin.github.ui.controllers.AllReposController;
 import com.tal.android.plugin.github.ui.controllers.MyFavoriteReposController;
 import com.tal.android.plugin.github.ui.controllers.MyReposController;
 import com.tal.android.plugin.utils.Strings;
+import com.tal.android.plugin.utils.ViewUtils;
 
 public class GitHubTool implements ToolWindowFactory {
 
@@ -58,6 +59,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JLabel loggedAsField;
     private JButton reloadViewButton;
     private JLabel repoComments;
+    private JPanel repoCommentsContainer;
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
@@ -66,13 +68,9 @@ public class GitHubTool implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(content);
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-
         if (StringUtils.isEmpty(oauthToken)) {
-            logoutButton.setVisible(false);
-            reloadViewButton.setVisible(false);
-            loginPanel.setVisible(true);
-            pluginPanel.setVisible(false);
-            loggedAsField.setVisible(false);
+            ViewUtils.show(loginPanel);
+            ViewUtils.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField, repoCommentsContainer);
             loginButton.addActionListener(new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -87,12 +85,10 @@ public class GitHubTool implements ToolWindowFactory {
                     } else {
                         boolean success = githubTokenLogin(oauthToken);
                         if (success) {
-                            loginPanel.setVisible(false);
-                            pluginPanel.setVisible(true);
-                            logoutButton.setVisible(true);
-                            loggedAsField.setVisible(false);
-                            reloadViewButton.setVisible(true);
+                            ViewUtils.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
+                            ViewUtils.hide(loginPanel);
                             propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
+                            oauthTokenField.setText(null);
                         } else {
                             ResultDialog resultDialog = new ResultDialog(Strings.VERIFY_OAUTH_TOKEN);
                             resultDialog.pack();
@@ -105,23 +101,16 @@ public class GitHubTool implements ToolWindowFactory {
                 }
             });
         } else {
-            loginPanel.setVisible(false);
-            pluginPanel.setVisible(true);
-            logoutButton.setVisible(true);
-            loggedAsField.setVisible(true);
-            reloadViewButton.setVisible(true);
+            ViewUtils.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
+            ViewUtils.hide(loginPanel);
             githubTokenLogin(oauthToken);
         }
 
         logoutButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                logoutButton.setVisible(false);
-                loggedAsField.setVisible(false);
-                reloadViewButton.setVisible(false);
-                loginPanel.setVisible(true);
-                pluginPanel.setVisible(false);
-
+                ViewUtils.show(loginPanel);
+                ViewUtils.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
                 propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
                 github = null;
                 ghOrganization = null;

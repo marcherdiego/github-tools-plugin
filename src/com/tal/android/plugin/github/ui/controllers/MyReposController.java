@@ -62,7 +62,7 @@ public class MyReposController extends BaseController {
                 if (mouseEvent.getClickCount() == 1) {
                     updateRepositoryInfo(repository);
                 } else if (mouseEvent.getClickCount() == 2) {
-                    openWebpage(repository.getFullUrl());
+                    openWebLink(repository.getFullUrl());
                 }
             }
         });
@@ -71,7 +71,7 @@ public class MyReposController extends BaseController {
                 int row = ((JTable) mouseEvent.getSource()).rowAtPoint(mouseEvent.getPoint());
                 if (mouseEvent.getClickCount() == 2 && row != -1) {
                     GHReleaseWrapper release = ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(row);
-                    openWebpage(release.getFullUrl());
+                    openWebLink(release.getFullUrl());
                 }
             }
         });
@@ -80,7 +80,7 @@ public class MyReposController extends BaseController {
                 int row = ((JTable) mouseEvent.getSource()).rowAtPoint(mouseEvent.getPoint());
                 if (mouseEvent.getClickCount() == 2 && row != -1) {
                     GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoPullRequestsTable.getModel()).getRow(row);
-                    openWebpage(pullRequest.getFullUrl());
+                    openWebLink(pullRequest.getFullUrl());
                 }
             }
         });

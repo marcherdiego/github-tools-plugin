@@ -40,6 +40,7 @@ public abstract class BaseController {
     JTable reposTable;
     JTable repoReleasesTable;
     JTable repoPullRequestsTable;
+
     private JLabel repoComments;
 
     BaseController(JTable reposTable, JTable repoReleasesTable, JTable repoPullRequestsTable, JLabel repoComments) {
@@ -63,7 +64,7 @@ public abstract class BaseController {
         }
     }
 
-    private static void openWebpage(URI uri) {
+    private static void openWebLink(URI uri) {
         Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
         if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
             try {
@@ -74,9 +75,9 @@ public abstract class BaseController {
         }
     }
 
-    static void openWebpage(URL url) {
+    static void openWebLink(URL url) {
         try {
-            openWebpage(url.toURI());
+            openWebLink(url.toURI());
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -84,7 +85,7 @@ public abstract class BaseController {
 
     private void updateRepoComments(GHRepositoryWrapper repository, @Nullable GHReleaseWrapper latestRelease) {
         if (latestRelease == null) {
-            repoComments.setText(Strings.REPO_NO_RELEASES_YET);
+            repoComments.setText(String.format(Strings.REPO_NO_RELEASES_YET, repository.getGhRepository().getName()));
             return;
         }
         PagedIterable<GHPullRequest> closedPrs = repository
@@ -100,9 +101,9 @@ public abstract class BaseController {
             if (mergedAt != null) {
                 boolean needsRelease = mergedAt.after(latestRelease.getGhRelease().getPublished_at());
                 if (needsRelease) {
-                    repoComments.setText(Strings.REPO_NEEDS_RELEASE);
+                    repoComments.setText(String.format(Strings.REPO_NEEDS_RELEASE, repository.getGhRepository().getName()));
                 } else {
-                    repoComments.setText(Strings.REPO_DOES_NOT_NEED_RELEASE);
+                    repoComments.setText(String.format(Strings.REPO_DOES_NOT_NEED_RELEASE, repository.getGhRepository().getName()));
                 }
                 return;
             }

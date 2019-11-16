@@ -14,13 +14,7 @@ public class ResultDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-
-        buttonOK.addActionListener(e -> onOK());
-
+        buttonOK.addActionListener(e -> dispose());
         resultMessage.setText(message);
-    }
-
-    private void onOK() {
-        dispose();
     }
 }
