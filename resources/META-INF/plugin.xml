@@ -1,17 +1,15 @@
 <idea-plugin>
     <id>com.tal.android.plugin.github</id>
-    <name>Plugin display name here</name>
+    <name>Tal Github Tools Plugin</name>
     <version>1.0</version>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="dmarcher@theappraisallane.com" url="http://www.theappraisallane.com">The Appraisal Lane</vendor>
 
     <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      Github tools...
     ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      Acá van unas notas multilocas de lo que se haga
     ]]>
     </change-notes>
 
