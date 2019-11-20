@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TalPlugin.iml" filepath="$PROJECT_DIR$/TalPlugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/GithubToolsPlugin.iml" filepath="$PROJECT_DIR$/GithubToolsPlugin.iml" />
     </modules>
   </component>
 </project>

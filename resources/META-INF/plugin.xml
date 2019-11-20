@@ -1,15 +1,16 @@
 <idea-plugin>
-    <id>com.tal.android.plugin.github</id>
-    <name>Tal Github Tools</name>
-    <version>1.0.1</version>
-    <vendor email="dmarcher@theappraisallane.com" url="http://www.theappraisallane.com">The Appraisal Lane</vendor>
+    <id>com.nerdscorner.android.plugin.github</id>
+    <name>Github Tools</name>
+    <version>1.0.0</version>
+    <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
-      Github tools...
+      A small tool to keep track of the Github repositories you have in your organization along with their pull requests, releases and more
     ]]></description>
 
     <change-notes><![CDATA[
-      Acá van unas notas multilocas de lo que se haga
+      Initial release!
+      This plugin will help you to see all repositories you have within your organization along with their pull requests, releases and more!
     ]]>
     </change-notes>
 
@@ -24,11 +25,11 @@
     -->
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="TAL Github" anchor="right" factoryClass="com.tal.android.plugin.github.ui.windows.GitHubTool"/>
+        <toolWindow id="Github Tools" anchor="right" factoryClass="com.nerdscorner.android.plugin.github.ui.windows.GitHubTool"/>
     </extensions>
 
     <actions>
-        <group id="tal.tools.menu" text="TAL Tools" popup="true">
+        <group id="nerdscorner.tools.menu" text="Github Tools" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </group>
     </actions>
