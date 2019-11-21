@@ -7,10 +7,12 @@ import javax.swing.table.AbstractTableModel;
 
 import com.nerdscorner.android.plugin.utils.ListUtils;
 
-abstract class BaseModel<T> extends AbstractTableModel implements Serializable {
+public abstract class BaseModel<T> extends AbstractTableModel implements Serializable {
     public static final int COLUMN_NAME = 0;
+
     private final int colsCount;
     private final String[] colNames;
+
     final List<T> items;
 
     BaseModel(List<T> items, String[] colNames) {
@@ -23,11 +25,6 @@ abstract class BaseModel<T> extends AbstractTableModel implements Serializable {
         int row = items.size();
         items.add(item);
         fireTableRowsInserted(row, row);
-    }
-
-    public void removeRow(int row) {
-        items.remove(row);
-        fireTableRowsDeleted(row, row);
     }
 
     public void removeAllRows() {

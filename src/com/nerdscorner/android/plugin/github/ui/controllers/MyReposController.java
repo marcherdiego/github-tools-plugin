@@ -1,8 +1,8 @@
 package com.nerdscorner.android.plugin.github.ui.controllers;
 
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 
@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
@@ -19,14 +18,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
-import com.nerdscorner.android.plugin.github.domain.gh.GHPullRequestWrapper;
-import com.nerdscorner.android.plugin.github.domain.gh.GHReleaseWrapper;
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper;
 import com.nerdscorner.android.plugin.github.events.FavoriteRepositoryUpdatedEvent;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHMyReposTableModel;
-import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel;
-import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel;
-import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter;
 import com.nerdscorner.android.plugin.utils.Strings;
 
 public class MyReposController extends BaseRepoListController {
@@ -35,50 +29,8 @@ public class MyReposController extends BaseRepoListController {
 
     public MyReposController(JTable reposTable, JTable repoReleases, JTable repoPullRequestsTable, JLabel repoComments,
                              GHMyself myselfGitHub, GHOrganization ghOrganization) {
-        super(reposTable, repoReleases, repoPullRequestsTable, repoComments, ghOrganization);
+        super(reposTable, repoReleases, repoPullRequestsTable, repoComments, ghOrganization, GHMyReposTableModel.COLUMN_NAME);
         this.myselfGitHub = myselfGitHub;
-    }
-
-    @Override
-    protected void startListeningBus() {
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this);
-        }
-    }
-
-    @Override
-    public void init() {
-        startListeningBus();
-        reposTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        repoReleasesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        repoPullRequestsTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-        reposTable.addMouseListener(new SimpleMouseAdapter() {
-            public void mousePressed(int row, int column, int clickCount) {
-                GHRepositoryWrapper repository = (GHRepositoryWrapper) reposTable.getValueAt(row, GHMyReposTableModel.COLUMN_NAME);
-                if (clickCount == 1) {
-                    updateRepositoryInfo(repository);
-                } else if (clickCount == 2) {
-                    openWebLink(repository.getFullUrl());
-                }
-            }
-        });
-        repoReleasesTable.addMouseListener(new SimpleMouseAdapter() {
-            public void mousePressed(int row, int column, int clickCount) {
-                if (clickCount == 2) {
-                    GHReleaseWrapper release = ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(row);
-                    openWebLink(release.getFullUrl());
-                }
-            }
-        });
-        repoPullRequestsTable.addMouseListener(new SimpleMouseAdapter() {
-            public void mousePressed(int row, int column, int clickCount) {
-                if (clickCount == 2) {
-                    GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoPullRequestsTable.getModel()).getRow(row);
-                    openWebLink(pullRequest.getFullUrl());
-                }
-            }
-        });
     }
 
     @Override
@@ -104,13 +56,7 @@ public class MyReposController extends BaseRepoListController {
         loaderThread.start();
     }
 
-    @Override
-    public void cancel() {
-        cancelThread(releasesLoaderThread);
-        cancelThread(prsLoaderThread);
-    }
-
-    @Subscribe
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onFavoriteRepositoryUpdated(FavoriteRepositoryUpdatedEvent event) {
         ((AbstractTableModel) reposTable.getModel()).fireTableDataChanged();
     }

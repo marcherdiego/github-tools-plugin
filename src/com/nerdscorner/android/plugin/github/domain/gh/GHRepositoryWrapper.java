@@ -5,13 +5,18 @@ import org.kohsuke.github.GHRepository;
 import java.io.Serializable;
 import java.net.URL;
 
+import com.nerdscorner.android.plugin.utils.StringUtils;
+
 public class GHRepositoryWrapper implements Serializable {
+    private final String description;
     private transient GHRepository ghRepository;
     private String name;
 
     public GHRepositoryWrapper(GHRepository ghRepository) {
         this.ghRepository = ghRepository;
         this.name = ghRepository.getName();
+        String repoDescription = ghRepository.getDescription();
+        this.description = StringUtils.isNullOrEmpty(repoDescription) ? name : repoDescription;
     }
 
     public String getUrl() {
@@ -29,5 +34,13 @@ public class GHRepositoryWrapper implements Serializable {
     @Override
     public String toString() {
         return name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }
