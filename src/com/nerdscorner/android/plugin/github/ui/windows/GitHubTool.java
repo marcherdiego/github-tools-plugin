@@ -22,6 +22,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.nerdscorner.android.plugin.github.ui.controllers.AllReposController;
+import com.nerdscorner.android.plugin.github.ui.controllers.DependenciesController;
 import com.nerdscorner.android.plugin.github.ui.controllers.MyFavoriteReposController;
 import com.nerdscorner.android.plugin.github.ui.controllers.MyReposController;
 import com.nerdscorner.android.plugin.utils.Strings;
@@ -49,6 +50,10 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable favoriteRepositoriesReleasesTable;
     private JTable favoriteRepositoriesOpenPrsTable;
     private MyFavoriteReposController myFavoriteReposController;
+
+    private JTable allReposDependenciesTable;
+    private JPanel dependenciesGraphPanel;
+    private DependenciesController dependenciesController;
 
     private JPanel loginPanel;
     private JPanel pluginPanel;
@@ -168,6 +173,12 @@ public class GitHubTool implements ToolWindowFactory {
                     myselfGitHub,
                     ghOrganization
             );
+
+            dependenciesController = new DependenciesController(
+                    allReposDependenciesTable,
+                    dependenciesGraphPanel,
+                    ghOrganization
+            );
             loadTablesInfo();
             return true;
         } catch (Exception e) {
@@ -190,5 +201,9 @@ public class GitHubTool implements ToolWindowFactory {
         myFavoriteReposController.cancel();
         myFavoriteReposController.init();
         myFavoriteReposController.loadRepositories();
+
+        dependenciesController.cancel();
+        dependenciesController.init();
+        dependenciesController.loadRepositories();
     }
 }
