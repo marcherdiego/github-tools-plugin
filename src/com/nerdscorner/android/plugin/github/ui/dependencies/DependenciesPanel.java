@@ -98,4 +98,9 @@ public class DependenciesPanel extends JPanel {
             }
         }
     }
+
+    public void clear() {
+        dependenciesAssociations.clear();
+        removeAll();
+    }
 }

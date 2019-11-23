@@ -51,7 +51,7 @@ public class DependenciesController {
 
     public void cancel() {
         cancelThread(loaderThread);
-        dependenciesPanel.removeAll();
+        dependenciesPanel.clear();
     }
 
     public void init() {
