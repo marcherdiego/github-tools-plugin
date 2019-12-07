@@ -33,19 +33,19 @@ import com.nerdscorner.android.plugin.utils.Strings;
 public abstract class BaseRepoListController {
 
     static final int LARGE_PAGE_SIZE = 500;
-    static final int SMALL_PAGE_SIZE = 10;
+    private static final int SMALL_PAGE_SIZE = 25;
 
     /* default */ GHOrganization ghOrganization;
-    /* default */ GHRepositoryWrapper currentRepository;
+    private GHRepositoryWrapper currentRepository;
 
     /* default */ Thread loaderThread;
     private Thread releasesLoaderThread;
     private Thread prsLoaderThread;
 
     /* default */ JTable reposTable;
-    /* default */ JTable repoReleasesTable;
-    /* default */ JTable repoOpenPullRequestsTable;
-    /* default */ JTable repoClosedPullRequestsTable;
+    private JTable repoReleasesTable;
+    private JTable repoOpenPullRequestsTable;
+    private JTable repoClosedPullRequestsTable;
 
     private JLabel repoComments;
     private int dataColumn;
@@ -74,7 +74,7 @@ public abstract class BaseRepoListController {
             public void mousePressed(int row, int column, int clickCount) {
                 currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(row, dataColumn);
                 if (clickCount == 1) {
-                    updateRepositoryInfo();
+                    updateRepositoryInfoTables();
                 } else if (clickCount == 2) {
                     openWebLink(currentRepository.getFullUrl());
                 }
@@ -207,7 +207,7 @@ public abstract class BaseRepoListController {
                 .forEach(ghPullRequest -> prListModel.addRow(new GHPullRequestWrapper(ghPullRequest)));
     }
 
-    private void updateRepositoryInfo() {
+    private void updateRepositoryInfoTables() {
         repoComments.setText(null);
         try {
             cancelThread(releasesLoaderThread);

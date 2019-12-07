@@ -4,7 +4,6 @@ public final class Strings {
 
     public static final String OAUTH_TOKEN_PROPERTY = "oauth_token_property";
     public static final String ORGANIZATION_NAME_PROPERTY = "organization_name_property";
-    public static final String FAVORITE_REPOSITORIES = "fav_repos";
 
     public static final String BLANK = "";
     public static final String EMPTY_LIST = "[]";

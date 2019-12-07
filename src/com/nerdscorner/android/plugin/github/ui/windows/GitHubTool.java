@@ -23,7 +23,6 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.nerdscorner.android.plugin.github.ui.controllers.AllReposController;
 import com.nerdscorner.android.plugin.github.ui.controllers.DependenciesController;
-import com.nerdscorner.android.plugin.github.ui.controllers.MyFavoriteReposController;
 import com.nerdscorner.android.plugin.github.ui.controllers.MyReposController;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
@@ -47,12 +46,6 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable myReposReleasesTable;
     private JTable myReposClosedPrTable;
     private MyReposController myReposController;
-
-    private JTable favoriteRepositoriesTable;
-    private JTable favoriteRepositoriesReleasesTable;
-    private JTable favoriteRepositoriesOpenPrsTable;
-    private JTable favoriteRepositoriesClosedPrsTable;
-    private MyFavoriteReposController myFavoriteReposController;
 
     private JTable allReposDependenciesTable;
     private JPanel dependenciesGraphPanel;
@@ -170,16 +163,6 @@ public class GitHubTool implements ToolWindowFactory {
                     myselfGitHub,
                     ghOrganization
             );
-            myFavoriteReposController = new MyFavoriteReposController(
-                    favoriteRepositoriesTable,
-                    favoriteRepositoriesReleasesTable,
-                    favoriteRepositoriesOpenPrsTable,
-                    favoriteRepositoriesClosedPrsTable,
-                    repoComments,
-                    myselfGitHub,
-                    ghOrganization
-            );
-
             dependenciesController = new DependenciesController(
                     allReposDependenciesTable,
                     dependenciesGraphPanel,
@@ -204,10 +187,6 @@ public class GitHubTool implements ToolWindowFactory {
         myReposController.cancel();
         myReposController.init();
         myReposController.loadRepositories();
-
-        myFavoriteReposController.cancel();
-        myFavoriteReposController.init();
-        myFavoriteReposController.loadRepositories();
 
         dependenciesController.cancel();
         dependenciesController.init();

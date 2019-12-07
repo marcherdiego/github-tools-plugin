@@ -7,7 +7,9 @@ import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -15,12 +17,14 @@ import javax.swing.RowSorter.SortKey;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper;
 import com.nerdscorner.android.plugin.github.events.FavoriteRepositoryUpdatedEvent;
-import com.nerdscorner.android.plugin.github.ui.tablemodels.GHMyReposTableModel;
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel;
+import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer;
 import com.nerdscorner.android.plugin.utils.Strings;
 
 public class MyReposController extends BaseRepoListController {
@@ -29,7 +33,7 @@ public class MyReposController extends BaseRepoListController {
 
     public MyReposController(JTable reposTable, JTable repoReleases, JTable repoPullRequestsTable, JTable repoClosedPullRequestsTable,
                              JLabel repoComments, GHMyself myselfGitHub, GHOrganization ghOrganization) {
-        super(reposTable, repoReleases, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments, ghOrganization, GHMyReposTableModel.COLUMN_NAME);
+        super(reposTable, repoReleases, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments, ghOrganization, GHRepoTableModel.COLUMN_NAME);
         this.myselfGitHub = myselfGitHub;
     }
 
@@ -37,12 +41,14 @@ public class MyReposController extends BaseRepoListController {
     public void loadRepositories() {
         cancelThread(loaderThread);
         loaderThread = new Thread(() -> {
-            final GHMyReposTableModel myReposTableModel = new GHMyReposTableModel(new ArrayList<>(), new String[]{Strings.FAVORITE, Strings.NAME});
+            final GHRepoTableModel myReposTableModel = new GHRepoTableModel(new ArrayList<>(), new String[]{Strings.NAME});
             reposTable.setModel(myReposTableModel);
-            reposTable.getColumnModel().getColumn(GHMyReposTableModel.COLUMN_FAV).setMaxWidth(40);
+            TableColumn column = reposTable.getColumn(Strings.NAME);
+            final Map<String, String> tooltips = new HashMap<>();
+            column.setCellRenderer(new ColumnRenderer(tooltips));
             TableRowSorter<TableModel> sorter = new TableRowSorter<>(reposTable.getModel());
             List<SortKey> sortKeys = new ArrayList<>();
-            sortKeys.add(new SortKey(GHMyReposTableModel.COLUMN_NAME, SortOrder.ASCENDING));
+            sortKeys.add(new SortKey(0, SortOrder.ASCENDING));
             sorter.setSortKeys(sortKeys);
             reposTable.setRowSorter(sorter);
             myselfGitHub
