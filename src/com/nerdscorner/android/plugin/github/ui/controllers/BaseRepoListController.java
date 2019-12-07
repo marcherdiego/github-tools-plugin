@@ -8,11 +8,7 @@ import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort;
 import org.kohsuke.github.GHRepository;
 
-import java.awt.Desktop;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -26,6 +22,7 @@ import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel;
+import com.nerdscorner.android.plugin.utils.GithubUtils;
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter;
 import com.nerdscorner.android.plugin.utils.Strings;
 
@@ -77,7 +74,7 @@ public abstract class BaseRepoListController {
                 if (clickCount == 1) {
                     updateRepositoryInfoTables();
                 } else if (clickCount == 2) {
-                    openWebLink(currentRepository.getFullUrl());
+                    GithubUtils.openWebLink(currentRepository.getFullUrl());
                 }
             }
         });
@@ -85,7 +82,7 @@ public abstract class BaseRepoListController {
             public void mousePressed(int row, int column, int clickCount) {
                 if (clickCount == 2) {
                     GHReleaseWrapper release = ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(row);
-                    openWebLink(release.getFullUrl());
+                    GithubUtils.openWebLink(release.getFullUrl());
                 }
             }
         });
@@ -93,7 +90,7 @@ public abstract class BaseRepoListController {
             public void mousePressed(int row, int column, int clickCount) {
                 if (clickCount == 2) {
                     GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoOpenPullRequestsTable.getModel()).getRow(row);
-                    openWebLink(pullRequest.getFullUrl());
+                    GithubUtils.openWebLink(pullRequest.getFullUrl());
                 }
             }
         });
@@ -101,7 +98,7 @@ public abstract class BaseRepoListController {
             public void mousePressed(int row, int column, int clickCount) {
                 if (clickCount == 2) {
                     GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoClosedPullRequestsTable.getModel()).getRow(row);
-                    openWebLink(pullRequest.getFullUrl());
+                    GithubUtils.openWebLink(pullRequest.getFullUrl());
                 }
             }
         });
@@ -133,25 +130,6 @@ public abstract class BaseRepoListController {
     void cancelThread(Thread thread) {
         if (thread != null) {
             thread.interrupt();
-        }
-    }
-
-    private static void openWebLink(URI uri) {
-        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-            try {
-                desktop.browse(uri);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static void openWebLink(URL url) {
-        try {
-            openWebLink(url.toURI());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
     }
 

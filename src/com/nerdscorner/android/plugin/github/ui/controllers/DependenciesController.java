@@ -3,10 +3,6 @@ package com.nerdscorner.android.plugin.github.ui.controllers;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 
-import java.awt.Desktop;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +24,7 @@ import com.nerdscorner.android.plugin.github.ui.dependencies.DependenciesPanel;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel;
 import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer;
+import com.nerdscorner.android.plugin.utils.GithubUtils;
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter;
 import com.nerdscorner.android.plugin.utils.Strings;
 
@@ -65,32 +62,13 @@ public class DependenciesController {
                     dependenciesPanel.setRepository(currentRepository);
                     dependenciesPanel.repaint();
                 } else if (clickCount == 2) {
-                    openWebLink(currentRepository.getFullUrl());
+                    GithubUtils.openWebLink(currentRepository.getFullUrl());
                 }
             }
         });
         reposTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         if (reposTable.getModel() instanceof BaseModel<?>) {
             ((BaseModel<?>) reposTable.getModel()).removeAllRows();
-        }
-    }
-
-    private static void openWebLink(URI uri) {
-        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-            try {
-                desktop.browse(uri);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static void openWebLink(URL url) {
-        try {
-            openWebLink(url.toURI());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
         }
     }
 

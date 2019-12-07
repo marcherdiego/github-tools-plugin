@@ -1,24 +1,33 @@
 package com.nerdscorner.android.plugin.github.domain;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.swing.JButton;
 
 public class Dependency {
+    private String id;
     private String name;
+    private int level;
     private String url;
     private List<Dependency> dependsOn;
+    private String dependsOnIds;
 
     private JButton widget;
 
-    public Dependency(String name, String url) {
-        this(name, url, new ArrayList<>());
+    public Dependency(String id, String name, int level, String url, @Nullable String dependsOnIds) {
+        this.id = id;
+        this.name = name;
+        this.level = level;
+        this.url = url;
+        this.dependsOnIds = dependsOnIds;
     }
 
-    public Dependency(String name, String url, @Nonnull List<Dependency> dependsOn) {
+    public Dependency(String id, String name, int level, String url, @Nonnull List<Dependency> dependsOn) {
+        this.id = id;
         this.name = name;
+        this.level = level;
         this.url = url;
         this.dependsOn = dependsOn;
     }
@@ -53,5 +62,29 @@ public class Dependency {
 
     public void setWidget(JButton widget) {
         this.widget = widget;
+    }
+
+    public String getDependsOnIds() {
+        return dependsOnIds;
+    }
+
+    public void setDependsOnIds(String dependsOnIds) {
+        this.dependsOnIds = dependsOnIds;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 }
