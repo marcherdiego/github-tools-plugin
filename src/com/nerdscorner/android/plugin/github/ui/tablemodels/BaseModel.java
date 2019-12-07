@@ -75,10 +75,6 @@ public abstract class BaseModel<T extends Wrapper> extends AbstractTableModel im
         return items.get(rowIndex);
     }
 
-    public void removeRepository(T repository) {
-        items.remove(repository);
-    }
-
     @Override
     public int compare(T one, T other) {
         return one.compare(other);

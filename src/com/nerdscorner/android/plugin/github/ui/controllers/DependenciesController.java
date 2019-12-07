@@ -60,7 +60,7 @@ public class DependenciesController {
                 GHRepositoryWrapper currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(row, GHRepoTableModel.COLUMN_NAME);
                 if (clickCount == 1) {
                     dependenciesPanel.setRepository(currentRepository);
-                    dependenciesPanel.repaint();
+                    //dependenciesPanel.repaint();
                 } else if (clickCount == 2) {
                     GithubUtils.openWebLink(currentRepository.getFullUrl());
                 }
