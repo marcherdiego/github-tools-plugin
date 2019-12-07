@@ -7,7 +7,6 @@ import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort;
 import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.PagedIterable;
 
 import java.awt.Desktop;
 import java.io.IOException;
@@ -49,6 +48,8 @@ public abstract class BaseRepoListController {
 
     private JLabel repoComments;
     private int dataColumn;
+
+    private boolean commentsUpdated;
 
     BaseRepoListController(JTable reposTable, JTable repoReleasesTable, JTable repoOpenPullRequestsTable, JTable repoClosedPullRequestsTable,
                            JLabel repoComments, GHOrganization ghOrganization, int dataColumn) {
@@ -154,30 +155,19 @@ public abstract class BaseRepoListController {
         }
     }
 
-    private void updateRepoComments(GHRepositoryWrapper repository) {
+    private void updateRepoComments(GHRepositoryWrapper repository, GHPullRequest latestClosedPr) {
         GHReleaseWrapper latestRelease = ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(0);
         if (latestRelease == null) {
             repoComments.setText(String.format(Strings.REPO_NO_RELEASES_YET, repository.getGhRepository().getName()));
             return;
         }
-        PagedIterable<GHPullRequest> closedPrs = repository
-                .getGhRepository()
-                .queryPullRequests()
-                .state(GHIssueState.CLOSED)
-                .sort(Sort.UPDATED)
-                .direction(GHDirection.DESC)
-                .list()
-                .withPageSize(LARGE_PAGE_SIZE);
-        for (GHPullRequest closedPr : closedPrs) {
-            Date mergedAt = closedPr.getMergedAt();
-            if (mergedAt != null) {
-                System.out.println(mergedAt + " latest pr closed");
-                System.out.println(latestRelease.getGhRelease().getPublished_at() + " latest release published");
-                boolean needsRelease = mergedAt.after(latestRelease.getGhRelease().getPublished_at());
-                String repoMessage = needsRelease ? Strings.REPO_NEEDS_RELEASE : Strings.REPO_DOES_NOT_NEED_RELEASE;
-                repoComments.setText(String.format(repoMessage, repository.getGhRepository().getName()));
-                return;
-            }
+        Date mergedAt = latestClosedPr.getMergedAt();
+        if (mergedAt != null) {
+            System.out.println(mergedAt + " latest pr closed");
+            System.out.println(latestRelease.getGhRelease().getPublished_at() + " latest release published");
+            boolean needsRelease = mergedAt.after(latestRelease.getGhRelease().getPublished_at());
+            String repoMessage = needsRelease ? Strings.REPO_NEEDS_RELEASE : Strings.REPO_DOES_NOT_NEED_RELEASE;
+            repoComments.setText(String.format(repoMessage, repository.getGhRepository().getName()));
         }
     }
 
@@ -190,21 +180,37 @@ public abstract class BaseRepoListController {
                 .forEach(ghRelease -> repoReleasesModel.addRow(new GHReleaseWrapper(ghRelease)));
     }
 
-    private void loadPullRequests(GHIssueState state, JTable table) {
-        final GHPullRequestTableModel prListModel = new GHPullRequestTableModel(
+    private void loadPullRequests() {
+        final GHPullRequestTableModel openPrsModel = new GHPullRequestTableModel(
                 new ArrayList<>(),
                 new String[]{Strings.TITLE, Strings.AUTHOR, Strings.DATE}
         );
-        table.setModel(prListModel);
+        final GHPullRequestTableModel closedPrsModel = new GHPullRequestTableModel(
+                new ArrayList<>(),
+                new String[]{Strings.TITLE, Strings.AUTHOR, Strings.DATE}
+        );
+        repoOpenPullRequestsTable.setModel(openPrsModel);
+        repoClosedPullRequestsTable.setModel(closedPrsModel);
+        commentsUpdated = false;
         currentRepository
                 .getGhRepository()
                 .queryPullRequests()
-                .state(state)
+                .state(GHIssueState.ALL)
                 .sort(Sort.UPDATED)
                 .direction(GHDirection.DESC)
                 .list()
                 .withPageSize(SMALL_PAGE_SIZE)
-                .forEach(ghPullRequest -> prListModel.addRow(new GHPullRequestWrapper(ghPullRequest)));
+                .forEach(pullRequest -> {
+                    if (pullRequest.getState() == GHIssueState.OPEN) {
+                        openPrsModel.addRow(new GHPullRequestWrapper(pullRequest));
+                    } else {
+                        closedPrsModel.addRow(new GHPullRequestWrapper(pullRequest));
+                        if (!commentsUpdated) {
+                            commentsUpdated = true;
+                            updateRepoComments(currentRepository, pullRequest);
+                        }
+                    }
+                });
     }
 
     private void updateRepositoryInfoTables() {
@@ -216,17 +222,13 @@ public abstract class BaseRepoListController {
             releasesLoaderThread = new Thread(() -> {
                 try {
                     loadReleases(currentRepository.getGhRepository());
-                    updateRepoComments(currentRepository);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
             releasesLoaderThread.start();
 
-            prsLoaderThread = new Thread(() -> {
-                loadPullRequests(GHIssueState.OPEN, repoOpenPullRequestsTable);
-                loadPullRequests(GHIssueState.CLOSED, repoClosedPullRequestsTable);
-            });
+            prsLoaderThread = new Thread(this::loadPullRequests);
             prsLoaderThread.start();
         } catch (Exception e) {
             e.printStackTrace();
