@@ -1,5 +1,6 @@
 package com.nerdscorner.android.plugin.github.ui.controllers;
 
+import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 
 import java.awt.Desktop;
@@ -38,10 +39,12 @@ public class DependenciesController {
     private final JTable reposTable;
     private final DependenciesPanel dependenciesPanel;
     private GHOrganization ghOrganization;
+    private GHMyself myselfGitHub;
 
-    public DependenciesController(JTable reposTable, JPanel dependenciesGraphPanel, GHOrganization ghOrganization) {
+    public DependenciesController(JTable reposTable, JPanel dependenciesGraphPanel, GHOrganization ghOrganization, GHMyself myselfGitHub) {
         this.reposTable = reposTable;
         this.ghOrganization = ghOrganization;
+        this.myselfGitHub = myselfGitHub;
         this.dependenciesPanel = new DependenciesPanel();
         GridConstraints gridConstraints = new GridConstraints();
         gridConstraints.setRow(0);
@@ -115,6 +118,17 @@ public class DependenciesController {
                         GHRepositoryWrapper ghRepositoryWrapper = new GHRepositoryWrapper(repository);
                         SwingUtilities.invokeLater(() -> reposTableModel.addRow(ghRepositoryWrapper));
                         tooltips.put(ghRepositoryWrapper.getName(), ghRepositoryWrapper.getDescription());
+                    });
+            myselfGitHub
+                    .listSubscriptions()
+                    .withPageSize(LARGE_PAGE_SIZE)
+                    .forEach(repository -> {
+                        if (repository.isFork()) {
+                            //Ignore forks or projects that doesn't belong to this organization
+                            return;
+                        }
+                        GHRepositoryWrapper ghRepositoryWrapper = new GHRepositoryWrapper(repository);
+                        SwingUtilities.invokeLater(() -> reposTableModel.addRow(ghRepositoryWrapper));
                     });
         });
         loaderThread.start();

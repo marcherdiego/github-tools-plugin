@@ -32,13 +32,13 @@ public class GHPullRequestTableModel extends BaseModel<GHPullRequestWrapper> imp
             case COLUMN_AUTHOR:
                 try {
                     return pullRequest.getUser().getLogin();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     return null;
                 }
             case COLUMN_DATE:
                 try {
-                    return new SimpleDateFormat(Strings.DATE_FORMAT).format(pullRequest.getCreatedAt());
-                } catch (IOException e) {
+                    return new SimpleDateFormat(Strings.DATE_FORMAT).format(pullRequest.getUpdatedAt());
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
         }

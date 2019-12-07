@@ -6,7 +6,6 @@ import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort;
-import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.PagedIterable;
 
@@ -17,13 +16,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import javax.annotation.Nullable;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
 
 import com.nerdscorner.android.plugin.github.domain.gh.GHPullRequestWrapper;
 import com.nerdscorner.android.plugin.github.domain.gh.GHReleaseWrapper;
@@ -37,6 +33,7 @@ import com.nerdscorner.android.plugin.utils.Strings;
 public abstract class BaseRepoListController {
 
     static final int LARGE_PAGE_SIZE = 500;
+    static final int SMALL_PAGE_SIZE = 10;
 
     /* default */ GHOrganization ghOrganization;
     /* default */ GHRepositoryWrapper currentRepository;
@@ -47,16 +44,18 @@ public abstract class BaseRepoListController {
 
     /* default */ JTable reposTable;
     /* default */ JTable repoReleasesTable;
-    /* default */ JTable repoPullRequestsTable;
+    /* default */ JTable repoOpenPullRequestsTable;
+    /* default */ JTable repoClosedPullRequestsTable;
 
     private JLabel repoComments;
     private int dataColumn;
 
-    BaseRepoListController(JTable reposTable, JTable repoReleasesTable, JTable repoPullRequestsTable, JLabel repoComments,
-                           GHOrganization ghOrganization, int dataColumn) {
+    BaseRepoListController(JTable reposTable, JTable repoReleasesTable, JTable repoOpenPullRequestsTable, JTable repoClosedPullRequestsTable,
+                           JLabel repoComments, GHOrganization ghOrganization, int dataColumn) {
         this.reposTable = reposTable;
         this.repoReleasesTable = repoReleasesTable;
-        this.repoPullRequestsTable = repoPullRequestsTable;
+        this.repoOpenPullRequestsTable = repoOpenPullRequestsTable;
+        this.repoClosedPullRequestsTable = repoClosedPullRequestsTable;
         this.repoComments = repoComments;
         this.ghOrganization = ghOrganization;
         this.dataColumn = dataColumn;
@@ -75,7 +74,7 @@ public abstract class BaseRepoListController {
             public void mousePressed(int row, int column, int clickCount) {
                 currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(row, dataColumn);
                 if (clickCount == 1) {
-                    updateRepositoryInfo(currentRepository);
+                    updateRepositoryInfo();
                 } else if (clickCount == 2) {
                     openWebLink(currentRepository.getFullUrl());
                 }
@@ -89,17 +88,26 @@ public abstract class BaseRepoListController {
                 }
             }
         });
-        repoPullRequestsTable.addMouseListener(new SimpleMouseAdapter() {
+        repoOpenPullRequestsTable.addMouseListener(new SimpleMouseAdapter() {
             public void mousePressed(int row, int column, int clickCount) {
                 if (clickCount == 2) {
-                    GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoPullRequestsTable.getModel()).getRow(row);
+                    GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoOpenPullRequestsTable.getModel()).getRow(row);
+                    openWebLink(pullRequest.getFullUrl());
+                }
+            }
+        });
+        repoClosedPullRequestsTable.addMouseListener(new SimpleMouseAdapter() {
+            public void mousePressed(int row, int column, int clickCount) {
+                if (clickCount == 2) {
+                    GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoClosedPullRequestsTable.getModel()).getRow(row);
                     openWebLink(pullRequest.getFullUrl());
                 }
             }
         });
         reposTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         repoReleasesTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        repoPullRequestsTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        repoOpenPullRequestsTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        repoClosedPullRequestsTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         if (reposTable.getModel() instanceof BaseModel<?>) {
             ((BaseModel<?>) reposTable.getModel()).removeAllRows();
@@ -107,8 +115,11 @@ public abstract class BaseRepoListController {
         if (repoReleasesTable.getModel() instanceof BaseModel<?>) {
             ((BaseModel<?>) repoReleasesTable.getModel()).removeAllRows();
         }
-        if (repoPullRequestsTable.getModel() instanceof BaseModel<?>) {
-            ((BaseModel<?>) repoPullRequestsTable.getModel()).removeAllRows();
+        if (repoOpenPullRequestsTable.getModel() instanceof BaseModel<?>) {
+            ((BaseModel<?>) repoOpenPullRequestsTable.getModel()).removeAllRows();
+        }
+        if (repoClosedPullRequestsTable.getModel() instanceof BaseModel<?>) {
+            ((BaseModel<?>) repoClosedPullRequestsTable.getModel()).removeAllRows();
         }
     }
 
@@ -143,7 +154,8 @@ public abstract class BaseRepoListController {
         }
     }
 
-    private void updateRepoComments(GHRepositoryWrapper repository, @Nullable GHReleaseWrapper latestRelease) {
+    private void updateRepoComments(GHRepositoryWrapper repository) {
+        GHReleaseWrapper latestRelease = ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(0);
         if (latestRelease == null) {
             repoComments.setText(String.format(Strings.REPO_NO_RELEASES_YET, repository.getGhRepository().getName()));
             return;
@@ -159,6 +171,8 @@ public abstract class BaseRepoListController {
         for (GHPullRequest closedPr : closedPrs) {
             Date mergedAt = closedPr.getMergedAt();
             if (mergedAt != null) {
+                System.out.println(mergedAt + " latest pr closed");
+                System.out.println(latestRelease.getGhRelease().getPublished_at() + " latest release published");
                 boolean needsRelease = mergedAt.after(latestRelease.getGhRelease().getPublished_at());
                 String repoMessage = needsRelease ? Strings.REPO_NEEDS_RELEASE : Strings.REPO_DOES_NOT_NEED_RELEASE;
                 repoComments.setText(String.format(repoMessage, repository.getGhRepository().getName()));
@@ -167,40 +181,33 @@ public abstract class BaseRepoListController {
         }
     }
 
-    private void loadReleases(GHRepository repository, JTable releasesTable) throws IOException {
+    private void loadReleases(GHRepository repository) throws IOException {
         final GHReleaseTableModel repoReleasesModel = new GHReleaseTableModel(new ArrayList<>(), new String[]{Strings.TAG, Strings.DATE});
-        releasesTable.setModel(repoReleasesModel);
-        List<GHRelease> releases = repository
+        repoReleasesTable.setModel(repoReleasesModel);
+        repository
                 .listReleases()
-                .withPageSize(LARGE_PAGE_SIZE)
-                .asList();
-        for (GHRelease release : releases) {
-            repoReleasesModel.addRow(new GHReleaseWrapper(release));
-        }
-        SwingUtilities.invokeLater(() -> repoReleasesModel.fireTableRowsInserted(releases.size(), releases.size()));
+                .withPageSize(SMALL_PAGE_SIZE)
+                .forEach(ghRelease -> repoReleasesModel.addRow(new GHReleaseWrapper(ghRelease)));
     }
 
-    private void loadPullRequests(GHRepository repository, JTable prsTable) {
-        final GHPullRequestTableModel repoPullRequestsModel = new GHPullRequestTableModel(
+    private void loadPullRequests(GHIssueState state, JTable table) {
+        final GHPullRequestTableModel prListModel = new GHPullRequestTableModel(
                 new ArrayList<>(),
                 new String[]{Strings.TITLE, Strings.AUTHOR, Strings.DATE}
         );
-        prsTable.setModel(repoPullRequestsModel);
-        List<GHPullRequest> pullRequests = repository
+        table.setModel(prListModel);
+        currentRepository
+                .getGhRepository()
                 .queryPullRequests()
-                .state(GHIssueState.OPEN)
+                .state(state)
                 .sort(Sort.UPDATED)
                 .direction(GHDirection.DESC)
                 .list()
-                .withPageSize(LARGE_PAGE_SIZE)
-                .asList();
-        for (GHPullRequest ghPullRequest : pullRequests) {
-            repoPullRequestsModel.addRow(new GHPullRequestWrapper(ghPullRequest));
-        }
-        SwingUtilities.invokeLater(() -> repoPullRequestsModel.fireTableRowsInserted(pullRequests.size(), pullRequests.size()));
+                .withPageSize(SMALL_PAGE_SIZE)
+                .forEach(ghPullRequest -> prListModel.addRow(new GHPullRequestWrapper(ghPullRequest)));
     }
 
-    private void updateRepositoryInfo(GHRepositoryWrapper repository) {
+    private void updateRepositoryInfo() {
         repoComments.setText(null);
         try {
             cancelThread(releasesLoaderThread);
@@ -208,15 +215,18 @@ public abstract class BaseRepoListController {
 
             releasesLoaderThread = new Thread(() -> {
                 try {
-                    loadReleases(repository.getGhRepository(), repoReleasesTable);
-                    updateRepoComments(repository, ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(0));
+                    loadReleases(currentRepository.getGhRepository());
+                    updateRepoComments(currentRepository);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
             releasesLoaderThread.start();
 
-            prsLoaderThread = new Thread(() -> loadPullRequests(repository.getGhRepository(), repoPullRequestsTable));
+            prsLoaderThread = new Thread(() -> {
+                loadPullRequests(GHIssueState.OPEN, repoOpenPullRequestsTable);
+                loadPullRequests(GHIssueState.CLOSED, repoClosedPullRequestsTable);
+            });
             prsLoaderThread.start();
         } catch (Exception e) {
             e.printStackTrace();

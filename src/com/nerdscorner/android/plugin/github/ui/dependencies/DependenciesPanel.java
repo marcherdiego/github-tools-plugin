@@ -16,6 +16,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.nerdscorner.android.plugin.github.domain.Dependency;
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper;
+import com.nerdscorner.android.plugin.utils.ArtifactoryUtils;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
 import javafx.util.Pair;
 
@@ -37,6 +38,7 @@ public class DependenciesPanel extends JPanel {
     }
 
     public void setRepository(GHRepositoryWrapper repository) {
+        ArtifactoryUtils.getDependencies(repository);
         Map<Integer, List<Dependency>> dependenciesByLevel = new HashMap<>();
         //TODO get this from the repo
         Dependency mvpDependency = new Dependency("MVP", "");

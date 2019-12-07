@@ -153,19 +153,42 @@
                           </component>
                         </children>
                       </scrollpane>
-                      <scrollpane id="3895c">
+                      <grid id="53112" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
                         <constraints>
-                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties/>
-                        <border type="none" title="Open PRs"/>
+                        <border type="none"/>
                         <children>
-                          <component id="47e73" class="javax.swing.JTable" binding="allRepoPullRequestsTable">
-                            <constraints/>
+                          <scrollpane id="3895c">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
                             <properties/>
-                          </component>
+                            <border type="none" title="Open Pull Requests"/>
+                            <children>
+                              <component id="47e73" class="javax.swing.JTable" binding="allRepoOpenPullRequestsTable">
+                                <constraints/>
+                                <properties/>
+                              </component>
+                            </children>
+                          </scrollpane>
+                          <scrollpane id="9a16b">
+                            <constraints>
+                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none" title="Closed Pull Requests"/>
+                            <children>
+                              <component id="50474" class="javax.swing.JTable" binding="allRepoClosedPullRequestsTable">
+                                <constraints/>
+                                <properties/>
+                              </component>
+                            </children>
+                          </scrollpane>
                         </children>
-                      </scrollpane>
+                      </grid>
                     </children>
                   </grid>
                   <grid id="71cce" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -202,19 +225,42 @@
                           </component>
                         </children>
                       </scrollpane>
-                      <scrollpane id="a249f">
+                      <grid id="63d66" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
                         <constraints>
-                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties/>
-                        <border type="none" title="Open PRs"/>
+                        <border type="none"/>
                         <children>
-                          <component id="f94e3" class="javax.swing.JTable" binding="myReposOpenPrTable">
-                            <constraints/>
+                          <scrollpane id="a249f">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
                             <properties/>
-                          </component>
+                            <border type="none" title="Open Pull Requests"/>
+                            <children>
+                              <component id="f94e3" class="javax.swing.JTable" binding="myReposOpenPrTable">
+                                <constraints/>
+                                <properties/>
+                              </component>
+                            </children>
+                          </scrollpane>
+                          <scrollpane id="7fe46">
+                            <constraints>
+                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none" title="Closed Pull Requests"/>
+                            <children>
+                              <component id="75d80" class="javax.swing.JTable" binding="myReposClosedPrTable">
+                                <constraints/>
+                                <properties/>
+                              </component>
+                            </children>
+                          </scrollpane>
                         </children>
-                      </scrollpane>
+                      </grid>
                     </children>
                   </grid>
                   <grid id="d0c60" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -251,19 +297,42 @@
                           </component>
                         </children>
                       </scrollpane>
-                      <scrollpane id="42703">
+                      <grid id="d0959" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                        <margin top="0" left="0" bottom="0" right="0"/>
                         <constraints>
-                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                         </constraints>
                         <properties/>
-                        <border type="none" title="Open PRs"/>
+                        <border type="none"/>
                         <children>
-                          <component id="60095" class="javax.swing.JTable" binding="favoriteRepositoriesOpenPrsTable">
-                            <constraints/>
+                          <scrollpane id="42703">
+                            <constraints>
+                              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
                             <properties/>
-                          </component>
+                            <border type="none" title="Open Pull Requests"/>
+                            <children>
+                              <component id="60095" class="javax.swing.JTable" binding="favoriteRepositoriesOpenPrsTable">
+                                <constraints/>
+                                <properties/>
+                              </component>
+                            </children>
+                          </scrollpane>
+                          <scrollpane id="6ff36">
+                            <constraints>
+                              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                            </constraints>
+                            <properties/>
+                            <border type="none" title="Closed Pull Requests"/>
+                            <children>
+                              <component id="41f8e" class="javax.swing.JTable" binding="favoriteRepositoriesClosedPrsTable">
+                                <constraints/>
+                                <properties/>
+                              </component>
+                            </children>
+                          </scrollpane>
                         </children>
-                      </scrollpane>
+                      </grid>
                     </children>
                   </grid>
                   <grid id="f1f66" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

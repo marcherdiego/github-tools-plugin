@@ -28,9 +28,9 @@ public class MyFavoriteReposController extends BaseRepoListController {
     private final RepositoryUtils repositoryUtils;
     private final GHMyself myselfGitHub;
 
-    public MyFavoriteReposController(JTable reposTable, JTable repoReleases, JTable repoPullRequestsTable, JLabel repoComments,
-                                     GHMyself myselfGitHub, GHOrganization ghOrganization) {
-        super(reposTable, repoReleases, repoPullRequestsTable, repoComments, ghOrganization, GHMyReposTableModel.COLUMN_NAME);
+    public MyFavoriteReposController(JTable reposTable, JTable repoReleases, JTable repoPullRequestsTable, JTable repoClosedPullRequestsTable,
+                                     JLabel repoComments, GHMyself myselfGitHub, GHOrganization ghOrganization) {
+        super(reposTable, repoReleases, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments, ghOrganization, GHMyReposTableModel.COLUMN_NAME);
         this.myselfGitHub = myselfGitHub;
         repositoryUtils = RepositoryUtils.getInstance();
     }
@@ -47,15 +47,18 @@ public class MyFavoriteReposController extends BaseRepoListController {
             sortKeys.add(new SortKey(GHMyReposTableModel.COLUMN_NAME, SortOrder.ASCENDING));
             sorter.setSortKeys(sortKeys);
             reposTable.setRowSorter(sorter);
-            myselfGitHub.listSubscriptions().withPageSize(LARGE_PAGE_SIZE).forEach(repository -> {
-                if (repository.isFork()
-                        || !repository.getFullName().startsWith(getOrganizationName())
-                        || !repositoryUtils.isFavorite(repository.getName())) {
-                    //Ignore forks, projects that doesn't belong to this organization, or projects that are not in favorites
-                    return;
-                }
-                SwingUtilities.invokeLater(() -> myReposTableModel.addRow(new GHRepositoryWrapper(repository)));
-            });
+            myselfGitHub
+                    .listSubscriptions()
+                    .withPageSize(LARGE_PAGE_SIZE)
+                    .forEach(repository -> {
+                        if (repository.isFork()
+                                || !repository.getFullName().startsWith(getOrganizationName())
+                                || !repositoryUtils.isFavorite(repository.getName())) {
+                            //Ignore forks, projects that doesn't belong to this organization, or projects that are not in favorites
+                            return;
+                        }
+                        SwingUtilities.invokeLater(() -> myReposTableModel.addRow(new GHRepositoryWrapper(repository)));
+                    });
         });
         loaderThread.start();
     }
@@ -69,7 +72,7 @@ public class MyFavoriteReposController extends BaseRepoListController {
             myReposTableModel.removeRepository(event.repository);
             if (event.repository == currentRepository) {
                 ((BaseModel<?>) repoReleasesTable.getModel()).removeAllRows();
-                ((BaseModel<?>) repoPullRequestsTable.getModel()).removeAllRows();
+                ((BaseModel<?>) repoOpenPullRequestsTable.getModel()).removeAllRows();
             }
         }
         myReposTableModel.fireTableDataChanged();

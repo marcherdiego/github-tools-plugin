@@ -1,13 +1,15 @@
 package com.nerdscorner.android.plugin.github.ui.tablemodels;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.nerdscorner.android.plugin.github.domain.gh.Wrapper;
 import com.nerdscorner.android.plugin.utils.ListUtils;
 
-public abstract class BaseModel<T> extends AbstractTableModel implements Serializable {
+public abstract class BaseModel<T extends Wrapper> extends AbstractTableModel implements Serializable, Comparator<T> {
     public static final int COLUMN_NAME = 0;
 
     private final int colsCount;
@@ -24,6 +26,7 @@ public abstract class BaseModel<T> extends AbstractTableModel implements Seriali
     public void addRow(T item) {
         int row = items.size();
         items.add(item);
+        items.sort(this);
         fireTableRowsInserted(row, row);
     }
 
@@ -74,5 +77,10 @@ public abstract class BaseModel<T> extends AbstractTableModel implements Seriali
 
     public void removeRepository(T repository) {
         items.remove(repository);
+    }
+
+    @Override
+    public int compare(T one, T other) {
+        return one.compare(other);
     }
 }

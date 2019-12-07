@@ -1,6 +1,5 @@
 package com.nerdscorner.android.plugin.github.ui.tablemodels;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -26,11 +25,7 @@ public class GHReleaseTableModel extends BaseModel<GHReleaseWrapper> implements 
             case COLUMN_TAG:
                 return release.getGhRelease().getName();
             case COLUMN_DATE:
-                try {
-                    return new SimpleDateFormat(Strings.DATE_FORMAT).format(release.getGhRelease().getCreatedAt());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                return new SimpleDateFormat(Strings.DATE_FORMAT).format(release.getGhRelease().getPublished_at());
         }
         return null;
     }

@@ -27,9 +27,9 @@ public class MyReposController extends BaseRepoListController {
 
     private GHMyself myselfGitHub;
 
-    public MyReposController(JTable reposTable, JTable repoReleases, JTable repoPullRequestsTable, JLabel repoComments,
-                             GHMyself myselfGitHub, GHOrganization ghOrganization) {
-        super(reposTable, repoReleases, repoPullRequestsTable, repoComments, ghOrganization, GHMyReposTableModel.COLUMN_NAME);
+    public MyReposController(JTable reposTable, JTable repoReleases, JTable repoPullRequestsTable, JTable repoClosedPullRequestsTable,
+                             JLabel repoComments, GHMyself myselfGitHub, GHOrganization ghOrganization) {
+        super(reposTable, repoReleases, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments, ghOrganization, GHMyReposTableModel.COLUMN_NAME);
         this.myselfGitHub = myselfGitHub;
     }
 
@@ -45,13 +45,16 @@ public class MyReposController extends BaseRepoListController {
             sortKeys.add(new SortKey(GHMyReposTableModel.COLUMN_NAME, SortOrder.ASCENDING));
             sorter.setSortKeys(sortKeys);
             reposTable.setRowSorter(sorter);
-            myselfGitHub.listSubscriptions().withPageSize(LARGE_PAGE_SIZE).forEach(repository -> {
-                if (repository.isFork() || !repository.getFullName().startsWith(getOrganizationName())) {
-                    //Ignore forks or projects that doesn't belong to this organization
-                    return;
-                }
-                SwingUtilities.invokeLater(() -> myReposTableModel.addRow(new GHRepositoryWrapper(repository)));
-            });
+            myselfGitHub
+                    .listSubscriptions()
+                    .withPageSize(LARGE_PAGE_SIZE)
+                    .forEach(repository -> {
+                        if (repository.isFork() || !repository.getFullName().startsWith(getOrganizationName())) {
+                            //Ignore forks or projects that doesn't belong to this organization
+                            return;
+                        }
+                        SwingUtilities.invokeLater(() -> myReposTableModel.addRow(new GHRepositoryWrapper(repository)));
+                    });
         });
         loaderThread.start();
     }

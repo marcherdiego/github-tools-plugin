@@ -38,17 +38,20 @@ public class GitHubTool implements ToolWindowFactory {
 
     private JTable allReposTable;
     private JTable allRepoReleases;
-    private JTable allRepoPullRequestsTable;
+    private JTable allRepoOpenPullRequestsTable;
+    private JTable allRepoClosedPullRequestsTable;
     private AllReposController allAllReposController;
 
     private JTable myReposTable;
     private JTable myReposOpenPrTable;
     private JTable myReposReleasesTable;
+    private JTable myReposClosedPrTable;
     private MyReposController myReposController;
 
     private JTable favoriteRepositoriesTable;
     private JTable favoriteRepositoriesReleasesTable;
     private JTable favoriteRepositoriesOpenPrsTable;
+    private JTable favoriteRepositoriesClosedPrsTable;
     private MyFavoriteReposController myFavoriteReposController;
 
     private JTable allReposDependenciesTable;
@@ -153,7 +156,8 @@ public class GitHubTool implements ToolWindowFactory {
             allAllReposController = new AllReposController(
                     allReposTable,
                     allRepoReleases,
-                    allRepoPullRequestsTable,
+                    allRepoOpenPullRequestsTable,
+                    allRepoClosedPullRequestsTable,
                     repoComments,
                     ghOrganization
             );
@@ -161,6 +165,7 @@ public class GitHubTool implements ToolWindowFactory {
                     myReposTable,
                     myReposReleasesTable,
                     myReposOpenPrTable,
+                    myReposClosedPrTable,
                     repoComments,
                     myselfGitHub,
                     ghOrganization
@@ -169,6 +174,7 @@ public class GitHubTool implements ToolWindowFactory {
                     favoriteRepositoriesTable,
                     favoriteRepositoriesReleasesTable,
                     favoriteRepositoriesOpenPrsTable,
+                    favoriteRepositoriesClosedPrsTable,
                     repoComments,
                     myselfGitHub,
                     ghOrganization
@@ -177,7 +183,8 @@ public class GitHubTool implements ToolWindowFactory {
             dependenciesController = new DependenciesController(
                     allReposDependenciesTable,
                     dependenciesGraphPanel,
-                    ghOrganization
+                    ghOrganization,
+                    myselfGitHub
             );
             loadTablesInfo();
             return true;

@@ -27,8 +27,9 @@ import com.nerdscorner.android.plugin.utils.Strings;
 
 public class AllReposController extends BaseRepoListController {
 
-    public AllReposController(JTable reposTable, JTable repoReleases, JTable repoPullRequestsTable, JLabel repoComments, GHOrganization ghOrganization) {
-        super(reposTable, repoReleases, repoPullRequestsTable, repoComments, ghOrganization, GHRepoTableModel.COLUMN_NAME);
+    public AllReposController(JTable reposTable, JTable repoReleases, JTable repoPullRequestsTable, JTable repoClosedPullRequestsTable,
+                              JLabel repoComments, GHOrganization ghOrganization) {
+        super(reposTable, repoReleases, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments, ghOrganization, GHRepoTableModel.COLUMN_NAME);
     }
 
     @Override
