@@ -27,6 +27,7 @@ import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer;
 import com.nerdscorner.android.plugin.utils.GithubUtils;
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter;
 import com.nerdscorner.android.plugin.utils.Strings;
+import com.nerdscorner.android.plugin.utils.ThreadUtils;
 
 
 import static com.nerdscorner.android.plugin.github.ui.controllers.BaseRepoListController.LARGE_PAGE_SIZE;
@@ -50,7 +51,7 @@ public class DependenciesController {
     }
 
     public void cancel() {
-        cancelThread(loaderThread);
+        ThreadUtils.cancelThread(loaderThread);
         dependenciesPanel.clear();
     }
 
@@ -60,7 +61,6 @@ public class DependenciesController {
                 GHRepositoryWrapper currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(row, GHRepoTableModel.COLUMN_NAME);
                 if (clickCount == 1) {
                     dependenciesPanel.setRepository(currentRepository);
-                    //dependenciesPanel.repaint();
                 } else if (clickCount == 2) {
                     GithubUtils.openWebLink(currentRepository.getFullUrl());
                 }
@@ -73,7 +73,7 @@ public class DependenciesController {
     }
 
     public void loadRepositories() {
-        cancelThread(loaderThread);
+        ThreadUtils.cancelThread(loaderThread);
         loaderThread = new Thread(() -> {
             final GHRepoTableModel reposTableModel = new GHRepoTableModel(new ArrayList<>(), new String[]{Strings.NAME});
             reposTable.setModel(reposTableModel);
@@ -110,11 +110,5 @@ public class DependenciesController {
                     });
         });
         loaderThread.start();
-    }
-
-    private void cancelThread(Thread thread) {
-        if (thread != null) {
-            thread.interrupt();
-        }
     }
 }

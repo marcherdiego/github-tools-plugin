@@ -20,6 +20,13 @@ import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper;
 
 public class DependenciesUtils {
 
+    /**
+     * Builds a map to create the dependencies tree
+     *
+     * @param repositoryWrapper the repository to find dependencies from
+     *
+     * @return a {@link Map} containing the dependencies with its level in the dependencies tree
+     */
     @Nullable
     public static Map<Integer, List<Dependency>> getDependencies(GHRepositoryWrapper repositoryWrapper) {
         try {
@@ -27,18 +34,21 @@ public class DependenciesUtils {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             GHRepository repository = repositoryWrapper.getGhRepository();
+            // Try to fetch the dependencies.xml file from the repository
             Document document = builder.parse(
                     repository
                             .getFileContent("/dependencies.xml")
                             .read()
             );
+
+            // Find all dependency nodes
             NodeList nodes = document.getDocumentElement().getElementsByTagName("dependency");
             List<Dependency> dependencies = new ArrayList<>();
             List<Dependency> levelOneDependencies = new ArrayList<>();
             for (int temp = 0; temp < nodes.getLength(); temp++) {
                 Node node = nodes.item(temp);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
-                    //Print each employee's detail
+                    // Get dependency metadata
                     Element element = (Element) node;
                     String dependencyId = element.getAttribute("id");
                     String dependencyName = element.getAttribute("name");
@@ -46,6 +56,7 @@ public class DependenciesUtils {
                     String dependencyUrl = element.getAttribute("url");
                     String dependencyDependencies = element.getAttribute("depends_on");
 
+                    // Build the dependency object
                     Dependency dependency = new Dependency(
                             dependencyId,
                             dependencyName,
@@ -54,11 +65,15 @@ public class DependenciesUtils {
                             dependencyDependencies
                     );
                     dependencies.add(dependency);
+
+                    // Save first level dependencies apart because we need the root to be linked with them later
                     if (dependencyLevel == 1) {
                         levelOneDependencies.add(dependency);
                     }
                 }
             }
+
+            // Add the root dependency (this repository) with the level one dependencies as children
             dependencies.add(
                     new Dependency(
                             repository.getFullName(),
@@ -71,7 +86,7 @@ public class DependenciesUtils {
 
             dependencies.forEach(dependency -> {
                 dependenciesMap.computeIfAbsent(dependency.getLevel(), k -> new ArrayList<>());
-                dependency.setDependsOn(getDependencies(dependency, dependencies));
+                dependency.setDependsOn(getDependenciesById(dependency, dependencies));
                 dependenciesMap
                         .get(dependency.getLevel())
                         .add(dependency);
@@ -84,7 +99,7 @@ public class DependenciesUtils {
     }
 
     @Nullable
-    private static List<Dependency> getDependencies(Dependency dependency, List<Dependency> dependencies) {
+    private static List<Dependency> getDependenciesById(Dependency dependency, List<Dependency> dependencies) {
         if (dependency.getDependsOnIds() == null) {
             return dependency.getDependsOn();
         }

@@ -25,6 +25,7 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel;
 import com.nerdscorner.android.plugin.utils.GithubUtils;
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter;
 import com.nerdscorner.android.plugin.utils.Strings;
+import com.nerdscorner.android.plugin.utils.ThreadUtils;
 
 public abstract class BaseRepoListController {
 
@@ -122,15 +123,9 @@ public abstract class BaseRepoListController {
     }
 
     public void cancel() {
-        cancelThread(loaderThread);
-        cancelThread(releasesLoaderThread);
-        cancelThread(prsLoaderThread);
-    }
-
-    void cancelThread(Thread thread) {
-        if (thread != null) {
-            thread.interrupt();
-        }
+        ThreadUtils.cancelThread(loaderThread);
+        ThreadUtils.cancelThread(releasesLoaderThread);
+        ThreadUtils.cancelThread(prsLoaderThread);
     }
 
     private void updateRepoComments(GHRepositoryWrapper repository, GHPullRequest latestClosedPr) {
@@ -194,8 +189,8 @@ public abstract class BaseRepoListController {
     private void updateRepositoryInfoTables() {
         repoComments.setText(null);
         try {
-            cancelThread(releasesLoaderThread);
-            cancelThread(prsLoaderThread);
+            ThreadUtils.cancelThread(releasesLoaderThread);
+            ThreadUtils.cancelThread(prsLoaderThread);
 
             releasesLoaderThread = new Thread(() -> {
                 try {

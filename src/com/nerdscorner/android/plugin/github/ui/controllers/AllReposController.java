@@ -24,6 +24,7 @@ import com.nerdscorner.android.plugin.github.events.FavoriteRepositoryUpdatedEve
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel;
 import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer;
 import com.nerdscorner.android.plugin.utils.Strings;
+import com.nerdscorner.android.plugin.utils.ThreadUtils;
 
 public class AllReposController extends BaseRepoListController {
 
@@ -34,7 +35,7 @@ public class AllReposController extends BaseRepoListController {
 
     @Override
     public void loadRepositories() {
-        cancelThread(loaderThread);
+        ThreadUtils.cancelThread(loaderThread);
         loaderThread = new Thread(() -> {
             final GHRepoTableModel reposTableModel = new GHRepoTableModel(new ArrayList<>(), new String[]{Strings.NAME});
             reposTable.setModel(reposTableModel);
