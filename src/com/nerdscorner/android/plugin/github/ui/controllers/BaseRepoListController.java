@@ -4,14 +4,13 @@ import org.greenrobot.eventbus.EventBus;
 import org.kohsuke.github.GHDirection;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort;
-import org.kohsuke.github.GHRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.annotation.Nullable;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -30,14 +29,13 @@ import com.nerdscorner.android.plugin.utils.ThreadUtils;
 public abstract class BaseRepoListController {
 
     static final int LARGE_PAGE_SIZE = 500;
-    private static final int SMALL_PAGE_SIZE = 25;
+    private static final int SMALL_PAGE_SIZE = 40;
 
     /* default */ GHOrganization ghOrganization;
     private GHRepositoryWrapper currentRepository;
 
     /* default */ Thread loaderThread;
-    private Thread releasesLoaderThread;
-    private Thread prsLoaderThread;
+    private Thread repoDataLoaderThread;
 
     /* default */ JTable reposTable;
     private JTable repoReleasesTable;
@@ -124,30 +122,20 @@ public abstract class BaseRepoListController {
 
     public void cancel() {
         ThreadUtils.cancelThread(loaderThread);
-        ThreadUtils.cancelThread(releasesLoaderThread);
-        ThreadUtils.cancelThread(prsLoaderThread);
+        ThreadUtils.cancelThread(repoDataLoaderThread);
     }
 
-    private void updateRepoComments(GHRepositoryWrapper repository, GHPullRequest latestClosedPr) {
+    @Nullable
+    private Date getLatestReleaseDate() {
         GHReleaseWrapper latestRelease = ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(0);
-        if (latestRelease == null) {
-            repoComments.setText(String.format(Strings.REPO_NO_RELEASES_YET, repository.getGhRepository().getName()));
-            return;
-        }
-        Date mergedAt = latestClosedPr.getMergedAt();
-        if (mergedAt != null) {
-            System.out.println(mergedAt + " latest pr closed");
-            System.out.println(latestRelease.getGhRelease().getPublished_at() + " latest release published");
-            boolean needsRelease = mergedAt.after(latestRelease.getGhRelease().getPublished_at());
-            String repoMessage = needsRelease ? Strings.REPO_NEEDS_RELEASE : Strings.REPO_DOES_NOT_NEED_RELEASE;
-            repoComments.setText(String.format(repoMessage, repository.getGhRepository().getName()));
-        }
+        return latestRelease == null ? null : latestRelease.getGhRelease().getPublished_at();
     }
 
-    private void loadReleases(GHRepository repository) throws IOException {
+    private void loadReleases() throws IOException {
         final GHReleaseTableModel repoReleasesModel = new GHReleaseTableModel(new ArrayList<>(), new String[]{Strings.TAG, Strings.DATE});
         repoReleasesTable.setModel(repoReleasesModel);
-        repository
+        currentRepository
+                .getGhRepository()
                 .listReleases()
                 .withPageSize(SMALL_PAGE_SIZE)
                 .forEach(ghRelease -> repoReleasesModel.addRow(new GHReleaseWrapper(ghRelease)));
@@ -164,7 +152,9 @@ public abstract class BaseRepoListController {
         );
         repoOpenPullRequestsTable.setModel(openPrsModel);
         repoClosedPullRequestsTable.setModel(closedPrsModel);
-        commentsUpdated = false;
+        final String repoName = currentRepository.getGhRepository().getName();
+        final Date latestReleaseDate = getLatestReleaseDate();
+        repoComments.setText("Analyzing releases and merged pull requests...");
         currentRepository
                 .getGhRepository()
                 .queryPullRequests()
@@ -176,33 +166,45 @@ public abstract class BaseRepoListController {
                 .forEach(pullRequest -> {
                     if (pullRequest.getState() == GHIssueState.OPEN) {
                         openPrsModel.addRow(new GHPullRequestWrapper(pullRequest));
-                    } else {
-                        closedPrsModel.addRow(new GHPullRequestWrapper(pullRequest));
-                        if (!commentsUpdated) {
+                    } else if (pullRequest.getState() == GHIssueState.CLOSED) {
+                        if (latestReleaseDate == null) {
                             commentsUpdated = true;
-                            updateRepoComments(currentRepository, pullRequest);
+                            repoComments.setText(String.format(Strings.REPO_NO_RELEASES_YET, repoName));
+                            return;
+                        }
+                        Date mergedAt = pullRequest.getMergedAt();
+                        if (mergedAt != null) {
+                            if (mergedAt.after(latestReleaseDate)) {
+                                closedPrsModel.addRow(new GHPullRequestWrapper(pullRequest));
+                                if (!commentsUpdated) {
+                                    commentsUpdated = true;
+                                    repoComments.setText(String.format(Strings.REPO_NEEDS_RELEASE, repoName));
+                                }
+                            }
                         }
                     }
                 });
+        // If we haven't found any closed PR after the latest release, then this repo does not need to be released
+        if (!commentsUpdated) {
+            commentsUpdated = true;
+            repoComments.setText(String.format(Strings.REPO_DOES_NOT_NEED_RELEASE, repoName));
+        }
     }
 
     private void updateRepositoryInfoTables() {
         repoComments.setText(null);
         try {
-            ThreadUtils.cancelThread(releasesLoaderThread);
-            ThreadUtils.cancelThread(prsLoaderThread);
-
-            releasesLoaderThread = new Thread(() -> {
+            ThreadUtils.cancelThread(repoDataLoaderThread);
+            repoDataLoaderThread = new Thread(() -> {
                 try {
-                    loadReleases(currentRepository.getGhRepository());
+                    commentsUpdated = false;
+                    loadReleases();
+                    loadPullRequests();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
-            releasesLoaderThread.start();
-
-            prsLoaderThread = new Thread(this::loadPullRequests);
-            prsLoaderThread.start();
+            repoDataLoaderThread.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
