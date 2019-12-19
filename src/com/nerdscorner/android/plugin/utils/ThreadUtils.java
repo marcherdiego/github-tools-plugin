@@ -6,4 +6,13 @@ public class ThreadUtils {
             thread.interrupt();
         }
     }
+
+    public static void cancelThreads(Thread... threads) {
+        if (threads == null || threads.length == 0) {
+            return;
+        }
+        for (Thread thread : threads) {
+            cancelThread(thread);
+        }
+    }
 }

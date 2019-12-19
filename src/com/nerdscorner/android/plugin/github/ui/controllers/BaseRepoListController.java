@@ -121,8 +121,7 @@ public abstract class BaseRepoListController {
     }
 
     public void cancel() {
-        ThreadUtils.cancelThread(loaderThread);
-        ThreadUtils.cancelThread(repoDataLoaderThread);
+        ThreadUtils.cancelThreads(loaderThread, repoDataLoaderThread);
     }
 
     @Nullable
