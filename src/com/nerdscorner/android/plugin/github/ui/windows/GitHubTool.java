@@ -61,9 +61,11 @@ public class GitHubTool implements ToolWindowFactory {
     private JLabel repoComments;
     private JPanel repoCommentsContainer;
     private JTextField organizationField;
+    private Project project;
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        this.project = project;
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(myToolWindowContent, Strings.BLANK, false);
         toolWindow.getContentManager().addContent(content);
@@ -180,16 +182,20 @@ public class GitHubTool implements ToolWindowFactory {
     private void loadTablesInfo() {
         repoComments.setText(null);
 
+
         allAllReposController.cancel();
         allAllReposController.init();
+        allAllReposController.setSelectedRepo(project.getName());
         allAllReposController.loadRepositories();
 
         myReposController.cancel();
         myReposController.init();
+        myReposController.setSelectedRepo(project.getName());
         myReposController.loadRepositories();
 
         dependenciesController.cancel();
         dependenciesController.init();
+        dependenciesController.setSelectedRepo(project.getName());
         dependenciesController.loadRepositories();
     }
 }

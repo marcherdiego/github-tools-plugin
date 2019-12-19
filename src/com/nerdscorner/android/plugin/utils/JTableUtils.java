@@ -5,6 +5,8 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JTable;
 
+import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper;
+
 public final class JTableUtils {
     private JTableUtils() {
     }
@@ -21,5 +23,18 @@ public final class JTableUtils {
         }
 
         public abstract void mousePressed(int row, int column, int clickCount);
+    }
+
+    public static void findAndSelectDefaultRepo(String targetRepo, JTable table) {
+        if (targetRepo != null) {
+            for (int i = 0; i < table.getRowCount(); i++) {
+                GHRepositoryWrapper currentRepo = (GHRepositoryWrapper) table.getValueAt(i, 0);
+                if (currentRepo != null && targetRepo.equals(currentRepo.toString())) {
+                    table.setRowSelectionInterval(i, i);
+                    table.scrollRectToVisible(table.getCellRect(i, 0, true));
+                    return;
+                }
+            }
+        }
     }
 }

@@ -5,18 +5,13 @@ import org.kohsuke.github.GHOrganization;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper;
@@ -25,6 +20,7 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel;
 import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer;
 import com.nerdscorner.android.plugin.utils.GithubUtils;
+import com.nerdscorner.android.plugin.utils.JTableUtils;
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ThreadUtils;
@@ -38,6 +34,7 @@ public class DependenciesController {
     private final DependenciesPanel dependenciesPanel;
     private GHOrganization ghOrganization;
     private GHMyself myselfGitHub;
+    private String selectedRepo;
 
     public DependenciesController(JTable reposTable, JPanel dependenciesGraphPanel, GHOrganization ghOrganization, GHMyself myselfGitHub) {
         this.reposTable = reposTable;
@@ -58,10 +55,10 @@ public class DependenciesController {
     public void init() {
         reposTable.addMouseListener(new SimpleMouseAdapter() {
             public void mousePressed(int row, int column, int clickCount) {
-                GHRepositoryWrapper currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(row, GHRepoTableModel.COLUMN_NAME);
                 if (clickCount == 1) {
-                    dependenciesPanel.setRepository(currentRepository);
+                    updateRepositoryDependenciesTree();
                 } else if (clickCount == 2) {
+                    GHRepositoryWrapper currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(row, GHRepoTableModel.COLUMN_NAME);
                     GithubUtils.openWebLink(currentRepository.getFullUrl());
                 }
             }
@@ -80,11 +77,6 @@ public class DependenciesController {
             TableColumn column = reposTable.getColumn(Strings.NAME);
             final Map<String, String> tooltips = new HashMap<>();
             column.setCellRenderer(new ColumnRenderer(tooltips));
-            TableRowSorter<TableModel> sorter = new TableRowSorter<>(reposTable.getModel());
-            List<SortKey> sortKeys = new ArrayList<>();
-            sortKeys.add(new SortKey(0, SortOrder.ASCENDING));
-            sorter.setSortKeys(sortKeys);
-            reposTable.setRowSorter(sorter);
             ghOrganization
                     .listRepositories()
                     .withPageSize(LARGE_PAGE_SIZE)
@@ -94,7 +86,7 @@ public class DependenciesController {
                             return;
                         }
                         GHRepositoryWrapper ghRepositoryWrapper = new GHRepositoryWrapper(repository);
-                        SwingUtilities.invokeLater(() -> reposTableModel.addRow(ghRepositoryWrapper));
+                        reposTableModel.addRow(ghRepositoryWrapper);
                         tooltips.put(ghRepositoryWrapper.getName(), ghRepositoryWrapper.getDescription());
                     });
             myselfGitHub
@@ -106,9 +98,21 @@ public class DependenciesController {
                             return;
                         }
                         GHRepositoryWrapper ghRepositoryWrapper = new GHRepositoryWrapper(repository);
-                        SwingUtilities.invokeLater(() -> reposTableModel.addRow(ghRepositoryWrapper));
+                        reposTableModel.addRow(ghRepositoryWrapper);
                     });
+            JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable);
+            SwingUtilities.invokeLater(this::updateRepositoryDependenciesTree);
         });
         loaderThread.start();
+    }
+
+    private void updateRepositoryDependenciesTree() {
+        dependenciesPanel.setRepository(
+                (GHRepositoryWrapper) reposTable.getValueAt(reposTable.getSelectedRow(), GHRepoTableModel.COLUMN_NAME)
+        );
+    }
+
+    public void setSelectedRepo(String selectedRepo) {
+        this.selectedRepo = selectedRepo;
     }
 }

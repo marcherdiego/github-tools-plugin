@@ -46,6 +46,7 @@ public abstract class BaseRepoListController {
     private int dataColumn;
 
     private boolean commentsUpdated;
+    /* default */ String selectedRepo;
 
     BaseRepoListController(JTable reposTable, JTable repoReleasesTable, JTable repoOpenPullRequestsTable, JTable repoClosedPullRequestsTable,
                            JLabel repoComments, GHOrganization ghOrganization, int dataColumn) {
@@ -69,7 +70,6 @@ public abstract class BaseRepoListController {
 
         reposTable.addMouseListener(new SimpleMouseAdapter() {
             public void mousePressed(int row, int column, int clickCount) {
-                currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(row, dataColumn);
                 if (clickCount == 1) {
                     updateRepositoryInfoTables();
                 } else if (clickCount == 2) {
@@ -190,7 +190,12 @@ public abstract class BaseRepoListController {
         }
     }
 
-    private void updateRepositoryInfoTables() {
+    /* default */ void updateRepositoryInfoTables() {
+        int selectedRow = reposTable.getSelectedRow();
+        if (selectedRow == -1) {
+            return;
+        }
+        currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(selectedRow, dataColumn);
         repoComments.setText(null);
         try {
             ThreadUtils.cancelThread(repoDataLoaderThread);
@@ -214,4 +219,8 @@ public abstract class BaseRepoListController {
     }
 
     public abstract void loadRepositories();
+
+    public void setSelectedRepo(String selectedRepo) {
+        this.selectedRepo = selectedRepo;
+    }
 }
