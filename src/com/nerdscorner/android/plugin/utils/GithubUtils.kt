@@ -2,7 +2,6 @@ package com.nerdscorner.android.plugin.utils
 
 import java.awt.Desktop
 import java.net.URI
-import java.net.URISyntaxException
 import java.net.URL
 
 object GithubUtils {
@@ -21,7 +20,14 @@ object GithubUtils {
     fun openWebLink(url: URL) {
         try {
             openWebLink(url.toURI())
-        } catch (ignored: URISyntaxException) {
+        } catch (ignored: Exception) {
+        }
+    }
+
+    fun openWebLink(url: String?) {
+        try {
+            openWebLink(URI.create(url))
+        } catch (ignored: Exception) {
         }
     }
 }

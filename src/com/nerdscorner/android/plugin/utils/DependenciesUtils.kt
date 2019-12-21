@@ -89,16 +89,24 @@ object DependenciesUtils {
         if (dependency.dependsOnIds == null) {
             return dependency.dependsOn
         }
-        val dependsOn = dependency.dependsOnIds.split(",".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
         val result = ArrayList<Dependency>()
-        dependencies.forEach { dep ->
-            for (dependsOnItem in dependsOn) {
-                if (dep.id == dependsOnItem) {
-                    result.add(dep)
-                    break
+        dependency
+                .dependsOnIds
+                ?.split(",".toRegex())
+                ?.dropLastWhile {
+                    it.isEmpty()
                 }
-            }
-        }
+                ?.toTypedArray()
+                ?.let { dependsOn ->
+                    dependencies.forEach { dep ->
+                        for (dependsOnItem in dependsOn) {
+                            if (dep.id == dependsOnItem) {
+                                result.add(dep)
+                                break
+                            }
+                        }
+                    }
+                }
         return result
     }
 }

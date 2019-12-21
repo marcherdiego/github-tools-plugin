@@ -13,7 +13,6 @@ import java.awt.FlowLayout
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.RenderingHints
-import java.net.URI
 import java.util.ArrayList
 import javax.swing.JButton
 import javax.swing.JLabel
@@ -97,14 +96,18 @@ class DependenciesPanel : JPanel() {
                         /** Map that associates dependency widgets with each other to draw the arrows
                          * in [DependenciesPanel.paint]
                          */
-                        for (moduleDependency in dependency.dependsOn) {
-                            dependenciesAssociations.add(Pair(dependencyWidget, moduleDependency.widget))
+                        dependency.dependsOn?.let { dependsOn ->
+                            for (moduleDependency in dependsOn) {
+                                moduleDependency.widget?.let { widget ->
+                                    dependenciesAssociations.add(Pair(dependencyWidget, widget))
+                                }
+                            }
                         }
 
                         // On dependency double click, open github repository
                         dependencyWidget.addMouseListener(object : DoubleClickAdapter() {
                             override fun onDoubleClick() {
-                                GithubUtils.openWebLink(URI.create(dependency.url))
+                                GithubUtils.openWebLink(dependency.url)
                             }
                         })
                     }

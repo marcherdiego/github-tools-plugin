@@ -3,7 +3,7 @@ package com.nerdscorner.android.plugin.github.ui.controllers
 
 import com.intellij.uiDesigner.core.GridConstraints
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
-import com.nerdscorner.android.plugin.github.ui.controllers.BaseRepoListController.LARGE_PAGE_SIZE
+import com.nerdscorner.android.plugin.github.ui.controllers.BaseRepoListController.Companion.LARGE_PAGE_SIZE
 import com.nerdscorner.android.plugin.github.ui.dependencies.DependenciesPanel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
@@ -45,7 +45,7 @@ class DependenciesController(private val reposTable: JTable, dependenciesGraphPa
                 if (clickCount == 1) {
                     updateRepositoryDependenciesTree()
                 } else if (clickCount == 2) {
-                    val currentRepository = reposTable.getValueAt(row, GHRepoTableModel.COLUMN_NAME) as GHRepositoryWrapper
+                    val currentRepository = reposTable.getValueAt(row, BaseModel.COLUMN_NAME) as GHRepositoryWrapper
                     GithubUtils.openWebLink(currentRepository.fullUrl)
                 }
             }
@@ -69,24 +69,20 @@ class DependenciesController(private val reposTable: JTable, dependenciesGraphPa
                     .listRepositories()
                     .withPageSize(LARGE_PAGE_SIZE)
                     .forEach { repository ->
-                        if (repository.isFork || !repository.fullName.startsWith(ghOrganization.login)) {
-                            //Ignore forks or projects that doesn't belong to this organization
-                            return@forEach
+                        if (repository.isFork.not() && repository.fullName.startsWith(ghOrganization.login)) {
+                            val ghRepositoryWrapper = GHRepositoryWrapper(repository)
+                            reposTableModel.addRow(ghRepositoryWrapper)
+                            tooltips[ghRepositoryWrapper.name] = ghRepositoryWrapper.description
                         }
-                        val ghRepositoryWrapper = GHRepositoryWrapper(repository)
-                        reposTableModel.addRow(ghRepositoryWrapper)
-                        tooltips[ghRepositoryWrapper.name] = ghRepositoryWrapper.description
                     }
             myselfGitHub
                     .listSubscriptions()
                     .withPageSize(LARGE_PAGE_SIZE)
                     .forEach { repository ->
-                        if (repository.isFork) {
-                            //Ignore forks or projects that doesn't belong to this organization
-                            return@forEach
+                        if (repository.isFork.not()) {
+                            val ghRepositoryWrapper = GHRepositoryWrapper(repository)
+                            reposTableModel.addRow(ghRepositoryWrapper)
                         }
-                        val ghRepositoryWrapper = GHRepositoryWrapper(repository)
-                        reposTableModel.addRow(ghRepositoryWrapper)
                     }
             JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable)
             SwingUtilities.invokeLater { this.updateRepositoryDependenciesTree() }
@@ -96,7 +92,7 @@ class DependenciesController(private val reposTable: JTable, dependenciesGraphPa
 
     private fun updateRepositoryDependenciesTree() {
         dependenciesPanel.setRepository(
-                reposTable.getValueAt(reposTable.selectedRow, GHRepoTableModel.COLUMN_NAME) as GHRepositoryWrapper
+                reposTable.getValueAt(reposTable.selectedRow, BaseModel.COLUMN_NAME) as GHRepositoryWrapper
         )
     }
 
