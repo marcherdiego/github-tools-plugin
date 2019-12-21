@@ -74,8 +74,8 @@ public class GitHubTool implements ToolWindowFactory {
         String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
         if (StringUtils.isEmpty(oauthToken) || StringUtils.isEmpty(organization)) {
             organizationField.setText(organization);
-            ViewUtils.show(loginPanel);
-            ViewUtils.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField, repoCommentsContainer);
+            ViewUtils.INSTANCE.show(loginPanel);
+            ViewUtils.INSTANCE.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField, repoCommentsContainer);
             loginButton.addActionListener(new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -97,8 +97,8 @@ public class GitHubTool implements ToolWindowFactory {
                     } else {
                         boolean success = githubTokenLogin(oauthToken, organization);
                         if (success) {
-                            ViewUtils.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
-                            ViewUtils.hide(loginPanel);
+                            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
+                            ViewUtils.INSTANCE.hide(loginPanel);
                             propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
                             propertiesComponent.setValue(Strings.ORGANIZATION_NAME_PROPERTY, organization);
                             oauthTokenField.setText(null);
@@ -114,16 +114,16 @@ public class GitHubTool implements ToolWindowFactory {
                 }
             });
         } else {
-            ViewUtils.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
-            ViewUtils.hide(loginPanel);
+            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
+            ViewUtils.INSTANCE.hide(loginPanel);
             githubTokenLogin(oauthToken, organization);
         }
 
         logoutButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ViewUtils.show(loginPanel);
-                ViewUtils.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
+                ViewUtils.INSTANCE.show(loginPanel);
+                ViewUtils.INSTANCE.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
                 propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
                 github = null;
                 ghOrganization = null;

@@ -7,7 +7,6 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import com.nerdscorner.android.plugin.github.domain.gh.Wrapper;
-import com.nerdscorner.android.plugin.utils.ListUtils;
 
 public abstract class BaseModel<T extends Wrapper> extends AbstractTableModel implements Serializable, Comparator<T> {
     public static final int COLUMN_NAME = 0;
@@ -61,7 +60,7 @@ public abstract class BaseModel<T extends Wrapper> extends AbstractTableModel im
     }
 
     public T getRow(int rowIndex) {
-        if (ListUtils.isEmpty(items)) {
+        if (items.isEmpty()) {
             return null;
         }
         return items.get(rowIndex);

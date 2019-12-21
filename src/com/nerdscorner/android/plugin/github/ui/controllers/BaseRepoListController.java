@@ -73,7 +73,7 @@ public abstract class BaseRepoListController {
                 if (clickCount == 1) {
                     updateRepositoryInfoTables();
                 } else if (clickCount == 2) {
-                    GithubUtils.openWebLink(currentRepository.getFullUrl());
+                    GithubUtils.INSTANCE.openWebLink(currentRepository.getFullUrl());
                 }
             }
         });
@@ -81,7 +81,7 @@ public abstract class BaseRepoListController {
             public void mousePressed(int row, int column, int clickCount) {
                 if (clickCount == 2) {
                     GHReleaseWrapper release = ((GHReleaseTableModel) repoReleasesTable.getModel()).getRow(row);
-                    GithubUtils.openWebLink(release.getFullUrl());
+                    GithubUtils.INSTANCE.openWebLink(release.getFullUrl());
                 }
             }
         });
@@ -89,7 +89,7 @@ public abstract class BaseRepoListController {
             public void mousePressed(int row, int column, int clickCount) {
                 if (clickCount == 2) {
                     GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoOpenPullRequestsTable.getModel()).getRow(row);
-                    GithubUtils.openWebLink(pullRequest.getFullUrl());
+                    GithubUtils.INSTANCE.openWebLink(pullRequest.getFullUrl());
                 }
             }
         });
@@ -97,7 +97,7 @@ public abstract class BaseRepoListController {
             public void mousePressed(int row, int column, int clickCount) {
                 if (clickCount == 2) {
                     GHPullRequestWrapper pullRequest = ((GHPullRequestTableModel) repoClosedPullRequestsTable.getModel()).getRow(row);
-                    GithubUtils.openWebLink(pullRequest.getFullUrl());
+                    GithubUtils.INSTANCE.openWebLink(pullRequest.getFullUrl());
                 }
             }
         });
@@ -121,7 +121,7 @@ public abstract class BaseRepoListController {
     }
 
     public void cancel() {
-        ThreadUtils.cancelThreads(loaderThread, repoDataLoaderThread);
+        ThreadUtils.INSTANCE.cancelThreads(loaderThread, repoDataLoaderThread);
     }
 
     @Nullable
@@ -198,7 +198,7 @@ public abstract class BaseRepoListController {
         currentRepository = (GHRepositoryWrapper) reposTable.getValueAt(selectedRow, dataColumn);
         repoComments.setText(null);
         try {
-            ThreadUtils.cancelThread(repoDataLoaderThread);
+            ThreadUtils.INSTANCE.cancelThread(repoDataLoaderThread);
             repoDataLoaderThread = new Thread(() -> {
                 try {
                     commentsUpdated = false;

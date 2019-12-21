@@ -2,7 +2,6 @@ package com.nerdscorner.android.plugin.github.ui.tablemodels;
 
 import org.kohsuke.github.GHPullRequest;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.List;

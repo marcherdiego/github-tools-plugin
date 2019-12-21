@@ -36,7 +36,7 @@ public class MyReposController extends BaseRepoListController {
 
     @Override
     public void loadRepositories() {
-        ThreadUtils.cancelThread(loaderThread);
+        ThreadUtils.INSTANCE.cancelThread(loaderThread);
         loaderThread = new Thread(() -> {
             final GHRepoTableModel myReposTableModel = new GHRepoTableModel(new ArrayList<>(), new String[]{Strings.NAME});
             reposTable.setModel(myReposTableModel);
@@ -53,7 +53,7 @@ public class MyReposController extends BaseRepoListController {
                         }
                         myReposTableModel.addRow(new GHRepositoryWrapper(repository));
                     });
-            JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable);
+            JTableUtils.INSTANCE.findAndSelectDefaultRepo(selectedRepo, reposTable);
             SwingUtilities.invokeLater(this::updateRepositoryInfoTables);
         });
         loaderThread.start();
