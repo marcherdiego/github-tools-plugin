@@ -33,7 +33,7 @@ public class GitHubTool implements ToolWindowFactory {
     private GHOrganization ghOrganization;
     private GitHub github;
 
-    private JPanel myToolWindowContent;
+    private JPanel content;
 
     private JTable allReposTable;
     private JTable allRepoReleases;
@@ -67,7 +67,7 @@ public class GitHubTool implements ToolWindowFactory {
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         this.project = project;
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(myToolWindowContent, Strings.BLANK, false);
+        Content content = contentFactory.createContent(this.content, Strings.BLANK, false);
         toolWindow.getContentManager().addContent(content);
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
