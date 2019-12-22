@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a92aa8a7-dc4e-41ea-8c3e-91087392e1f1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/AllReposController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/AllReposController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyReposController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyReposController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.kt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,24 +28,32 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="466">
-              <caret line="69" column="62" lean-forward="true" selection-start-line="69" selection-start-column="62" selection-end-line="69" selection-end-column="62" />
+            <state relative-caret-position="289">
+              <caret line="199" column="28" lean-forward="true" selection-start-line="199" selection-start-column="28" selection-end-line="199" selection-end-column="28" />
+              <folding>
+                <element signature="e#62#1138#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="641">
-              <caret line="60" column="32" selection-start-line="60" selection-start-column="32" selection-end-line="60" selection-end-column="32" />
-              <folding>
-                <element signature="e#42069#42075#0" expanded="true" />
-                <element signature="e#42077#42083#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-92">
+              <caret line="8" column="16" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="323">
+              <caret line="90" column="25" selection-start-line="90" selection-start-column="25" selection-end-line="90" selection-end-column="25" />
             </state>
           </provider>
         </entry>
@@ -56,17 +66,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="12" column="19" selection-start-line="12" selection-start-column="19" selection-end-line="12" selection-end-column="19" />
+            <state relative-caret-position="60">
+              <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyReposController.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="33" column="28" lean-forward="true" selection-start-line="33" selection-start-column="28" selection-end-line="33" selection-end-column="28" />
+            <state relative-caret-position="163">
+              <caret line="46" column="21" selection-start-line="46" selection-start-column="21" selection-end-line="46" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -81,19 +91,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tablemodels/GHRepoTableModel.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="6" column="8" selection-start-line="6" selection-start-column="8" selection-end-line="6" selection-end-column="8" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tables/ColumnRenderer.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="8" column="40" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="40" />
+            <state relative-caret-position="180">
+              <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
             </state>
           </provider>
         </entry>
@@ -101,8 +102,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/AllReposController.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="90">
-              <caret line="22" column="99" selection-start-line="22" selection-start-column="99" selection-end-line="22" selection-end-column="99" />
+            <state relative-caret-position="163">
+              <caret line="45" column="21" selection-start-line="45" selection-start-column="21" selection-end-line="45" selection-end-column="21" />
             </state>
           </provider>
         </entry>
@@ -129,8 +130,9 @@
       <find>/* default */</find>
       <find>Desktop.isDesktopSupported</find>
       <find>after</find>
-      <find>!!</find>
       <find>COLUMN_NAME</find>
+      <find>analy</find>
+      <find>!!</find>
     </findStrings>
     <replaceStrings>
       <replace>private</replace>
@@ -180,19 +182,19 @@
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/domain/Dependency.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/events/FavoriteRepositoryUpdatedEvent.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/AllReposController.java" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/DependenciesUtils.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/dependencies/DependenciesPanel.kt" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tablemodels/BaseModel.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tablemodels/GHPullRequestTableModel.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tablemodels/GHReleaseTableModel.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tables/ColumnRenderer.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tablemodels/GHRepoTableModel.kt" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/AllReposController.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/DependenciesController.kt" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyReposController.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/AllReposController.kt" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.kt" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyReposController.kt" />
       </list>
     </option>
   </component>
@@ -569,15 +571,15 @@
       <window_info id="Capture Tool" order="4" />
       <window_info id="Favorites" order="5" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.50473934" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3022432" />
+      <window_info active="true" anchor="bottom" id="Find" order="1" visible="true" weight="0.5041322" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.82762694" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.34244946" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.498779" weight="0.49232584" />
+      <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.498779" weight="0.36127508" />
       <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.501221" side_tool="true" weight="0.441452" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="9" visible="true" weight="0.28453365" />
+      <window_info anchor="bottom" id="Version Control" order="9" weight="0.3553719" />
       <window_info anchor="bottom" id="Messages" order="10" weight="0.15814507" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -725,17 +727,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/util/Date.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="197">
-          <caret line="929" column="31" selection-start-line="929" selection-start-column="31" selection-end-line="929" selection-end-column="31" />
-          <folding>
-            <element signature="e#39232#39233#0" expanded="true" />
-            <element signature="e#39292#39293#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/util/function/Consumer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
@@ -833,12 +824,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="641">
-          <caret line="60" column="32" selection-start-line="60" selection-start-column="32" selection-end-line="60" selection-end-column="32" />
-          <folding>
-            <element signature="e#42069#42075#0" expanded="true" />
-            <element signature="e#42077#42083#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="206">
+          <caret line="31" column="32" selection-start-line="31" selection-start-column="32" selection-end-line="31" selection-end-column="32" />
         </state>
       </provider>
     </entry>
@@ -981,16 +968,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="170" column="4" selection-start-line="170" selection-start-column="4" selection-end-line="170" selection-end-column="4" />
-          <folding>
-            <element signature="e#62#1138#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/domain/Dependency.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -1012,13 +989,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="192">
           <caret line="847" column="38" lean-forward="true" selection-start-line="847" selection-start-column="38" selection-end-line="847" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="6" column="16" lean-forward="true" selection-start-line="6" selection-start-column="16" selection-end-line="6" selection-end-column="16" />
         </state>
       </provider>
     </entry>
@@ -1050,13 +1020,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tables/ColumnRenderer.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="8" column="40" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tablemodels/GHRepoTableModel.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -1064,24 +1027,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/AllReposController.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="22" column="99" selection-start-line="22" selection-start-column="99" selection-end-line="22" selection-end-column="99" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/DependenciesController.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="345">
           <caret line="94" column="71" selection-start-line="94" selection-start-column="71" selection-end-line="94" selection-end-column="71" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyReposController.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="33" column="28" lean-forward="true" selection-start-line="33" selection-start-column="28" selection-end-line="33" selection-end-column="28" />
         </state>
       </provider>
     </entry>
@@ -1100,8 +1049,53 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="466">
-          <caret line="69" column="62" lean-forward="true" selection-start-line="69" selection-start-column="62" selection-end-line="69" selection-end-column="62" />
+        <state relative-caret-position="323">
+          <caret line="90" column="25" selection-start-line="90" selection-start-column="25" selection-end-line="90" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tables/ColumnRenderer.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="16" lean-forward="true" selection-start-line="16" selection-end-line="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/AllReposController.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="163">
+          <caret line="45" column="21" selection-start-line="45" selection-start-column="21" selection-end-line="45" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-92">
+          <caret line="8" column="16" selection-start-line="8" selection-start-column="16" selection-end-line="8" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="199" column="28" lean-forward="true" selection-start-line="199" selection-start-column="28" selection-end-line="199" selection-end-column="28" />
+          <folding>
+            <element signature="e#62#1138#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyReposController.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="163">
+          <caret line="46" column="21" selection-start-line="46" selection-start-column="21" selection-end-line="46" selection-end-column="21" />
         </state>
       </provider>
     </entry>

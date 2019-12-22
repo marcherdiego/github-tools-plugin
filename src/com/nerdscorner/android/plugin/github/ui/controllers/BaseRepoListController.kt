@@ -24,7 +24,7 @@ import javax.swing.ListSelectionModel
 
 abstract class BaseRepoListController internal constructor(var reposTable: JTable, val repoReleasesTable: JTable,
                                                            val repoOpenPullRequestsTable: JTable, val repoClosedPullRequestsTable: JTable,
-                                                           val repoComments: JLabel,  var ghOrganization: GHOrganization, val dataColumn: Int) {
+                                                           val repoComments: JLabel, var ghOrganization: GHOrganization, val dataColumn: Int) {
     private var currentRepository: GHRepositoryWrapper? = null
 
     var loaderThread: Thread? = null
@@ -56,7 +56,7 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
                 if (clickCount == 1) {
                     updateRepositoryInfoTables()
                 } else if (clickCount == 2) {
-                    GithubUtils.openWebLink(currentRepository!!.fullUrl)
+                    GithubUtils.openWebLink(currentRepository?.fullUrl)
                 }
             }
         })
@@ -64,7 +64,7 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
             override fun mousePressed(row: Int, column: Int, clickCount: Int) {
                 if (clickCount == 2) {
                     val release = (repoReleasesTable.model as GHReleaseTableModel).getRow(row)
-                    GithubUtils.openWebLink(release!!.fullUrl)
+                    GithubUtils.openWebLink(release?.fullUrl)
                 }
             }
         })
@@ -72,7 +72,7 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
             override fun mousePressed(row: Int, column: Int, clickCount: Int) {
                 if (clickCount == 2) {
                     val pullRequest = (repoOpenPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
-                    GithubUtils.openWebLink(pullRequest!!.fullUrl)
+                    GithubUtils.openWebLink(pullRequest?.fullUrl)
                 }
             }
         })
@@ -80,7 +80,7 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
             override fun mousePressed(row: Int, column: Int, clickCount: Int) {
                 if (clickCount == 2) {
                     val pullRequest = (repoClosedPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
-                    GithubUtils.openWebLink(pullRequest!!.fullUrl)
+                    GithubUtils.openWebLink(pullRequest?.fullUrl)
                 }
             }
         })
@@ -111,11 +111,11 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
     private fun loadReleases() {
         val repoReleasesModel = GHReleaseTableModel(ArrayList(), arrayOf(Strings.TAG, Strings.DATE))
         repoReleasesTable.model = repoReleasesModel
-        currentRepository!!
-                .ghRepository
-                .listReleases()
-                .withPageSize(SMALL_PAGE_SIZE)
-                .forEach { ghRelease -> repoReleasesModel.addRow(GHReleaseWrapper(ghRelease)) }
+        currentRepository
+                ?.ghRepository
+                ?.listReleases()
+                ?.withPageSize(SMALL_PAGE_SIZE)
+                ?.forEach { ghRelease -> repoReleasesModel.addRow(GHReleaseWrapper(ghRelease)) }
     }
 
     private fun loadPullRequests() {
@@ -129,18 +129,17 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
         )
         repoOpenPullRequestsTable.model = openPrsModel
         repoClosedPullRequestsTable.model = closedPrsModel
-        val repoName = currentRepository!!.ghRepository.name
+        val repoName = currentRepository?.ghRepository?.name
         val latestReleaseDate = latestReleaseDate
-        repoComments.text = "Analyzing releases and merged pull requests..."
-        currentRepository!!
-                .ghRepository
-                .queryPullRequests()
-                .state(GHIssueState.ALL)
-                .sort(Sort.UPDATED)
-                .direction(GHDirection.DESC)
-                .list()
-                .withPageSize(SMALL_PAGE_SIZE)
-                .forEach { pullRequest ->
+        currentRepository
+                ?.ghRepository
+                ?.queryPullRequests()
+                ?.state(GHIssueState.ALL)
+                ?.sort(Sort.UPDATED)
+                ?.direction(GHDirection.DESC)
+                ?.list()
+                ?.withPageSize(SMALL_PAGE_SIZE)
+                ?.forEach { pullRequest ->
                     if (pullRequest.state == GHIssueState.OPEN) {
                         openPrsModel.addRow(GHPullRequestWrapper(pullRequest))
                     } else if (pullRequest.state == GHIssueState.CLOSED) {
@@ -186,7 +185,7 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
                     e.printStackTrace()
                 }
             }
-            repoDataLoaderThread!!.start()
+            repoDataLoaderThread?.start()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -196,7 +195,7 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
     abstract fun loadRepositories()
 
     companion object {
-        val LARGE_PAGE_SIZE = 500
-        val SMALL_PAGE_SIZE = 40
+        const val LARGE_PAGE_SIZE = 500
+        const val SMALL_PAGE_SIZE = 40
     }
 }

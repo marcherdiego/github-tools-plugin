@@ -6,7 +6,7 @@ import java.net.URL
 
 object GithubUtils {
 
-    fun openWebLink(uri: URI) {
+    fun openWebLink(uri: URI?) {
         try {
             with(Desktop.getDesktop()) {
                 if (isSupported(Desktop.Action.BROWSE)) {
@@ -17,9 +17,9 @@ object GithubUtils {
         }
     }
 
-    fun openWebLink(url: URL) {
+    fun openWebLink(url: URL?) {
         try {
-            openWebLink(url.toURI())
+            openWebLink(url?.toURI())
         } catch (ignored: Exception) {
         }
     }

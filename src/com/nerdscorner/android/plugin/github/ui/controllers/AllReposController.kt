@@ -43,7 +43,7 @@ class AllReposController(reposTable: JTable, repoReleases: JTable, repoPullReque
             JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable)
             SwingUtilities.invokeLater { this.updateRepositoryInfoTables() }
         }
-        loaderThread!!.start()
+        loaderThread?.start()
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
