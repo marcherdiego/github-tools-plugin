@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.nerdscorner.android.plugin.github</id>
     <name>Github Tools</name>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
@@ -9,7 +9,9 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        Added dependencies tab to be able to visualize more clearly the repository dependencies tree and a link the their repositories.
+        Improved dependencies tab.
+        Migrated code to Kotlin.
+        Default selected repo is the one that is running the plugin.
     ]]>
     </change-notes>
 
