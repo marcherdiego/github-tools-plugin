@@ -33,6 +33,11 @@
         <group id="nerdscorner.tools.menu" text="Github Tools" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </group>
+        <action id="Dependencies Comparator" class="com.nerdscorner.android.plugin.android.actions.DependenciesComparator"
+                text="Dependencies Comparator">
+            <keyboard-shortcut keymap="$default" first-keystroke="shift meta D" second-keystroke="shift meta alt D"/>
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
     </actions>
 
 </idea-plugin>

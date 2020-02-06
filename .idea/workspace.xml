@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="a92aa8a7-dc4e-41ea-8c3e-91087392e1f1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GithubToolsPlugin.zip" beforeDir="false" afterPath="$PROJECT_DIR$/GithubToolsPlugin.zip" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/resources/META-INF/plugin.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -19,64 +18,61 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/actions/DependenciesComparator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="305">
-              <caret line="194" column="27" selection-start-line="194" selection-start-column="27" selection-end-line="194" selection-end-column="27" />
-              <folding>
-                <element signature="e#62#1138#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/DependenciesController.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="275">
-              <caret line="93" column="31" lean-forward="true" selection-start-line="93" selection-start-column="31" selection-end-line="93" selection-end-column="31" />
-              <folding>
-                <element signature="e#63#1141#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/dependencies/DependenciesPanel.kt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="279">
-              <caret line="47" column="59" selection-start-line="47" selection-start-column="59" selection-end-line="47" selection-end-column="59" />
+            <state relative-caret-position="225">
+              <caret line="18" column="84" selection-start-line="18" selection-start-column="84" selection-end-line="18" selection-end-column="84" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/DependenciesUtils.kt">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/dialog/ModuleSelectorForm.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="35" column="39" lean-forward="true" selection-start-line="35" selection-start-column="39" selection-end-line="35" selection-end-column="39" />
+            <state relative-caret-position="157">
+              <caret line="44" column="93" selection-start-line="44" selection-start-column="93" selection-end-line="44" selection-end-column="93" />
               <folding>
-                <element signature="e#46#309#0" expanded="true" />
+                <element signature="e#2280#2281#0" expanded="true" />
+                <element signature="e#2305#2306#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/dialog/ModuleSelectorForm.form">
+          <provider selected="true" editor-type-id="ui-designer" />
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/FileCreator.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="195">
-              <caret line="13" column="19" selection-start-line="13" selection-start-column="19" selection-end-line="13" selection-end-column="19" />
+            <state relative-caret-position="90">
+              <caret line="8" column="10" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
+              <folding>
+                <element signature="e#46#118#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.java">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/commands/CommandExecutor.kt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="60">
-              <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+              <caret line="7" column="31" selection-start-line="7" selection-start-column="31" selection-end-line="7" selection-end-column="31" />
+              <folding>
+                <element signature="e#57#256#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-api.jar!/com/intellij/execution/process/OSProcessHandler.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="210">
+              <caret line="32" column="59" selection-start-line="32" selection-start-column="59" selection-end-line="32" selection-end-column="59" />
             </state>
           </provider>
         </entry>
@@ -113,6 +109,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Action" />
+        <option value="Kotlin Class" />
         <option value="Class" />
       </list>
     </option>
@@ -144,14 +142,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/ViewUtils.java" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/Constants.java" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/domain/gh/Wrapper.java" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/domain/gh/GHReleaseWrapper.java" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/domain/gh/GHPullRequestWrapper.java" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyFavoriteReposController.java" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/Strings.java" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/RepositoryUtils.java" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/tablemodels/GHMyReposTableModel.java" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/ArtifactoryUtils.java" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.java" />
@@ -194,7 +184,15 @@
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/GithubUtils.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/MyReposController.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/windows/DependenciesComparator.java" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/DependenciesComparator.java" />
         <option value="$PROJECT_DIR$/resources/META-INF/plugin.xml" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/FileCreator.java" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/commands/CommandExecutor.kt" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/FileCreator.kt" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/dialog/ModuleSelectorForm.form" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/actions/DependenciesComparator.java" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/dialog/ModuleSelectorForm.java" />
       </list>
     </option>
   </component>
@@ -206,8 +204,7 @@
     <option name="CUSTOM_FILTER" />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-1" />
-    <option name="y" value="53" />
+    <option name="y" value="23" />
     <option name="width" value="340" />
     <option name="height" value="24" />
   </component>
@@ -229,178 +226,7 @@
             <path>
               <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
               <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="resources" type="462c0819:PsiDirectoryNode" />
-              <item name="META-INF" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="domain" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="domain" type="462c0819:PsiDirectoryNode" />
-              <item name="gh" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="events" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="controllers" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="dependencies" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="tablemodels" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="tables" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="windows" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
@@ -416,7 +242,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH" value="104" />
+    <property name="UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH" value="346" />
     <property name="UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH" value="274" />
     <property name="android.project.structure.last.selected" value="SDK Location" />
     <property name="android.project.structure.proportion" value="0.15" />
@@ -535,10 +361,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1680" height="963" extended-state="6" />
+    <frame x="0" y="23" width="1680" height="962" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23870574" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25396827" />
       <window_info id="Image Layers" order="1" />
       <window_info id="Designer" order="2" />
       <window_info id="UI Designer" order="3" />
@@ -547,14 +373,14 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.5041322" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.3022432" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.34244946" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.5714286" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.498779" weight="0.36127508" />
       <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.501221" side_tool="true" weight="0.441452" />
-      <window_info anchor="bottom" id="Version Control" order="9" visible="true" weight="0.29245284" />
-      <window_info anchor="bottom" id="Messages" order="10" weight="0.15814507" />
+      <window_info anchor="bottom" id="Version Control" order="9" weight="0.29161748" />
+      <window_info anchor="bottom" id="Messages" order="10" weight="0.1570248" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -636,6 +462,14 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/dialog/ModuleSelectorForm.java</url>
+          <line>44</line>
+          <properties />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
@@ -650,59 +484,58 @@
         <watch expression="((Element) node).getChildNodes().item(1)" language="JAVA" />
         <watch expression="pullRequest.getMergedAt().after(latestReleaseDate)" language="JAVA" />
         <watch expression="reposTable.getValueAt(i, 0)" language="JAVA" />
+        <watch expression="file.exists()" language="kotlin" />
+        <watch expression="file.path" language="kotlin" />
+        <watch expression="file.absolutePath" language="kotlin" />
+        <watch expression="ProjectRootManager.getInstance(project).getContentRoots()[2].getName()" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
       <expression>
-        <expression-string>reposTable.getValueAt(i, 0)</expression-string>
+        <expression-string>ProjectRootManager.getInstance(project).getContentRoots()[2].getName()</expression-string>
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>pullRequest.getMergedAt().after(latestReleaseDate)</expression-string>
+        <expression-string>ProjectRootManager.getInstance(project).getContentRoots()[2].toString()</expression-string>
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>((Element) node).getChildNodes().item(1)</expression-string>
+        <expression-string>ProjectRootManager.getInstance(project).getContentRoots()[1=2].toString()</expression-string>
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>((Element) node).getChildNodes().item(0)</expression-string>
+        <expression-string>ProjectRootManager.getInstance(project).getContentRoots()[1].toString()</expression-string>
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>((Element) node).getChildNodes()</expression-string>
+        <expression-string>ProjectRootManager.getInstance(project).getContentRoots()[0].toString()</expression-string>
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>((Element) node).getAttributes()</expression-string>
+        <expression-string>ProjectRootManager.getInstance(project).getContentRoots()</expression-string>
         <language-id>JAVA</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>nodes.item(1)</expression-string>
-        <language-id>JAVA</language-id>
+        <expression-string>file.absolutePath</expression-string>
+        <language-id>kotlin</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>nodes.item(0)</expression-string>
-        <language-id>JAVA</language-id>
+        <expression-string>file.absoluteFile</expression-string>
+        <language-id>kotlin</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
       <expression>
-        <expression-string>nodes.item(0).getNodeType()</expression-string>
-        <language-id>JAVA</language-id>
-        <evaluation-mode>EXPRESSION</evaluation-mode>
-      </expression>
-      <expression>
-        <expression-string>eElement.getAttribute(&quot;id&quot;)</expression-string>
-        <language-id>JAVA</language-id>
+        <expression-string>file.path</expression-string>
+        <language-id>kotlin</language-id>
         <evaluation-mode>EXPRESSION</evaluation-mode>
       </expression>
     </expressions>
@@ -715,126 +548,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/lang/Iterable.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="74" column="23" lean-forward="true" selection-start-line="74" selection-start-column="23" selection-end-line="74" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ideaLibSources/github-api-1.90-sources.jar!/org/kohsuke/github/GHIssueState.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="31" column="4" selection-start-line="31" selection-start-column="4" selection-end-line="31" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-api.jar!/com/intellij/openapi/wm/ToolWindowFactory.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="10" column="24" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-api.jar!/com/intellij/openapi/project/Project.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="29">
-          <caret line="19" column="21" lean-forward="true" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.ideaLibSources/github-api-1.90-sources.jar!/org/kohsuke/github/GHUser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="208">
-          <caret line="99" column="39" selection-start-line="99" selection-start-column="39" selection-end-line="99" selection-end-column="39" />
-          <folding>
-            <element signature="e#3265#3266#0" expanded="true" />
-            <element signature="e#3321#3322#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/javax/swing/JTable.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="2242" column="15" selection-start-line="2242" selection-start-column="15" selection-end-line="2242" selection-end-column="15" />
-          <folding>
-            <element signature="e#86431#86432#0" expanded="true" />
-            <element signature="e#86491#86492#0" expanded="true" />
-            <element signature="e#88980#88981#0" expanded="true" />
-            <element signature="e#89038#89039#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/javax/swing/SwingUtilities.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="1261" column="23" lean-forward="true" selection-start-line="1261" selection-start-column="23" selection-end-line="1261" selection-end-column="23" />
-          <folding>
-            <element signature="e#52022#52023#0" expanded="true" />
-            <element signature="e#52067#52068#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/javax/swing/DefaultRowSorter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="517" column="24" lean-forward="true" selection-start-line="517" selection-start-column="24" selection-end-line="517" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/javax/swing/table/TableRowSorter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="617">
-          <caret line="161" column="24" selection-start-line="161" selection-start-column="24" selection-end-line="161" selection-end-column="24" />
-          <folding>
-            <element signature="e#5738#5739#0" expanded="true" />
-            <element signature="e#5769#5770#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="31" column="32" selection-start-line="31" selection-start-column="32" selection-end-line="31" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/lang/UnsupportedOperationException.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="196">
-          <caret line="51" column="11" selection-start-line="51" selection-start-column="11" selection-end-line="51" selection-end-column="11" />
-          <folding>
-            <element signature="e#925#926#0" expanded="true" />
-            <element signature="e#955#956#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/awt/Desktop.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="220" column="46" selection-start-line="220" selection-start-column="46" selection-end-line="220" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/io/Serializable.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="168" column="17" selection-start-line="168" selection-start-column="17" selection-end-line="168" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/lang/Throwable.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="181">
-          <caret line="113" column="37" lean-forward="true" selection-start-line="113" selection-start-column="37" selection-end-line="113" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/lang/RuntimeException.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="181">
@@ -994,13 +707,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="975">
-          <caret line="90" column="25" selection-start-line="90" selection-start-column="25" selection-end-line="90" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/JTableUtils.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
@@ -1011,10 +717,162 @@
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form">
       <provider selected="true" editor-type-id="ui-designer" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.java">
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/org/w3c/dom/Element.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="174">
+          <caret line="60" column="17" selection-start-line="60" selection-start-column="17" selection-end-line="60" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2610">
+          <caret line="194" column="27" selection-start-line="194" selection-start-column="27" selection-end-line="194" selection-end-column="27" />
+          <folding>
+            <element signature="e#62#1138#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/DependenciesController.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1110">
+          <caret line="93" column="31" selection-start-line="93" selection-start-column="31" selection-end-line="93" selection-end-column="31" />
+          <folding>
+            <element signature="e#63#1141#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/dependencies/DependenciesPanel.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="47" column="59" selection-start-line="47" selection-start-column="59" selection-end-line="47" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
-          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+          <caret line="29" column="13" selection-start-line="29" selection-start-column="13" selection-end-line="29" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-api.jar!/com/intellij/openapi/project/PossiblyDumbAware.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="8" column="20" selection-start-line="8" selection-start-column="20" selection-end-line="8" selection-end-column="20" />
+          <folding>
+            <element signature="e#216#217#0" expanded="true" />
+            <element signature="e#264#265#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/util.jar!/com/intellij/execution/process/ProcessHandler.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="188">
+          <caret line="50" column="26" selection-start-line="50" selection-start-column="26" selection-end-line="50" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-impl.jar!/com/intellij/execution/process/ScriptRunnerUtil.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="40" column="25" selection-start-line="40" selection-start-column="25" selection-end-line="40" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/DependenciesUtils.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="35" column="39" selection-start-line="35" selection-start-column="39" selection-end-line="35" selection-end-column="39" />
+          <folding>
+            <element signature="e#46#309#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-api.jar!/com/intellij/openapi/project/Project.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="34" column="26" selection-start-line="34" selection-start-column="26" selection-end-line="34" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-api.jar!/com/intellij/execution/configurations/GeneralCommandLine.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="168" column="20" lean-forward="true" selection-start-line="168" selection-start-column="20" selection-end-line="168" selection-end-column="20" />
+          <folding>
+            <element signature="e#5634#5635#0" expanded="true" />
+            <element signature="e#5678#5679#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/io/Writer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="167">
+          <caret line="153" column="20" selection-start-line="153" selection-start-column="20" selection-end-line="153" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/io/FileOutputStream.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="197">
+          <caret line="160" column="11" selection-start-line="160" selection-start-column="11" selection-end-line="160" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/java/io/FileWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="212">
+          <caret line="89" column="31" selection-start-line="89" selection-start-column="31" selection-end-line="89" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="7" selection-start-line="25" selection-start-column="7" selection-end-line="25" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/actions/DependenciesComparator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="18" column="84" selection-start-line="18" selection-start-column="84" selection-end-line="18" selection-end-column="84" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/dialog/ModuleSelectorForm.form">
+      <provider selected="true" editor-type-id="ui-designer" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/FileCreator.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="8" column="10" selection-start-line="8" selection-start-column="10" selection-end-line="8" selection-end-column="10" />
+          <folding>
+            <element signature="e#46#118#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/commands/CommandExecutor.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="7" column="31" selection-start-line="7" selection-start-column="31" selection-end-line="7" selection-end-column="31" />
+          <folding>
+            <element signature="e#57#256#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/lib/platform-api.jar!/com/intellij/execution/process/OSProcessHandler.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="32" column="59" selection-start-line="32" selection-start-column="59" selection-end-line="32" selection-end-column="59" />
         </state>
       </provider>
     </entry>
@@ -1039,53 +897,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="19" selection-start-line="13" selection-start-column="19" selection-end-line="13" selection-end-column="19" />
+        <state relative-caret-position="60">
+          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/BaseRepoListController.kt">
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/android/dialog/ModuleSelectorForm.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="194" column="27" selection-start-line="194" selection-start-column="27" selection-end-line="194" selection-end-column="27" />
+        <state relative-caret-position="157">
+          <caret line="44" column="93" selection-start-line="44" selection-start-column="93" selection-end-line="44" selection-end-column="93" />
           <folding>
-            <element signature="e#62#1138#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/controllers/DependenciesController.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="93" column="31" lean-forward="true" selection-start-line="93" selection-start-column="31" selection-end-line="93" selection-end-column="31" />
-          <folding>
-            <element signature="e#63#1141#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/dependencies/DependenciesPanel.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="47" column="59" selection-start-line="47" selection-start-column="59" selection-end-line="47" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///Library/Java/JavaVirtualMachines/jdk1.8.0_191.jdk/Contents/Home/src.zip!/org/w3c/dom/Element.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="60" column="17" selection-start-line="60" selection-start-column="17" selection-end-line="60" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/DependenciesUtils.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="35" column="39" lean-forward="true" selection-start-line="35" selection-start-column="39" selection-end-line="35" selection-end-column="39" />
-          <folding>
-            <element signature="e#46#309#0" expanded="true" />
+            <element signature="e#2280#2281#0" expanded="true" />
+            <element signature="e#2305#2306#0" expanded="true" />
           </folding>
         </state>
       </provider>
