@@ -18,6 +18,7 @@ class ProgressThread {
     fun setup(target: JLabel, message: String) {
         this.target = target
         this.message = message
+        step = 0
     }
 
     fun start() {
