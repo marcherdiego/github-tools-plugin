@@ -35,11 +35,6 @@ class DependenciesPanel : JPanel() {
     override fun paint(g: Graphics?) {
         super.paint(g)
         messageLabel.isVisible = dependenciesAssociations.isEmpty()
-        synchronized(widgetsList) {
-            widgetsList.forEach {
-                add(it.key, it.value)
-            }
-        }
         synchronized(dependenciesAssociations) {
             (g as? Graphics2D?)?.let { graphics2D ->
                 graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
@@ -51,8 +46,8 @@ class DependenciesPanel : JPanel() {
     }
 
     fun setRepository(repository: GHRepositoryWrapper?) {
-        removeAllDependencyWidgets()
         loaderThread.cancel()
+        removeAllDependencyWidgets()
         layout = FlowLayout()
         messageLabel.isVisible = true
         if (repository == null) {
@@ -107,6 +102,7 @@ class DependenciesPanel : JPanel() {
                         gridConstraints.row = 4 * currentLevel
                         gridConstraints.column = levelOffset + 2 * j
                         val dependencyWidget = JButton(dependency.name)
+                        add(dependencyWidget, gridConstraints)
                         widgetsList.add(Pair(dependencyWidget, gridConstraints))
                         dependency.widget = dependencyWidget
 
@@ -138,7 +134,11 @@ class DependenciesPanel : JPanel() {
     private fun removeAllDependencyWidgets() {
         synchronized(widgetsList) {
             widgetsList.forEach {
-                remove(it.key)
+                try {
+                    remove(it.key)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             widgetsList.clear()
         }
@@ -147,7 +147,6 @@ class DependenciesPanel : JPanel() {
 
     fun cancel() {
         loaderThread.cancel()
-        widgetsList.clear()
-        dependenciesAssociations.clear()
+        removeAllDependencyWidgets()
     }
 }
