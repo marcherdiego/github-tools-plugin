@@ -25,31 +25,48 @@ class DependenciesPanel : JPanel() {
     private var loaderThread: Thread? = null
     private val dependenciesAssociations = ArrayList<Pair<JButton, JButton>>()
 
+    private val messageLabel = JLabel()
+    private val widgetsList = mutableListOf<Pair<JButton, GridConstraints>>()
+
+    init {
+        add(messageLabel)
+    }
+
     override fun paint(g: Graphics?) {
         super.paint(g)
-        if (dependenciesAssociations.isEmpty()) {
-            return
+        messageLabel.isVisible = dependenciesAssociations.isEmpty()
+        synchronized(widgetsList) {
+            widgetsList.forEach {
+                add(it.key, it.value)
+            }
         }
-        (g as? Graphics2D?)?.let { graphics2D ->
-            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-            for (association in dependenciesAssociations) {
-                ViewUtils.drawArrow(graphics2D, association.key, association.value)
+        synchronized(dependenciesAssociations) {
+            (g as? Graphics2D?)?.let { graphics2D ->
+                graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+                for (association in dependenciesAssociations) {
+                    ViewUtils.drawArrow(graphics2D, association.key, association.value)
+                }
             }
         }
     }
 
-    fun setRepository(repository: GHRepositoryWrapper) {
+    fun setRepository(repository: GHRepositoryWrapper?) {
+        removeAllDependencyWidgets()
         loaderThread.cancel()
-        clear()
         layout = FlowLayout()
-        add(JLabel("Building dependencies tree.."))
-        repaint()
+        messageLabel.isVisible = true
+        if (repository == null) {
+            messageLabel.text = "Select a repo from the list."
+            return
+        } else {
+            messageLabel.text = "Building dependencies tree.."
+        }
+
         loaderThread = Thread {
             val dependenciesByLevel = DependenciesUtils.getDependencies(repository)
-            clear()
             if (dependenciesByLevel == null) {
                 // No dependencies
-                add(JLabel("This repo has no dependencies defined in its dependencies.xml file"))
+                messageLabel.text = "This repo has no dependencies defined in its dependencies.xml file"
             } else {
                 // Dependencies found
 
@@ -90,7 +107,7 @@ class DependenciesPanel : JPanel() {
                         gridConstraints.row = 4 * currentLevel
                         gridConstraints.column = levelOffset + 2 * j
                         val dependencyWidget = JButton(dependency.name)
-                        add(dependencyWidget, gridConstraints)
+                        widgetsList.add(Pair(dependencyWidget, gridConstraints))
                         dependency.widget = dependencyWidget
 
                         /**
@@ -118,9 +135,19 @@ class DependenciesPanel : JPanel() {
         loaderThread?.start()
     }
 
-    fun clear() {
+    private fun removeAllDependencyWidgets() {
+        synchronized(widgetsList) {
+            widgetsList.forEach {
+                remove(it.key)
+            }
+            widgetsList.clear()
+        }
         dependenciesAssociations.clear()
-        removeAll()
-        repaint()
+    }
+
+    fun cancel() {
+        loaderThread.cancel()
+        widgetsList.clear()
+        dependenciesAssociations.clear()
     }
 }

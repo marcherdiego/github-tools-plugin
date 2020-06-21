@@ -182,20 +182,25 @@ public class GitHubTool implements ToolWindowFactory {
     private void loadTablesInfo() {
         repoComments.setText(null);
 
+        if (allAllReposController != null) {
+            allAllReposController.cancel();
+            allAllReposController.init();
+            allAllReposController.setSelectedRepo(project.getName());
+            allAllReposController.loadRepositories();
+        }
 
-        allAllReposController.cancel();
-        allAllReposController.init();
-        allAllReposController.setSelectedRepo(project.getName());
-        allAllReposController.loadRepositories();
+        if (myReposController != null) {
+            myReposController.cancel();
+            myReposController.init();
+            myReposController.setSelectedRepo(project.getName());
+            myReposController.loadRepositories();
+        }
 
-        myReposController.cancel();
-        myReposController.init();
-        myReposController.setSelectedRepo(project.getName());
-        myReposController.loadRepositories();
-
-        dependenciesController.cancel();
-        dependenciesController.init();
-        dependenciesController.setSelectedRepo(project.getName());
-        dependenciesController.loadRepositories();
+        if (dependenciesController != null) {
+            dependenciesController.cancel();
+            dependenciesController.init();
+            dependenciesController.setSelectedRepo(project.getName());
+            dependenciesController.loadRepositories();
+        }
     }
 }

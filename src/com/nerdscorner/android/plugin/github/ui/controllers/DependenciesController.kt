@@ -36,16 +36,16 @@ class DependenciesController(private val reposTable: JTable, dependenciesGraphPa
 
     fun cancel() {
         loaderThread.cancel()
-        dependenciesPanel.clear()
+        dependenciesPanel.cancel()
     }
 
     fun init() {
         reposTable.addMouseListener(object : SimpleMouseAdapter() {
             override fun mousePressed(row: Int, column: Int, clickCount: Int) {
+                val currentRepository = reposTable.getValueAt(row, BaseModel.COLUMN_NAME) as GHRepositoryWrapper
                 if (clickCount == 1) {
-                    updateRepositoryDependenciesTree()
+                    dependenciesPanel.setRepository(currentRepository)
                 } else if (clickCount == 2) {
-                    val currentRepository = reposTable.getValueAt(row, BaseModel.COLUMN_NAME) as GHRepositoryWrapper
                     GithubUtils.openWebLink(currentRepository.fullUrl)
                 }
             }
@@ -84,16 +84,10 @@ class DependenciesController(private val reposTable: JTable, dependenciesGraphPa
                             reposTableModel.addRow(ghRepositoryWrapper)
                         }
                     }
-            JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable)
-            SwingUtilities.invokeLater { this.updateRepositoryDependenciesTree() }
+            val currentRepo = JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable)
+            SwingUtilities.invokeLater { dependenciesPanel.setRepository(currentRepo) }
         }
         loaderThread?.start()
-    }
-
-    private fun updateRepositoryDependenciesTree() {
-        dependenciesPanel.setRepository(
-                reposTable.getValueAt(reposTable.selectedRow, BaseModel.COLUMN_NAME) as GHRepositoryWrapper
-        )
     }
 
     fun setSelectedRepo(selectedRepo: String) {

@@ -20,16 +20,17 @@ object JTableUtils {
         abstract fun mousePressed(row: Int, column: Int, clickCount: Int)
     }
 
-    fun findAndSelectDefaultRepo(targetRepo: String?, table: JTable) {
+    fun findAndSelectDefaultRepo(targetRepo: String?, table: JTable): GHRepositoryWrapper? {
         if (targetRepo != null) {
             for (i in 0 until table.rowCount) {
                 val currentRepo = table.getValueAt(i, 0) as GHRepositoryWrapper
                 if (targetRepo == currentRepo.toString()) {
                     table.setRowSelectionInterval(i, i)
                     table.scrollRectToVisible(table.getCellRect(i, 0, true))
-                    return
+                    return currentRepo
                 }
             }
         }
+        return null
     }
 }
