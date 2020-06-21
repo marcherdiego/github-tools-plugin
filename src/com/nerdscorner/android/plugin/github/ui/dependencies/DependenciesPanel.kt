@@ -6,8 +6,8 @@ import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.utils.DependenciesUtils
 import com.nerdscorner.android.plugin.utils.GithubUtils
 import com.nerdscorner.android.plugin.utils.MouseUtils.DoubleClickAdapter
-import com.nerdscorner.android.plugin.utils.ThreadUtils
 import com.nerdscorner.android.plugin.utils.ViewUtils
+import com.nerdscorner.android.plugin.utils.cancel
 import javafx.util.Pair
 import java.awt.FlowLayout
 import java.awt.Graphics
@@ -39,7 +39,7 @@ class DependenciesPanel : JPanel() {
     }
 
     fun setRepository(repository: GHRepositoryWrapper) {
-        ThreadUtils.cancelThread(loaderThread)
+        loaderThread.cancel()
         clear()
         layout = FlowLayout()
         add(JLabel("Building dependencies tree.."))
@@ -93,8 +93,8 @@ class DependenciesPanel : JPanel() {
                         add(dependencyWidget, gridConstraints)
                         dependency.widget = dependencyWidget
 
-                        /** Map that associates dependency widgets with each other to draw the arrows
-                         * in [DependenciesPanel.paint]
+                        /**
+                         * Map that associates dependency widgets with each other to draw the arrows in [DependenciesPanel.paint]
                          */
                         dependency.dependsOn?.let { dependsOn ->
                             for (moduleDependency in dependsOn) {

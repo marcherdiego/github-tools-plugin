@@ -1,16 +1,25 @@
 package com.nerdscorner.android.plugin.utils
 
-object ThreadUtils {
-    fun cancelThread(thread: Thread?) {
-        thread?.interrupt()
-    }
+import javax.swing.JLabel
+import javax.swing.SwingUtilities
 
+object ThreadUtils {
     fun cancelThreads(vararg threads: Thread?) {
         if (threads.isNullOrEmpty()) {
             return
         }
         for (thread in threads) {
-            cancelThread(thread)
+            thread.cancel()
         }
+    }
+}
+
+fun Thread?.cancel() {
+    this?.interrupt()
+}
+
+fun JLabel.setTextThread(text: String) {
+    SwingUtilities.invokeLater {
+        setText(text)
     }
 }

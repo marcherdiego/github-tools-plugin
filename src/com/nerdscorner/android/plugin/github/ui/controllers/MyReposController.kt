@@ -8,7 +8,7 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer
 import com.nerdscorner.android.plugin.utils.JTableUtils
 import com.nerdscorner.android.plugin.utils.Strings
-import com.nerdscorner.android.plugin.utils.ThreadUtils
+import com.nerdscorner.android.plugin.utils.cancel
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.kohsuke.github.GHMyself
@@ -26,7 +26,7 @@ class MyReposController(reposTable: JTable, repoReleases: JTable, repoPullReques
                 ghOrganization, BaseModel.COLUMN_NAME) {
 
     override fun loadRepositories() {
-        ThreadUtils.cancelThread(loaderThread)
+        loaderThread.cancel()
         loaderThread = Thread {
             val myReposTableModel = GHRepoTableModel(ArrayList(), arrayOf(Strings.NAME))
             reposTable.model = myReposTableModel

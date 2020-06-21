@@ -12,7 +12,7 @@ import com.nerdscorner.android.plugin.utils.GithubUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter
 import com.nerdscorner.android.plugin.utils.Strings
-import com.nerdscorner.android.plugin.utils.ThreadUtils
+import com.nerdscorner.android.plugin.utils.cancel
 import org.kohsuke.github.GHMyself
 import org.kohsuke.github.GHOrganization
 import java.util.ArrayList
@@ -35,7 +35,7 @@ class DependenciesController(private val reposTable: JTable, dependenciesGraphPa
     }
 
     fun cancel() {
-        ThreadUtils.cancelThread(loaderThread)
+        loaderThread.cancel()
         dependenciesPanel.clear()
     }
 
@@ -57,7 +57,7 @@ class DependenciesController(private val reposTable: JTable, dependenciesGraphPa
     }
 
     fun loadRepositories() {
-        ThreadUtils.cancelThread(loaderThread)
+        loaderThread.cancel()
         loaderThread = Thread {
             val reposTableModel = GHRepoTableModel(ArrayList(), arrayOf(Strings.NAME))
             reposTable.model = reposTableModel

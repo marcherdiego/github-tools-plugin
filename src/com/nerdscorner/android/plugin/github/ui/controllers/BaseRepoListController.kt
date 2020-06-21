@@ -10,6 +10,7 @@ import com.nerdscorner.android.plugin.utils.GithubUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
+import com.nerdscorner.android.plugin.utils.cancel
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
@@ -175,7 +176,7 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
         currentRepository = reposTable.getValueAt(selectedRow, dataColumn) as GHRepositoryWrapper
         repoComments.text = null
         try {
-            ThreadUtils.cancelThread(repoDataLoaderThread)
+            repoDataLoaderThread.cancel()
             repoDataLoaderThread = Thread {
                 try {
                     commentsUpdated = false
