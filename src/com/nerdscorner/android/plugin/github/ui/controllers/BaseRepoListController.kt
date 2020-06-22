@@ -23,9 +23,10 @@ import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
 
-abstract class BaseRepoListController internal constructor(var reposTable: JTable, val repoReleasesTable: JTable,
-                                                           val repoOpenPullRequestsTable: JTable, val repoClosedPullRequestsTable: JTable,
-                                                           val repoComments: JLabel, var ghOrganization: GHOrganization, val dataColumn: Int) {
+abstract class BaseRepoListController internal constructor(
+        var reposTable: JTable, val repoReleasesTable: JTable,
+        val repoOpenPullRequestsTable: JTable, val repoClosedPullRequestsTable: JTable,
+        val repoComments: JLabel, var ghOrganization: GHOrganization, val dataColumn: Int) {
     private var currentRepository: GHRepositoryWrapper? = null
 
     var loaderThread: Thread? = null
@@ -45,7 +46,9 @@ abstract class BaseRepoListController internal constructor(var reposTable: JTabl
 
     private fun startListeningBus() {
         if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus.getDefault().register(this)
+            EventBus
+                    .getDefault()
+                    .register(this)
         }
     }
 

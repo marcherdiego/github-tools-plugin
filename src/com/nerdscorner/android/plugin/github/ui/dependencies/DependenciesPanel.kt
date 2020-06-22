@@ -54,7 +54,7 @@ class DependenciesPanel : JPanel() {
             messageLabel.text = "Select a repo from the list."
             return
         } else {
-            messageLabel.text = "Fetching dependencies tree.."
+            messageLabel.text = "Fetching dependencies tree..."
         }
 
         loaderThread = Thread {
