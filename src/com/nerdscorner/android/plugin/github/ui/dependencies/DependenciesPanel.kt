@@ -54,14 +54,14 @@ class DependenciesPanel : JPanel() {
             messageLabel.text = "Select a repo from the list."
             return
         } else {
-            messageLabel.text = "Building dependencies tree.."
+            messageLabel.text = "Fetching dependencies tree.."
         }
 
         loaderThread = Thread {
             val dependenciesByLevel = DependenciesUtils.getDependencies(repository)
             if (dependenciesByLevel == null) {
                 // No dependencies
-                messageLabel.text = "This repo has no dependencies defined in its dependencies.xml file"
+                messageLabel.text = "dependencies.xml not found"
             } else {
                 // Dependencies found
 
@@ -102,6 +102,7 @@ class DependenciesPanel : JPanel() {
                         gridConstraints.row = 4 * currentLevel
                         gridConstraints.column = levelOffset + 2 * j
                         val dependencyWidget = JButton(dependency.name)
+                        dependencyWidget.toolTipText = dependency.url
                         add(dependencyWidget, gridConstraints)
                         widgetsList.add(Pair(dependencyWidget, gridConstraints))
                         dependency.widget = dependencyWidget

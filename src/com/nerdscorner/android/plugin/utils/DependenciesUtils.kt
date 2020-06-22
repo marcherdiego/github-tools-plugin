@@ -8,6 +8,16 @@ import java.util.ArrayList
 import javax.xml.parsers.DocumentBuilderFactory
 
 object DependenciesUtils {
+    private const val DEPENDENCIES_XML = "/dependencies.xml"
+
+    private const val DEPENDENCY = "dependency"
+    private val COMMA_REGEX = ",".toRegex()
+
+    private const val ID = "id"
+    private const val NAME = "name"
+    private const val LEVEL = "level"
+    private const val URL = "url"
+    private const val DEPENDS_ON = "depends_on"
 
     /**
      * Builds a map to create the dependencies tree
@@ -25,12 +35,12 @@ object DependenciesUtils {
             // Try to fetch the dependencies.xml file from the repository
             val document = builder.parse(
                     repository
-                            .getFileContent("/dependencies.xml")
+                            .getFileContent(DEPENDENCIES_XML)
                             .read()
             )
 
             // Find all dependency nodes
-            val nodes = document.documentElement.getElementsByTagName("dependency")
+            val nodes = document.documentElement.getElementsByTagName(DEPENDENCY)
             val dependencies = ArrayList<Dependency>()
             val levelOneDependencies = ArrayList<Dependency>()
             for (temp in 0 until nodes.length) {
@@ -38,11 +48,11 @@ object DependenciesUtils {
                 if (node.nodeType == Node.ELEMENT_NODE) {
                     // Get dependency metadata
                     val element = node as Element
-                    val dependencyId = element.getAttribute("id")
-                    val dependencyName = element.getAttribute("name")
-                    val dependencyLevel = Integer.valueOf(element.getAttribute("level"))
-                    val dependencyUrl = element.getAttribute("url")
-                    val dependencyDependencies = element.getAttribute("depends_on")
+                    val dependencyId = element.getAttribute(ID)
+                    val dependencyName = element.getAttribute(NAME)
+                    val dependencyLevel = Integer.valueOf(element.getAttribute(LEVEL))
+                    val dependencyUrl = element.getAttribute(URL)
+                    val dependencyDependencies = element.getAttribute(DEPENDS_ON)
 
                     // Build the dependency object
                     val dependency = Dependency(
@@ -92,7 +102,7 @@ object DependenciesUtils {
         val result = ArrayList<Dependency>()
         dependency
                 .dependsOnIds
-                ?.split(",".toRegex())
+                ?.split(COMMA_REGEX)
                 ?.dropLastWhile {
                     it.isEmpty()
                 }
