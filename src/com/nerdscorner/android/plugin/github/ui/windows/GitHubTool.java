@@ -147,30 +147,6 @@ public class GitHubTool implements ToolWindowFactory {
             myselfGitHub = github.getMyself();
             loggedAsField.setVisible(true);
             loggedAsField.setText(String.format(Strings.LOGGED_AS, myselfGitHub.getLogin(), myselfGitHub.getName()));
-
-            allAllReposController = new AllReposController(
-                    allReposTable,
-                    allRepoReleases,
-                    allRepoOpenPullRequestsTable,
-                    allRepoClosedPullRequestsTable,
-                    repoComments,
-                    ghOrganization
-            );
-            myReposController = new MyReposController(
-                    myReposTable,
-                    myReposReleasesTable,
-                    myReposOpenPrTable,
-                    myReposClosedPrTable,
-                    repoComments,
-                    myselfGitHub,
-                    ghOrganization
-            );
-            dependenciesController = new DependenciesController(
-                    allReposDependenciesTable,
-                    dependenciesGraphPanel,
-                    ghOrganization,
-                    myselfGitHub
-            );
             loadTablesInfo();
             return true;
         } catch (Exception e) {
@@ -184,23 +160,46 @@ public class GitHubTool implements ToolWindowFactory {
 
         if (allAllReposController != null) {
             allAllReposController.cancel();
-            allAllReposController.init();
-            allAllReposController.setSelectedRepo(project.getName());
-            allAllReposController.loadRepositories();
         }
+        allAllReposController = new AllReposController(
+                allReposTable,
+                allRepoReleases,
+                allRepoOpenPullRequestsTable,
+                allRepoClosedPullRequestsTable,
+                repoComments,
+                ghOrganization
+        );
+        allAllReposController.init();
+        allAllReposController.setSelectedRepo(project.getName());
+        allAllReposController.loadRepositories();
 
         if (myReposController != null) {
             myReposController.cancel();
-            myReposController.init();
-            myReposController.setSelectedRepo(project.getName());
-            myReposController.loadRepositories();
         }
+        myReposController = new MyReposController(
+                myReposTable,
+                myReposReleasesTable,
+                myReposOpenPrTable,
+                myReposClosedPrTable,
+                repoComments,
+                myselfGitHub,
+                ghOrganization
+        );
+        myReposController.init();
+        myReposController.setSelectedRepo(project.getName());
+        myReposController.loadRepositories();
 
         if (dependenciesController != null) {
             dependenciesController.cancel();
-            dependenciesController.init();
-            dependenciesController.setSelectedRepo(project.getName());
-            dependenciesController.loadRepositories();
         }
+        dependenciesController = new DependenciesController(
+                allReposDependenciesTable,
+                dependenciesGraphPanel,
+                ghOrganization,
+                myselfGitHub
+        );
+        dependenciesController.init();
+        dependenciesController.setSelectedRepo(project.getName());
+        dependenciesController.loadRepositories();
     }
 }

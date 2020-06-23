@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="github-api-1.114">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/github-api-1.114.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

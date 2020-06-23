@@ -7,6 +7,7 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.utils.GithubUtils
+import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
@@ -24,9 +25,13 @@ import javax.swing.JTable
 import javax.swing.ListSelectionModel
 
 abstract class BaseRepoListController internal constructor(
-        var reposTable: JTable, val repoReleasesTable: JTable,
-        val repoOpenPullRequestsTable: JTable, val repoClosedPullRequestsTable: JTable,
-        val repoComments: JLabel, var ghOrganization: GHOrganization, val dataColumn: Int) {
+        val reposTable: JTable,
+        val repoReleasesTable: JTable,
+        val repoOpenPullRequestsTable: JTable,
+        val repoClosedPullRequestsTable: JTable,
+        private val repoComments: JLabel,
+        val ghOrganization: GHOrganization,
+        private val dataColumn: Int) {
     private var currentRepository: GHRepositoryWrapper? = null
 
     var loaderThread: Thread? = null
@@ -35,7 +40,7 @@ abstract class BaseRepoListController internal constructor(
     var commentsUpdated: Boolean = false
     var selectedRepo: String? = null
 
-    val latestReleaseDate: Date?
+    private val latestReleaseDate: Date?
         get() {
             val latestRelease = (repoReleasesTable.model as GHReleaseTableModel).getRow(0)
             return latestRelease?.ghRelease?.published_at
@@ -58,32 +63,35 @@ abstract class BaseRepoListController internal constructor(
         reposTable.addMouseListener(object : SimpleMouseAdapter() {
             override fun mousePressed(row: Int, column: Int, clickCount: Int) {
                 if (clickCount == 1) {
+                    clearTables()
                     updateRepositoryInfoTables()
                 } else if (clickCount == 2) {
                     GithubUtils.openWebLink(currentRepository?.fullUrl)
                 }
             }
         })
-        repoReleasesTable.addMouseListener(object : SimpleMouseAdapter() {
-            override fun mousePressed(row: Int, column: Int, clickCount: Int) {
-                if (clickCount == 2) {
-                    val release = (repoReleasesTable.model as GHReleaseTableModel).getRow(row)
-                    GithubUtils.openWebLink(release?.fullUrl)
-                }
+        repoReleasesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
+            override fun onDoubleClick(row: Int, column: Int) {
+                val release = (repoReleasesTable.model as GHReleaseTableModel).getRow(row)
+                GithubUtils.openWebLink(release?.fullUrl)
             }
         })
-        repoOpenPullRequestsTable.addMouseListener(object : SimpleMouseAdapter() {
-            override fun mousePressed(row: Int, column: Int, clickCount: Int) {
-                if (clickCount == 2) {
-                    val pullRequest = (repoOpenPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
+        repoOpenPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
+            override fun onDoubleClick(row: Int, column: Int) {
+                val pullRequest = (repoOpenPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
+                if (column == GHPullRequestTableModel.COLUMN_CI_URL) {
+                    GithubUtils.openWebLink(pullRequest?.buildStatusUrl)
+                } else {
                     GithubUtils.openWebLink(pullRequest?.fullUrl)
                 }
             }
         })
-        repoClosedPullRequestsTable.addMouseListener(object : SimpleMouseAdapter() {
-            override fun mousePressed(row: Int, column: Int, clickCount: Int) {
-                if (clickCount == 2) {
-                    val pullRequest = (repoClosedPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
+        repoClosedPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
+            override fun onDoubleClick(row: Int, column: Int) {
+                val pullRequest = (repoClosedPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
+                if (column == GHPullRequestTableModel.COLUMN_CI_URL) {
+                    GithubUtils.openWebLink(pullRequest?.buildStatusUrl)
+                } else {
                     GithubUtils.openWebLink(pullRequest?.fullUrl)
                 }
             }
@@ -96,6 +104,11 @@ abstract class BaseRepoListController internal constructor(
         if (reposTable.model is BaseModel<*>) {
             (reposTable.model as BaseModel<*>).removeAllRows()
         }
+
+        clearTables()
+    }
+
+    private fun clearTables() {
         if (repoReleasesTable.model is BaseModel<*>) {
             (repoReleasesTable.model as BaseModel<*>).removeAllRows()
         }
@@ -119,22 +132,26 @@ abstract class BaseRepoListController internal constructor(
                 ?.ghRepository
                 ?.listReleases()
                 ?.withPageSize(SMALL_PAGE_SIZE)
+                ?.toList()
                 ?.forEach { ghRelease -> repoReleasesModel.addRow(GHReleaseWrapper(ghRelease)) }
     }
 
     private fun loadPullRequests() {
         val openPrsModel = GHPullRequestTableModel(
                 ArrayList(),
-                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE)
+                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_URL)
         )
         val closedPrsModel = GHPullRequestTableModel(
                 ArrayList(),
-                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE)
+                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_URL)
         )
         repoOpenPullRequestsTable.model = openPrsModel
         repoClosedPullRequestsTable.model = closedPrsModel
         val repoName = currentRepository?.ghRepository?.name
-        val latestReleaseDate = latestReleaseDate
+        if (latestReleaseDate == null) {
+            commentsUpdated = true
+            repoComments.text = String.format(Strings.REPO_NO_RELEASES_YET, repoName)
+        }
         currentRepository
                 ?.ghRepository
                 ?.queryPullRequests()
@@ -147,19 +164,11 @@ abstract class BaseRepoListController internal constructor(
                     if (pullRequest.state == GHIssueState.OPEN) {
                         openPrsModel.addRow(GHPullRequestWrapper(pullRequest))
                     } else if (pullRequest.state == GHIssueState.CLOSED) {
-                        if (latestReleaseDate == null) {
-                            commentsUpdated = true
-                            repoComments.text = String.format(Strings.REPO_NO_RELEASES_YET, repoName)
-                            return
-                        }
-                        val mergedAt = pullRequest.mergedAt
-                        if (mergedAt != null) {
-                            if (mergedAt.after(latestReleaseDate)) {
-                                closedPrsModel.addRow(GHPullRequestWrapper(pullRequest))
-                                if (!commentsUpdated) {
-                                    commentsUpdated = true
-                                    repoComments.text = String.format(Strings.REPO_NEEDS_RELEASE, repoName)
-                                }
+                        if (pullRequest.mergedAt?.after(latestReleaseDate) == true) {
+                            closedPrsModel.addRow(GHPullRequestWrapper(pullRequest))
+                            if (!commentsUpdated) {
+                                commentsUpdated = true
+                                repoComments.text = String.format(Strings.REPO_NEEDS_RELEASE, repoName)
                             }
                         }
                     }

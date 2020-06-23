@@ -67,5 +67,6 @@
     </orderEntry>
     <orderEntry type="library" name="gson-2.8.6" level="project" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
+    <orderEntry type="library" name="github-api-1.114" level="project" />
   </component>
 </module>

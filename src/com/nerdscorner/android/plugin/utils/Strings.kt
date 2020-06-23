@@ -9,6 +9,7 @@ object Strings {
     const val NAME = "Name"
     const val TITLE = "Title"
     const val DATE = "Date"
+    const val BUILD_URL = "Build Url"
     const val TAG = "Tag"
     const val AUTHOR = "Author"
     const val REPO_NEEDS_RELEASE = "%s needs to be released"

@@ -20,6 +20,16 @@ object JTableUtils {
         abstract fun mousePressed(row: Int, column: Int, clickCount: Int)
     }
 
+    abstract class SimpleDoubleClickAdapter : SimpleMouseAdapter() {
+        override fun mousePressed(row: Int, column: Int, clickCount: Int) {
+            if (clickCount == 2) {
+                onDoubleClick(row, column)
+            }
+        }
+
+        abstract fun onDoubleClick(row: Int, column: Int)
+    }
+
     fun findAndSelectDefaultRepo(targetRepo: String?, table: JTable): GHRepositoryWrapper? {
         if (targetRepo != null) {
             for (i in 0 until table.rowCount) {
