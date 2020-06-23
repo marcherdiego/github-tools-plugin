@@ -1,17 +1,19 @@
 <idea-plugin>
     <id>com.nerdscorner.android.plugin.github</id>
     <name>Github Tools</name>
-    <version>1.2.0</version>
+    <version>1.3.0</version>
     <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
-      A small tool to keep track of the Github repositories you have in your organization along with their pull requests, releases and more
+      A small tool to keep track of the Github repositories you have in your organization along with their pull requests, releases and more!
+      It also provides a dependencies viewer and navigator
+      TravisCI and CircleCI integration to go directly to the build itself to monitor it
     ]]></description>
 
     <change-notes><![CDATA[
         Improved dependencies tab.
-        Migrated code to Kotlin.
-        Default selected repo is the one that is running the plugin.
+        Added new column in repos table to see its status and get right into the CI build itself!
+        Improved dependencies comparator
     ]]>
     </change-notes>
 
