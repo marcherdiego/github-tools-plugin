@@ -5,7 +5,8 @@ import com.nerdscorner.android.plugin.utils.Strings
 import java.io.Serializable
 import java.text.SimpleDateFormat
 
-class GHReleaseTableModel(releases: MutableList<GHReleaseWrapper>, colNames: Array<String>) : BaseModel<GHReleaseWrapper>(releases, colNames), Serializable {
+class GHReleaseTableModel(releases: MutableList<GHReleaseWrapper>, colNames: Array<String>)
+    : BaseModel<GHReleaseWrapper>(releases, colNames), Serializable {
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
         if (rowIndex < 0 || rowIndex >= items.size) {
@@ -20,7 +21,7 @@ class GHReleaseTableModel(releases: MutableList<GHReleaseWrapper>, colNames: Arr
     }
 
     companion object {
-        private const val COLUMN_TAG = 0
-        private const val COLUMN_DATE = 1
+        const val COLUMN_TAG = 0
+        const val COLUMN_DATE = 1
     }
 }

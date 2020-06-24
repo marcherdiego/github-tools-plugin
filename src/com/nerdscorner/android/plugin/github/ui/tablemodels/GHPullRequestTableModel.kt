@@ -28,9 +28,7 @@ class GHPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper>, c
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            COLUMN_CI_URL -> {
-                pullRequestWrapper.buildStatus
-            }
+            COLUMN_CI_STATUS -> pullRequestWrapper.buildStatus
             else -> null
         }
     }
@@ -38,7 +36,7 @@ class GHPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper>, c
     companion object {
         private const val COLUMN_TITLE = 0
         private const val COLUMN_AUTHOR = 1
-        private const val COLUMN_DATE = 2
-        const val COLUMN_CI_URL = 3
+        const val COLUMN_DATE = 2
+        const val COLUMN_CI_STATUS = 3
     }
 }

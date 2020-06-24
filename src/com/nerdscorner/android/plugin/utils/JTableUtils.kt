@@ -3,7 +3,9 @@ package com.nerdscorner.android.plugin.utils
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
+import javax.swing.JLabel
 import javax.swing.JTable
+import javax.swing.table.DefaultTableCellRenderer
 
 object JTableUtils {
 
@@ -42,5 +44,17 @@ object JTableUtils {
             }
         }
         return null
+    }
+
+    fun centerColumns(table: JTable, vararg columns: Int) {
+        val columnRenderer = object : DefaultTableCellRenderer() {}.apply {
+            horizontalAlignment = JLabel.CENTER
+        }
+        columns.forEach { column ->
+            table
+                    .columnModel
+                    .getColumn(column)
+                    .cellRenderer = columnRenderer
+        }
     }
 }

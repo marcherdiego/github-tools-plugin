@@ -9,6 +9,7 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.utils.GithubUtils
+import com.nerdscorner.android.plugin.utils.JTableUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter
 import com.nerdscorner.android.plugin.utils.Strings
@@ -83,7 +84,7 @@ abstract class BaseRepoListController internal constructor(
         repoOpenPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
                 val pullRequest = (repoOpenPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
-                if (column == GHPullRequestTableModel.COLUMN_CI_URL) {
+                if (column == GHPullRequestTableModel.COLUMN_CI_STATUS) {
                     GithubUtils.openWebLink(pullRequest?.buildStatusUrl)
                 } else {
                     GithubUtils.openWebLink(pullRequest?.fullUrl)
@@ -93,7 +94,7 @@ abstract class BaseRepoListController internal constructor(
         repoClosedPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
                 val pullRequest = (repoClosedPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
-                if (column == GHPullRequestTableModel.COLUMN_CI_URL) {
+                if (column == GHPullRequestTableModel.COLUMN_CI_STATUS) {
                     GithubUtils.openWebLink(pullRequest?.buildStatusUrl)
                 } else {
                     GithubUtils.openWebLink(pullRequest?.fullUrl)
@@ -145,7 +146,8 @@ abstract class BaseRepoListController internal constructor(
     @Throws(IOException::class)
     private fun loadReleases() {
         val repoReleasesModel = GHReleaseTableModel(ArrayList(), arrayOf(Strings.TAG, Strings.DATE))
-        repoReleasesTable.model = repoReleasesModel
+        repoReleasesTable.model = crepoReleasesModel
+        JTableUtils.centerColumns(repoReleasesTable, GHReleaseTableModel.COLUMN_DATE)
         currentRepository
                 ?.ghRepository
                 ?.listReleases()
@@ -158,6 +160,7 @@ abstract class BaseRepoListController internal constructor(
     private fun loadBranches() {
         val repoBranchesModel = GHBranchTableModel(ArrayList(), arrayOf(Strings.NAME, Strings.STATUS, Strings.CI_ACTIONS))
         repoBranchesTable.model = repoBranchesModel
+        JTableUtils.centerColumns(repoBranchesTable, GHBranchTableModel.COLUMN_STATUS, GHBranchTableModel.COLUMN_TRIGGER_BUILD)
         currentRepository
                 ?.ghRepository
                 ?.branches
@@ -170,14 +173,17 @@ abstract class BaseRepoListController internal constructor(
     private fun loadPullRequests() {
         val openPrsModel = GHPullRequestTableModel(
                 ArrayList(),
-                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_URL)
+                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_STATUS)
         )
         val closedPrsModel = GHPullRequestTableModel(
                 ArrayList(),
-                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_URL)
+                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_STATUS)
         )
         repoOpenPullRequestsTable.model = openPrsModel
         repoClosedPullRequestsTable.model = closedPrsModel
+
+        JTableUtils.centerColumns(repoOpenPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
+        JTableUtils.centerColumns(repoClosedPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
         val repoName = currentRepository?.ghRepository?.name
         if (latestReleaseDate == null) {
             commentsUpdated = true

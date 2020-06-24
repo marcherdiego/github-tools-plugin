@@ -12,7 +12,7 @@ object Strings {
     const val TITLE = "Title"
     const val DATE = "Date"
     const val STATUS = "Status"
-    const val BUILD_URL = "Build Url"
+    const val BUILD_STATUS = "Build status"
     const val TAG = "Tag"
     const val CI_ACTIONS = "CI Actions"
     const val AUTHOR = "Author"
