@@ -20,10 +20,17 @@ import javax.swing.JTable
 import javax.swing.SwingUtilities
 import javax.swing.table.AbstractTableModel
 
-class MyReposController(reposTable: JTable, repoReleases: JTable, repoPullRequestsTable: JTable, repoClosedPullRequestsTable: JTable,
-                        repoComments: JLabel, private val myselfGitHub: GHMyself, ghOrganization: GHOrganization) :
-        BaseRepoListController(reposTable, repoReleases, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments,
-                ghOrganization, BaseModel.COLUMN_NAME) {
+class MyReposController(
+        reposTable: JTable,
+        repoReleases: JTable,
+        repoBranches: JTable,
+        repoPullRequestsTable: JTable,
+        repoClosedPullRequestsTable: JTable,
+        repoComments: JLabel,
+        private val myselfGitHub: GHMyself,
+        ghOrganization: GHOrganization
+) : BaseRepoListController(reposTable, repoReleases, repoBranches, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments,
+                           ghOrganization, BaseModel.COLUMN_NAME) {
 
     override fun loadRepositories() {
         loaderThread.cancel()

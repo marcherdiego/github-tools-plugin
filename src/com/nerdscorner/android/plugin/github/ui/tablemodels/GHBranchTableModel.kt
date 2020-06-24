@@ -1,0 +1,25 @@
+package com.nerdscorner.android.plugin.github.ui.tablemodels
+
+import com.nerdscorner.android.plugin.github.domain.gh.GHBranchWrapper
+import java.io.Serializable
+
+class GHBranchTableModel(branches: MutableList<GHBranchWrapper>, colNames: Array<String>)
+    : BaseModel<GHBranchWrapper>(branches, colNames), Serializable {
+
+    override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
+        if (rowIndex < 0 || rowIndex >= items.size) {
+            return null
+        }
+        val branch = items[rowIndex]
+        return when (columnIndex) {
+            COLUMN_NAME -> branch.ghBranch.name
+            COLUMN_STATUS -> branch.buildStatus
+            else -> null
+        }
+    }
+
+    companion object {
+        const val COLUMN_NAME = 0
+        const val COLUMN_STATUS = 1
+    }
+}

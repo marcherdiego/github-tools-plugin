@@ -37,11 +37,13 @@ public class GitHubTool implements ToolWindowFactory {
 
     private JTable allReposTable;
     private JTable allRepoReleases;
+    private JTable allRepoBranches;
     private JTable allRepoOpenPullRequestsTable;
     private JTable allRepoClosedPullRequestsTable;
     private AllReposController allAllReposController;
 
     private JTable myReposTable;
+    private JTable myReposBranchesTable;
     private JTable myReposOpenPrTable;
     private JTable myReposReleasesTable;
     private JTable myReposClosedPrTable;
@@ -164,6 +166,7 @@ public class GitHubTool implements ToolWindowFactory {
         allAllReposController = new AllReposController(
                 allReposTable,
                 allRepoReleases,
+                allRepoBranches,
                 allRepoOpenPullRequestsTable,
                 allRepoClosedPullRequestsTable,
                 repoComments,
@@ -179,6 +182,7 @@ public class GitHubTool implements ToolWindowFactory {
         myReposController = new MyReposController(
                 myReposTable,
                 myReposReleasesTable,
+                myReposBranchesTable,
                 myReposOpenPrTable,
                 myReposClosedPrTable,
                 repoComments,
