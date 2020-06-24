@@ -183,7 +183,8 @@ abstract class BaseRepoListController internal constructor(
         repoClosedPullRequestsTable.model = closedPrsModel
 
         JTableUtils.centerColumns(repoOpenPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
-        JTableUtils.centerColumns(repoClosedPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
+        JTableUtils.centerColumns(repoClosedPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE,
+                                  GHPullRequestTableModel.COLUMN_CI_STATUS)
         val repoName = currentRepository?.ghRepository?.name
         if (latestReleaseDate == null) {
             commentsUpdated = true
@@ -229,11 +230,19 @@ abstract class BaseRepoListController internal constructor(
             ThreadUtils.cancelThreads(repoReleasesLoaderThread, repoBranchesLoaderThread)
 
             repoBranchesLoaderThread = Thread {
-                loadBranches()
+                try {
+                    loadBranches()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             repoReleasesLoaderThread = Thread {
-                loadReleases()
-                loadPullRequests()
+                try {
+                    loadReleases()
+                    loadPullRequests()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
             repoBranchesLoaderThread?.start()

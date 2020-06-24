@@ -86,7 +86,9 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
                         showResultDialog(BUILD_TRIGGERED, true)
                     },
                     fail = { message ->
-                        showResultDialog("$BUILD_TRIGGER_FAILED $message", false)
+                        showResultDialog("$BUILD_TRIGGER_FAILED $message", false) {
+                            propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK)
+                        }
                     }
             )
         }
@@ -108,7 +110,9 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
                         showResultDialog(BUILD_TRIGGERED, true)
                     },
                     fail = { message ->
-                        showResultDialog("$BUILD_TRIGGER_FAILED $message", false)
+                        showResultDialog("$BUILD_TRIGGER_FAILED $message", false) {
+                            propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK)
+                        }
                     }
             )
         }
@@ -123,13 +127,27 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
         resultDialog.isVisible = true
     }
 
-    private fun showResultDialog(message: String, success: Boolean) {
+    private fun showResultDialog(message: String, success: Boolean, clear: () -> Unit = {}) {
         val resultDialog = if (success) {
-            ResultDialog(message, VIEW_BUILD, ResultDialog.Callback {
-                openBuildInBrowser()
-            })
+            ResultDialog(
+                    message,
+                    VIEW_BUILD,
+                    ResultDialog.SuccessCallback {
+                        openBuildInBrowser()
+                    }
+            )
         } else {
-            ResultDialog(message)
+            ResultDialog(
+                    message,
+                    VIEW_BUILD,
+                    ResultDialog.SuccessCallback {
+                        openBuildInBrowser()
+                    },
+                    CLEAR_TOKEN,
+                    ResultDialog.ClearCallback {
+                        clear()
+                    }
+            )
         }
         resultDialog.pack()
         resultDialog.setLocationRelativeTo(null)
@@ -149,6 +167,7 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
         private const val CIRCLE_CI = "circleci"
 
         private const val VIEW_BUILD = "View build"
+        private const val CLEAR_TOKEN = "Clear token"
         private const val BUILD_TRIGGERED = "Build triggered!"
         private const val BUILD_TRIGGER_FAILED = "Build trigger failed with message:"
     }

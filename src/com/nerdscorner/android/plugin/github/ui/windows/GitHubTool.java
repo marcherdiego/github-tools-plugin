@@ -127,6 +127,8 @@ public class GitHubTool implements ToolWindowFactory {
                 ViewUtils.INSTANCE.show(loginPanel);
                 ViewUtils.INSTANCE.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
                 propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
+                propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK);
+                propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK);
                 github = null;
                 ghOrganization = null;
                 myselfGitHub = null;
