@@ -102,11 +102,11 @@ abstract class BaseRepoListController internal constructor(
         })
         repoBranchesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val branch = (repoBranchesTable.model as GHBranchTableModel).getRow(row)
-                if (column == GHBranchTableModel.COLUMN_STATUS) {
-                    GithubUtils.openWebLink(branch?.buildStatusUrl)
-                } else {
-                    GithubUtils.openWebLink(branch?.url)
+                val branch = (repoBranchesTable.model as GHBranchTableModel).getRow(row) ?: return
+                when (column) {
+                    GHBranchTableModel.COLUMN_NAME -> GithubUtils.openWebLink(branch.url)
+                    GHBranchTableModel.COLUMN_STATUS -> GithubUtils.openWebLink(branch.buildStatusUrl)
+                    GHBranchTableModel.COLUMN_TRIGGER_BUILD -> branch.triggerBuild()
                 }
             }
         })
@@ -156,7 +156,7 @@ abstract class BaseRepoListController internal constructor(
 
     @Throws(IOException::class)
     private fun loadBranches() {
-        val repoBranchesModel = GHBranchTableModel(ArrayList(), arrayOf(Strings.NAME, Strings.STATUS))
+        val repoBranchesModel = GHBranchTableModel(ArrayList(), arrayOf(Strings.NAME, Strings.STATUS, Strings.CI_ACTIONS))
         repoBranchesTable.model = repoBranchesModel
         currentRepository
                 ?.ghRepository

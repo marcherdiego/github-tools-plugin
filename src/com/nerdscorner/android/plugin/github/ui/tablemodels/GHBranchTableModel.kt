@@ -14,6 +14,7 @@ class GHBranchTableModel(branches: MutableList<GHBranchWrapper>, colNames: Array
         return when (columnIndex) {
             COLUMN_NAME -> branch.ghBranch.name
             COLUMN_STATUS -> branch.buildStatus
+            COLUMN_TRIGGER_BUILD -> TRIGGER_BUILD
             else -> null
         }
     }
@@ -21,5 +22,8 @@ class GHBranchTableModel(branches: MutableList<GHBranchWrapper>, colNames: Array
     companion object {
         const val COLUMN_NAME = 0
         const val COLUMN_STATUS = 1
+        const val COLUMN_TRIGGER_BUILD = 2
+
+        private const val TRIGGER_BUILD = "Re-run"
     }
 }

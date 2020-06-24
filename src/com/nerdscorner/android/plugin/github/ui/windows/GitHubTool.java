@@ -160,6 +160,13 @@ public class GitHubTool implements ToolWindowFactory {
     private void loadTablesInfo() {
         repoComments.setText(null);
 
+        if (ghOrganization == null) {
+            final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+            String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
+            String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
+            githubTokenLogin(oauthToken, organization);
+        }
+
         if (allAllReposController != null) {
             allAllReposController.cancel();
         }
