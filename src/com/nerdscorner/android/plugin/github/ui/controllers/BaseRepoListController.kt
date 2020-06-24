@@ -105,7 +105,7 @@ abstract class BaseRepoListController internal constructor(
                 val branch = (repoBranchesTable.model as GHBranchTableModel).getRow(row) ?: return
                 when (column) {
                     GHBranchTableModel.COLUMN_NAME -> GithubUtils.openWebLink(branch.url)
-                    GHBranchTableModel.COLUMN_STATUS -> GithubUtils.openWebLink(branch.buildStatusUrl)
+                    GHBranchTableModel.COLUMN_STATUS -> branch.openBuildInBrowser()
                     GHBranchTableModel.COLUMN_TRIGGER_BUILD -> branch.triggerBuild()
                 }
             }
@@ -195,7 +195,7 @@ abstract class BaseRepoListController internal constructor(
                     if (pullRequest.state == GHIssueState.OPEN) {
                         openPrsModel.addRow(GHPullRequestWrapper(pullRequest))
                     } else if (pullRequest.state == GHIssueState.CLOSED) {
-                        if (pullRequest.mergedAt?.after(latestReleaseDate) == true) {
+                        if (pullRequest.mergedAt?.after(latestReleaseDate ?: return@forEach) == true) {
                             closedPrsModel.addRow(GHPullRequestWrapper(pullRequest))
                             if (!commentsUpdated) {
                                 commentsUpdated = true

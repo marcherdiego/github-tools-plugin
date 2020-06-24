@@ -5,7 +5,9 @@ import com.nerdscorner.android.plugin.github.ui.windows.ResultDialog
 import com.nerdscorner.android.plugin.github.ui.windows.SimpleInputDialog
 import com.nerdscorner.android.plugin.github.ui.windows.SimpleInputDialog.Callback
 import com.nerdscorner.android.plugin.utils.CircleCiUtils
+import com.nerdscorner.android.plugin.utils.GithubUtils
 import com.nerdscorner.android.plugin.utils.Strings
+import com.nerdscorner.android.plugin.utils.TravisCiUtils
 import org.kohsuke.github.GHBranch
 
 class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
@@ -69,6 +71,25 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
     }
 
     private fun triggerTravisBuild() {
+        val travisCiToken = propertiesComponent.getValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK)
+        if (travisCiToken.isEmpty()) {
+            showSimpleInputDialog(Strings.ENTER_TRAVIS_CI_TOKEN, Callback { input ->
+                if (input.isNullOrEmpty().not()) {
+                    propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, input)
+                    triggerTravisBuild()
+                }
+            })
+        } else {
+            TravisCiUtils.reRunJob(
+                    externalId = externalBuildId,
+                    success = {
+                        showResultDialog(BUILD_TRIGGERED, true)
+                    },
+                    fail = { message ->
+                        showResultDialog("$BUILD_TRIGGER_FAILED $message", false)
+                    }
+            )
+        }
     }
 
     private fun triggerCircleBuild() {
@@ -84,10 +105,10 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
             CircleCiUtils.reRunWorkflow(
                     externalId = externalBuildId,
                     success = {
-                        showResultDialog(BUILD_TRIGGERED)
+                        showResultDialog(BUILD_TRIGGERED, true)
                     },
                     fail = { message ->
-                        showResultDialog("$BUILD_TRIGGER_FAILED $message")
+                        showResultDialog("$BUILD_TRIGGER_FAILED $message", false)
                     }
             )
         }
@@ -102,13 +123,23 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
         resultDialog.isVisible = true
     }
 
-    private fun showResultDialog(message: String) {
-        val resultDialog = ResultDialog(message)
+    private fun showResultDialog(message: String, success: Boolean) {
+        val resultDialog = if (success) {
+            ResultDialog(message, VIEW_BUILD, ResultDialog.Callback {
+                openBuildInBrowser()
+            })
+        } else {
+            ResultDialog(message)
+        }
         resultDialog.pack()
         resultDialog.setLocationRelativeTo(null)
         resultDialog.title = Strings.REBUILD_ERROR
         resultDialog.isResizable = false
         resultDialog.isVisible = true
+    }
+
+    fun openBuildInBrowser() {
+        GithubUtils.openWebLink(buildStatusUrl)
     }
 
     companion object {
@@ -117,6 +148,7 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
         private const val TRAVIS_CI = "travis-ci"
         private const val CIRCLE_CI = "circleci"
 
+        private const val VIEW_BUILD = "View build"
         private const val BUILD_TRIGGERED = "Build triggered!"
         private const val BUILD_TRIGGER_FAILED = "Build trigger failed with message:"
     }

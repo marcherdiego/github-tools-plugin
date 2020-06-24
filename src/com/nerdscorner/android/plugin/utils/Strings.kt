@@ -26,5 +26,6 @@ object Strings {
     const val EMPTY_ORGANIZATION_NAME = "The organization name cannot be empty"
     const val VERIFY_OAUTH_TOKEN = "Verify your organization name and your oauth token and its permissions"
     const val LOGGED_AS = "Logged as %s (%s)"
-    const val ENTER_CIRCLE_CI_TOKEN = "Enter CircleCI API token"
+    const val ENTER_CIRCLE_CI_TOKEN = "Enter Circle CI API token"
+    const val ENTER_TRAVIS_CI_TOKEN = "Enter Travis CI API token"
 }

@@ -13,6 +13,7 @@ public class SimpleInputDialog extends JDialog {
         setModal(true);
         getRootPane().setDefaultButton(acceptButton);
         acceptButton.addActionListener(e -> {
+            dispose();
             callback.onOk(input.getText());
         });
         cancelButton.addActionListener(e -> dispose());
