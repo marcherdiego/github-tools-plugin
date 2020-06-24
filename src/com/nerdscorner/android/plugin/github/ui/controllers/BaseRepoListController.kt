@@ -146,7 +146,7 @@ abstract class BaseRepoListController internal constructor(
     @Throws(IOException::class)
     private fun loadReleases() {
         val repoReleasesModel = GHReleaseTableModel(ArrayList(), arrayOf(Strings.TAG, Strings.DATE))
-        repoReleasesTable.model = crepoReleasesModel
+        repoReleasesTable.model = repoReleasesModel
         JTableUtils.centerColumns(repoReleasesTable, GHReleaseTableModel.COLUMN_DATE)
         currentRepository
                 ?.ghRepository
