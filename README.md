@@ -22,7 +22,7 @@ To get one go to your Settings (https://travis-ci.com/account/preferences) and c
 Paste it when prompted in the plugin after double clicking "Re-run" on the plugin. The plugin will store it so that you don't need to repeat the process again.
 
 ## Circle CI Login
-To be able to trigger Circle workflows from the IDE you need to authenticate with your Travis Personal Access Token. **Keep in ming that it should be a Personal token and not the organization one**
+To be able to trigger Circle workflows from the IDE you need to authenticate with your Travis Personal Access Token. **Keep in mind that it should be a Personal token and not the organization one**
 
 To get one go to your Settings (https://app.circleci.com/settings/user/tokens) -> `Personal API Tokens` -> `Create New Token` -> Enter a name for it and copy it!
 
