@@ -14,7 +14,6 @@ import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
-import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
 import org.kohsuke.github.GHOrganization
@@ -41,6 +40,7 @@ abstract class BaseRepoListController internal constructor(
     var loaderThread: Thread? = null
     private var repoReleasesLoaderThread: Thread? = null
     private var repoBranchesLoaderThread: Thread? = null
+    private var selectedRepoRow = -1
 
     var commentsUpdated: Boolean = false
     var selectedRepo: String? = null
@@ -54,25 +54,19 @@ abstract class BaseRepoListController internal constructor(
     val organizationName: String
         get() = ghOrganization.login
 
-    private fun startListeningBus() {
-        if (!EventBus.getDefault().isRegistered(this)) {
-            EventBus
-                    .getDefault()
-                    .register(this)
-        }
-    }
-
     fun init() {
-        startListeningBus()
-
         reposTable.addMouseListener(object : SimpleMouseAdapter() {
             override fun mousePressed(row: Int, column: Int, clickCount: Int) {
                 if (clickCount == 1) {
+                    if (selectedRepoRow == row) {
+                        return
+                    }
                     clearTables()
                     updateRepositoryInfoTables()
                 } else if (clickCount == 2) {
                     GithubUtils.openWebLink(currentRepository?.fullUrl)
                 }
+                selectedRepoRow = row
             }
         })
         repoReleasesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
