@@ -22,7 +22,12 @@ import javax.swing.JTable
 import javax.swing.ListSelectionModel
 import javax.swing.SwingUtilities
 
-class DependenciesController(private val reposTable: JTable, dependenciesGraphPanel: JPanel, private val ghOrganization: GHOrganization, private val myselfGitHub: GHMyself) {
+class DependenciesController(
+        private val reposTable: JTable,
+        dependenciesGraphPanel: JPanel,
+        private val ghOrganization: GHOrganization,
+        private val myselfGitHub: GHMyself
+) {
     private var loaderThread: Thread? = null
     private val dependenciesPanel: DependenciesPanel = DependenciesPanel()
     private var selectedRepo: String? = null

@@ -39,7 +39,10 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
                             .toString()
                             .contains(CIRCLE_CI)
                     if (travisBuild || circleBuild) {
-                        buildStatus = it.status
+                        buildStatus = it.status.capitalize()
+                        it.conclusion?.let { conclusion ->
+                            buildStatus += ": ${conclusion.capitalize()}"
+                        }
                         buildStatusUrl = it.detailsUrl.toString()
                         externalBuildId = it.externalId
                         return@forEach
@@ -54,7 +57,6 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
     override fun compare(other: Wrapper): Int {
         if (other is GHBranchWrapper) {
             try {
-
                 return other.ghBranch.name.compareTo(ghBranch.name)
             } catch (ignored: Exception) {
             }
@@ -118,11 +120,11 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
         }
     }
 
-    private fun showSimpleInputDialog(title: String, callback: Callback) {
-        val resultDialog = SimpleInputDialog(callback)
+    private fun showSimpleInputDialog(message: String, callback: Callback) {
+        val resultDialog = SimpleInputDialog(callback, message)
         resultDialog.pack()
         resultDialog.setLocationRelativeTo(null)
-        resultDialog.title = title
+        resultDialog.title = INPUT_REQUIRED
         resultDialog.isResizable = false
         resultDialog.isVisible = true
     }
@@ -135,7 +137,9 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
                     ResultDialog.SuccessCallback {
                         openBuildInBrowser()
                     }
-            )
+            ).apply {
+                title = Strings.REBUILD_TRIGGERED
+            }
         } else {
             ResultDialog(
                     message,
@@ -147,11 +151,12 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
                     ResultDialog.ClearCallback {
                         clear()
                     }
-            )
+            ).apply {
+                title = Strings.REBUILD_ERROR
+            }
         }
         resultDialog.pack()
         resultDialog.setLocationRelativeTo(null)
-        resultDialog.title = Strings.REBUILD_ERROR
         resultDialog.isResizable = false
         resultDialog.isVisible = true
     }
@@ -170,5 +175,7 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
         private const val CLEAR_TOKEN = "Clear token"
         private const val BUILD_TRIGGERED = "Build triggered!"
         private const val BUILD_TRIGGER_FAILED = "Build trigger failed with message:"
+
+        private const val INPUT_REQUIRED = "Input required"
     }
 }

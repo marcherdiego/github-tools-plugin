@@ -17,14 +17,14 @@ import javax.swing.SwingUtilities
 
 class MyReposController(
         reposTable: JTable,
-        repoReleases: JTable,
-        repoBranches: JTable,
-        repoPullRequestsTable: JTable,
-        repoClosedPullRequestsTable: JTable,
+        releases: JTable,
+        branches: JTable,
+        pullRequestsTable: JTable,
+        closedPullRequestsTable: JTable,
         repoComments: JLabel,
         private val myselfGitHub: GHMyself,
         ghOrganization: GHOrganization
-) : BaseRepoListController(reposTable, repoReleases, repoBranches, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments,
+) : BaseRepoListController(reposTable, releases, branches, pullRequestsTable, closedPullRequestsTable, repoComments,
                            ghOrganization, BaseModel.COLUMN_NAME) {
 
     override fun loadRepositories() {

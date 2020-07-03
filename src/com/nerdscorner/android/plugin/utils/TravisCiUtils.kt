@@ -19,18 +19,13 @@ object TravisCiUtils {
 
     private val client = OkHttpClient()
 
-    fun reRunJob(
-            externalId: String,
-            success: () -> Unit = {},
-            fail: (String?) -> Unit = {}
-    ) {
+    fun reRunJob(externalId: String, success: () -> Unit = {}, fail: (String?) -> Unit = {}) {
         val propertiesComponent = PropertiesComponent.getInstance()
         val travisToken = propertiesComponent.getValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK)
         if (travisToken.isEmpty()) {
             fail("Travis CI token not set")
         }
-        val rerunUrl = RERUN_JOB_URL
-                .replace("{id}", externalId)
+        val rerunUrl = RERUN_JOB_URL.replace("{id}", externalId)
         val rerunJobRequest = Request
                 .Builder()
                 .url(rerunUrl)

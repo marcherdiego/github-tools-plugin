@@ -7,11 +7,13 @@ public class SimpleInputDialog extends JDialog {
     private JButton acceptButton;
     private JTextField input;
     private JButton cancelButton;
+    private JLabel message;
 
-    public SimpleInputDialog(Callback callback) {
+    public SimpleInputDialog(Callback callback, String message) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(acceptButton);
+        this.message.setText(message);
         acceptButton.addActionListener(e -> {
             dispose();
             callback.onOk(input.getText());

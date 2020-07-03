@@ -16,13 +16,13 @@ import javax.swing.SwingUtilities
 
 class AllReposController(
         reposTable: JTable,
-        repoReleases: JTable,
-        repoBranches: JTable,
-        repoPullRequestsTable: JTable,
-        repoClosedPullRequestsTable: JTable,
-        repoComments: JLabel,
+        releases: JTable,
+        branches: JTable,
+        pullRequestsTable: JTable,
+        closedPullRequestsTable: JTable,
+        comments: JLabel,
         ghOrganization: GHOrganization
-) : BaseRepoListController(reposTable, repoReleases, repoBranches, repoPullRequestsTable, repoClosedPullRequestsTable, repoComments,
+) : BaseRepoListController(reposTable, releases, branches, pullRequestsTable, closedPullRequestsTable, comments,
                            ghOrganization, BaseModel.COLUMN_NAME) {
 
     override fun loadRepositories() {

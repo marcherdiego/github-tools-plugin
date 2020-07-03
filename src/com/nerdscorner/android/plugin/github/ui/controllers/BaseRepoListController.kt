@@ -27,10 +27,10 @@ import javax.swing.ListSelectionModel
 
 abstract class BaseRepoListController internal constructor(
         val reposTable: JTable,
-        val repoReleasesTable: JTable,
-        val repoBranchesTable: JTable,
-        val repoOpenPullRequestsTable: JTable,
-        val repoClosedPullRequestsTable: JTable,
+        val releasesTable: JTable,
+        val ranchesTable: JTable,
+        val openPullRequestsTable: JTable,
+        val closedPullRequestsTable: JTable,
         private val repoComments: JLabel,
         val ghOrganization: GHOrganization,
         private val dataColumn: Int
@@ -38,8 +38,8 @@ abstract class BaseRepoListController internal constructor(
     private var currentRepository: GHRepositoryWrapper? = null
 
     var loaderThread: Thread? = null
-    private var repoReleasesLoaderThread: Thread? = null
-    private var repoBranchesLoaderThread: Thread? = null
+    private var releasesLoaderThread: Thread? = null
+    private var branchesLoaderThread: Thread? = null
     private var selectedRepoRow = -1
 
     var commentsUpdated: Boolean = false
@@ -47,7 +47,7 @@ abstract class BaseRepoListController internal constructor(
 
     private val latestReleaseDate: Date?
         get() {
-            val latestRelease = (repoReleasesTable.model as GHReleaseTableModel).getRow(0)
+            val latestRelease = (releasesTable.model as GHReleaseTableModel).getRow(0)
             return latestRelease?.ghRelease?.published_at
         }
 
@@ -69,15 +69,15 @@ abstract class BaseRepoListController internal constructor(
                 selectedRepoRow = row
             }
         })
-        repoReleasesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
+        releasesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val release = (repoReleasesTable.model as GHReleaseTableModel).getRow(row)
+                val release = (releasesTable.model as GHReleaseTableModel).getRow(row)
                 GithubUtils.openWebLink(release?.fullUrl)
             }
         })
-        repoOpenPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
+        openPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val pullRequest = (repoOpenPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
+                val pullRequest = (openPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
                 if (column == GHPullRequestTableModel.COLUMN_CI_STATUS) {
                     GithubUtils.openWebLink(pullRequest?.buildStatusUrl)
                 } else {
@@ -85,9 +85,9 @@ abstract class BaseRepoListController internal constructor(
                 }
             }
         })
-        repoClosedPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
+        closedPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val pullRequest = (repoClosedPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
+                val pullRequest = (closedPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
                 if (column == GHPullRequestTableModel.COLUMN_CI_STATUS) {
                     GithubUtils.openWebLink(pullRequest?.buildStatusUrl)
                 } else {
@@ -95,9 +95,9 @@ abstract class BaseRepoListController internal constructor(
                 }
             }
         })
-        repoBranchesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
+        ranchesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val branch = (repoBranchesTable.model as GHBranchTableModel).getRow(row) ?: return
+                val branch = (ranchesTable.model as GHBranchTableModel).getRow(row) ?: return
                 when (column) {
                     GHBranchTableModel.COLUMN_NAME -> GithubUtils.openWebLink(branch.url)
                     GHBranchTableModel.COLUMN_STATUS -> branch.openBuildInBrowser()
@@ -106,10 +106,10 @@ abstract class BaseRepoListController internal constructor(
             }
         })
         reposTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
-        repoBranchesTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
-        repoReleasesTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
-        repoOpenPullRequestsTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
-        repoClosedPullRequestsTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
+        ranchesTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
+        releasesTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
+        openPullRequestsTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
+        closedPullRequestsTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
 
         if (reposTable.model is BaseModel<*>) {
             (reposTable.model as BaseModel<*>).removeAllRows()
@@ -119,42 +119,44 @@ abstract class BaseRepoListController internal constructor(
     }
 
     private fun clearTables() {
-        if (repoBranchesTable.model is BaseModel<*>) {
-            (repoBranchesTable.model as BaseModel<*>).removeAllRows()
+        if (ranchesTable.model is BaseModel<*>) {
+            (ranchesTable.model as BaseModel<*>).removeAllRows()
         }
-        if (repoReleasesTable.model is BaseModel<*>) {
-            (repoReleasesTable.model as BaseModel<*>).removeAllRows()
+        if (releasesTable.model is BaseModel<*>) {
+            (releasesTable.model as BaseModel<*>).removeAllRows()
         }
-        if (repoOpenPullRequestsTable.model is BaseModel<*>) {
-            (repoOpenPullRequestsTable.model as BaseModel<*>).removeAllRows()
+        if (openPullRequestsTable.model is BaseModel<*>) {
+            (openPullRequestsTable.model as BaseModel<*>).removeAllRows()
         }
-        if (repoClosedPullRequestsTable.model is BaseModel<*>) {
-            (repoClosedPullRequestsTable.model as BaseModel<*>).removeAllRows()
+        if (closedPullRequestsTable.model is BaseModel<*>) {
+            (closedPullRequestsTable.model as BaseModel<*>).removeAllRows()
         }
     }
 
     fun cancel() {
-        ThreadUtils.cancelThreads(loaderThread, repoReleasesLoaderThread, repoBranchesLoaderThread)
+        ThreadUtils.cancelThreads(loaderThread, releasesLoaderThread, branchesLoaderThread)
     }
 
     @Throws(IOException::class)
     private fun loadReleases() {
         val repoReleasesModel = GHReleaseTableModel(ArrayList(), arrayOf(Strings.TAG, Strings.DATE))
-        repoReleasesTable.model = repoReleasesModel
-        JTableUtils.centerColumns(repoReleasesTable, GHReleaseTableModel.COLUMN_DATE)
+        releasesTable.model = repoReleasesModel
+        JTableUtils.centerColumns(releasesTable, GHReleaseTableModel.COLUMN_DATE)
         currentRepository
                 ?.ghRepository
                 ?.listReleases()
                 ?.withPageSize(SMALL_PAGE_SIZE)
                 ?.toList()
-                ?.forEach { ghRelease -> repoReleasesModel.addRow(GHReleaseWrapper(ghRelease)) }
+                ?.forEach { ghRelease ->
+                    repoReleasesModel.addRow(GHReleaseWrapper(ghRelease))
+                }
     }
 
     @Throws(IOException::class)
     private fun loadBranches() {
         val repoBranchesModel = GHBranchTableModel(ArrayList(), arrayOf(Strings.NAME, Strings.STATUS, Strings.CI_ACTIONS))
-        repoBranchesTable.model = repoBranchesModel
-        JTableUtils.centerColumns(repoBranchesTable, GHBranchTableModel.COLUMN_STATUS, GHBranchTableModel.COLUMN_TRIGGER_BUILD)
+        ranchesTable.model = repoBranchesModel
+        JTableUtils.centerColumns(ranchesTable, GHBranchTableModel.COLUMN_STATUS, GHBranchTableModel.COLUMN_TRIGGER_BUILD)
         currentRepository
                 ?.ghRepository
                 ?.branches
@@ -173,11 +175,11 @@ abstract class BaseRepoListController internal constructor(
                 ArrayList(),
                 arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_STATUS)
         )
-        repoOpenPullRequestsTable.model = openPrsModel
-        repoClosedPullRequestsTable.model = closedPrsModel
+        openPullRequestsTable.model = openPrsModel
+        closedPullRequestsTable.model = closedPrsModel
 
-        JTableUtils.centerColumns(repoOpenPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
-        JTableUtils.centerColumns(repoClosedPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE,
+        JTableUtils.centerColumns(openPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
+        JTableUtils.centerColumns(closedPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE,
                                   GHPullRequestTableModel.COLUMN_CI_STATUS)
         val repoName = currentRepository?.ghRepository?.name
         if (latestReleaseDate == null) {
@@ -221,16 +223,16 @@ abstract class BaseRepoListController internal constructor(
         repoComments.text = null
         try {
             commentsUpdated = false
-            ThreadUtils.cancelThreads(repoReleasesLoaderThread, repoBranchesLoaderThread)
+            ThreadUtils.cancelThreads(releasesLoaderThread, branchesLoaderThread)
 
-            repoBranchesLoaderThread = Thread {
+            branchesLoaderThread = Thread {
                 try {
                     loadBranches()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-            repoReleasesLoaderThread = Thread {
+            releasesLoaderThread = Thread {
                 try {
                     loadReleases()
                     loadPullRequests()
@@ -239,8 +241,8 @@ abstract class BaseRepoListController internal constructor(
                 }
             }
 
-            repoBranchesLoaderThread?.start()
-            repoReleasesLoaderThread?.start()
+            branchesLoaderThread?.start()
+            releasesLoaderThread?.start()
         } catch (e: Exception) {
             e.printStackTrace()
         }

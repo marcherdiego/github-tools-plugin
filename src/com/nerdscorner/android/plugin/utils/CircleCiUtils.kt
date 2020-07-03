@@ -25,11 +25,7 @@ object CircleCiUtils {
             .getAsJsonPrimitive(WORKFLOW_ID_KEY)
             .asString
 
-    fun reRunWorkflow(
-            externalId: String,
-            success: () -> Unit = {},
-            fail: (String?) -> Unit = {}
-    ) {
+    fun reRunWorkflow(externalId: String, success: () -> Unit = {}, fail: (String?) -> Unit = {}) {
         val propertiesComponent = PropertiesComponent.getInstance()
         val circleToken = propertiesComponent.getValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK)
         if (circleToken.isEmpty()) {
@@ -49,7 +45,7 @@ object CircleCiUtils {
                         if (response?.isSuccessful == true) {
                             success()
                         } else {
-                            fail(response?.body()?.toString())
+                            fail(response?.body()?.string())
                         }
                     }
 
