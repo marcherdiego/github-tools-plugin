@@ -1,6 +1,7 @@
 package com.nerdscorner.android.plugin.github.ui.windows;
 
 import org.apache.commons.lang.StringUtils;
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
@@ -16,8 +17,11 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.nerdscorner.android.plugin.github.ui.controllers.AllReposController;
-import com.nerdscorner.android.plugin.github.ui.controllers.MyReposController;
+import com.nerdscorner.android.plugin.github.ui.controllers.RepoListController;
+import com.nerdscorner.android.plugin.github.ui.model.AllReposModel;
+import com.nerdscorner.android.plugin.github.ui.model.MyReposModel;
+import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
+import com.nerdscorner.android.plugin.github.ui.view.ReposView;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
 
@@ -34,14 +38,14 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable allRepoBranches;
     private JTable allRepoOpenPullRequestsTable;
     private JTable allRepoClosedPullRequestsTable;
-    private AllReposController allAllReposController;
+    private RepoListController allAllReposController;
 
     private JTable myReposTable;
     private JTable myReposBranchesTable;
     private JTable myReposOpenPrTable;
     private JTable myReposReleasesTable;
     private JTable myReposClosedPrTable;
-    private MyReposController myReposController;
+    private RepoListController myReposController;
 
     private JPanel loginPanel;
     private JPanel pluginPanel;
@@ -160,34 +164,39 @@ public class GitHubTool implements ToolWindowFactory {
         }
 
         if (allAllReposController == null) {
-            allAllReposController = new AllReposController(
-                    allReposTable,
-                    allRepoReleases,
-                    allRepoBranches,
-                    allRepoOpenPullRequestsTable,
-                    allRepoClosedPullRequestsTable,
-                    repoComments,
-                    ghOrganization
+            allAllReposController = new RepoListController(
+                    new ReposView(
+                            allReposTable,
+                            allRepoReleases,
+                            allRepoBranches,
+                            allRepoOpenPullRequestsTable,
+                            allRepoClosedPullRequestsTable,
+                            repoComments,
+                            BaseModel.COLUMN_NAME
+                    ),
+                    new AllReposModel(ghOrganization),
+                    new EventBus()
             );
         }
-        allAllReposController.cancel();
         allAllReposController.init();
         allAllReposController.setSelectedRepo(project.getName());
         allAllReposController.loadRepositories();
 
         if (myReposController == null) {
-            myReposController = new MyReposController(
-                    myReposTable,
-                    myReposReleasesTable,
-                    myReposBranchesTable,
-                    myReposOpenPrTable,
-                    myReposClosedPrTable,
-                    repoComments,
-                    myselfGitHub,
-                    ghOrganization
+            myReposController = new RepoListController(
+                    new ReposView(
+                            myReposTable,
+                            myReposReleasesTable,
+                            myReposBranchesTable,
+                            myReposOpenPrTable,
+                            myReposClosedPrTable,
+                            repoComments,
+                            BaseModel.COLUMN_NAME
+                    ),
+                    new MyReposModel(ghOrganization, myselfGitHub),
+                    new EventBus()
             );
         }
-        myReposController.cancel();
         myReposController.init();
         myReposController.setSelectedRepo(project.getName());
         myReposController.loadRepositories();

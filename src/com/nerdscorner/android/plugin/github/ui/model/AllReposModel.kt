@@ -4,13 +4,11 @@ import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.cancel
-import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHOrganization
 import java.util.ArrayList
 import java.util.HashMap
 
-class AllReposModel(bus: EventBus, ghOrganization: GHOrganization) : BaseReposModel(bus, ghOrganization) {
-
+class AllReposModel(ghOrganization: GHOrganization) : BaseReposModel(ghOrganization) {
     override fun loadRepositories() {
         loaderThread.cancel()
         loaderThread = Thread {
@@ -30,6 +28,4 @@ class AllReposModel(bus: EventBus, ghOrganization: GHOrganization) : BaseReposMo
         }
         loaderThread?.start()
     }
-
-    class UpdateRepositoryInfoTablesEvent(val tableModel: GHRepoTableModel, val tooltips: HashMap<String, String>)
 }

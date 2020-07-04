@@ -9,34 +9,36 @@ import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.ReleasesLoa
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoDoesNotNeedReleaseEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoNeedsReleaseEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoNoReleasesYetEvent
+import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.UpdateRepositoryInfoTablesEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
-import com.nerdscorner.android.plugin.github.ui.view.BaseReposView
-import com.nerdscorner.android.plugin.github.ui.view.BaseReposView.BranchClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.BaseReposView.PullRequestClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.BaseReposView.ReleaseClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.BaseReposView.RepoClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ReposView
+import com.nerdscorner.android.plugin.github.ui.view.ReposView.BranchClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ReposView.PullRequestClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ReposView.ReleaseClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ReposView.RepoClickedEvent
 import com.nerdscorner.android.plugin.utils.GithubUtils
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode.MAIN
 
-abstract class BaseRepoListController<V : BaseReposView, M : BaseReposModel> internal constructor(private val dataColumn: Int) {
-    protected val bus: EventBus = EventBus()
-
-    lateinit var view: V
-    lateinit var model: M
+class RepoListController(
+        private val view: ReposView,
+        private val model: BaseReposModel,
+        private val bus: EventBus
+) {
+    init {
+        view.bus = bus
+        model.bus = bus
+    }
 
     fun init() {
+        bus.unregister(this)
+        model.cancel()
         bus.register(this)
         view.init()
     }
-
-    fun cancel() {
-        bus.unregister(this)
-        model.cancel()
-    }
-
 
     fun loadRepositories() {
         model.loadRepositories()
@@ -44,6 +46,13 @@ abstract class BaseRepoListController<V : BaseReposView, M : BaseReposModel> int
 
     fun setSelectedRepo(selectedRepo: String) {
         view.selectedRepo = selectedRepo
+    }
+
+    @Subscribe(threadMode = MAIN)
+    fun onUpdateRepositoryInfoTables(event: UpdateRepositoryInfoTablesEvent) {
+        view.setPullRequestTableModels()
+        view.updateRepositoryInfoTables(event.tableModel, event.tooltips)
+        model.loadRepoReleasesAndBranches()
     }
 
     @Subscribe
@@ -90,7 +99,7 @@ abstract class BaseRepoListController<V : BaseReposView, M : BaseReposModel> int
             }
             view.clearTables()
             view.setRepoComments(null)
-            model.currentRepository = view.getRepoAt(event.row, dataColumn) as GHRepositoryWrapper
+            model.currentRepository = view.getRepoAt(event.row, view.dataColumn) as GHRepositoryWrapper
             model.loadRepoReleasesAndBranches()
         } else if (event.clickCount == 2) {
             GithubUtils.openWebLink(model.getCurrentRepoUrl())

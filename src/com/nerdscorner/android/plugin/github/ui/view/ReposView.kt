@@ -22,16 +22,17 @@ import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
 
-class BaseReposView(
-        private val bus: EventBus,
+class ReposView(
         private val reposTable: JTable,
         private val releasesTable: JTable,
         private val branchesTable: JTable,
         private val openPullRequestsTable: JTable,
         private val closedPullRequestsTable: JTable,
         private val repoComments: JLabel,
-        private val dataColumn: Int
+        val dataColumn: Int
 ) {
+    lateinit var bus: EventBus
+
     var selectedRepo: String? = null
     private var currentRepository: GHRepositoryWrapper? = null
 

@@ -6,6 +6,7 @@ import com.nerdscorner.android.plugin.github.domain.gh.GHReleaseWrapper
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
 import com.nerdscorner.android.plugin.utils.cancel
@@ -17,8 +18,11 @@ import org.kohsuke.github.GHPullRequestQueryBuilder.Sort
 import java.io.IOException
 import java.util.ArrayList
 import java.util.Date
+import java.util.HashMap
 
-abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganization) {
+abstract class BaseReposModel(val ghOrganization: GHOrganization) {
+    lateinit var bus: EventBus
+
     protected var loaderThread: Thread? = null
     private var releasesLoaderThread: Thread? = null
     private var prsLoaderThread: Thread? = null
@@ -144,6 +148,8 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
     }
 
     fun getCurrentRepoUrl() = currentRepository?.fullUrl
+
+    class UpdateRepositoryInfoTablesEvent(val tableModel: GHRepoTableModel, val tooltips: HashMap<String, String>)
 
     class BranchesLoadedEvent(val repoBranchesModel: GHBranchTableModel)
     class ReleasesLoadedEvent(val repoReleasesModel: GHReleaseTableModel)
