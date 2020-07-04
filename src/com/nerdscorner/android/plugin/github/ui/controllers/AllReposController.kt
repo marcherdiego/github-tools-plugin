@@ -28,6 +28,6 @@ class AllReposController(
     fun onUpdateRepositoryInfoTables(event: UpdateRepositoryInfoTablesEvent) {
         view.setPullRequestTableModels()
         view.updateRepositoryInfoTables(event.tableModel, event.tooltips)
-        model.loadRepoReleasesAndBranches(view.latestReleaseDate)
+        model.loadRepoReleasesAndBranches()
     }
 }

@@ -8,6 +8,7 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
+import com.nerdscorner.android.plugin.utils.cancel
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
@@ -19,8 +20,9 @@ import java.util.Date
 
 abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganization) {
     protected var loaderThread: Thread? = null
-    protected var releasesLoaderThread: Thread? = null
-    protected var branchesLoaderThread: Thread? = null
+    private var releasesLoaderThread: Thread? = null
+    private var prsLoaderThread: Thread? = null
+    private var branchesLoaderThread: Thread? = null
 
     val organizationName: String
         get() = ghOrganization.login
@@ -59,7 +61,7 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
         bus.post(BranchesLoadedEvent(repoBranchesModel))
     }
 
-    private fun loadPullRequests(latestReleaseDate: Date?) {
+    private fun loadPRs(latestReleaseDate: Date?) {
         var commentsUpdated = false
         if (latestReleaseDate == null) {
             commentsUpdated = true
@@ -93,7 +95,7 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
         }
     }
 
-    fun loadRepoReleasesAndBranches(latestReleaseDate: Date?) {
+    fun loadRepoReleasesAndBranches() {
         try {
             commentsUpdated = false
             ThreadUtils.cancelThreads(releasesLoaderThread, branchesLoaderThread)
@@ -108,7 +110,6 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
             releasesLoaderThread = Thread {
                 try {
                     loadReleases()
-                    loadPullRequests(latestReleaseDate)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -121,12 +122,25 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
         }
     }
 
+    fun loadPullRequests(latestReleaseDate: Date?) {
+        prsLoaderThread.cancel()
+        prsLoaderThread = Thread {
+            try {
+                loadPRs(latestReleaseDate)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        prsLoaderThread?.start()
+    }
+
+
     fun getCurrentRepoName(): String? {
         return currentRepository?.ghRepository?.name
     }
 
     fun cancel() {
-        ThreadUtils.cancelThreads(loaderThread, releasesLoaderThread, branchesLoaderThread)
+        ThreadUtils.cancelThreads(loaderThread, releasesLoaderThread, prsLoaderThread, branchesLoaderThread)
     }
 
     fun getCurrentRepoUrl() = currentRepository?.fullUrl

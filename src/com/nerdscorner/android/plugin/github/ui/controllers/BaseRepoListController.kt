@@ -42,6 +42,7 @@ abstract class BaseRepoListController<V : BaseReposView, M : BaseReposModel> int
     @Subscribe
     fun onReleasesLoaded(event: ReleasesLoadedEvent) {
         view.setReleasesTableModel(event.repoReleasesModel)
+        model.loadPullRequests(view.latestReleaseDate)
     }
 
     @Subscribe
@@ -83,7 +84,7 @@ abstract class BaseRepoListController<V : BaseReposView, M : BaseReposModel> int
             view.clearTables()
             view.setRepoComments(null)
             model.currentRepository = view.getRepoAt(event.row, dataColumn) as GHRepositoryWrapper
-            model.loadRepoReleasesAndBranches(view.latestReleaseDate)
+            model.loadRepoReleasesAndBranches()
         } else if (event.clickCount == 2) {
             GithubUtils.openWebLink(model.getCurrentRepoUrl())
         }
