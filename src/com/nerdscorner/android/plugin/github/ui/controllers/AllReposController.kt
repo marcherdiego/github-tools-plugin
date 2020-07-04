@@ -3,7 +3,7 @@ package com.nerdscorner.android.plugin.github.ui.controllers
 import com.nerdscorner.android.plugin.github.ui.model.AllReposModel
 import com.nerdscorner.android.plugin.github.ui.model.AllReposModel.UpdateRepositoryInfoTablesEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel
-import com.nerdscorner.android.plugin.github.ui.view.AllReposView
+import com.nerdscorner.android.plugin.github.ui.view.BaseReposView
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode.MAIN
 import org.kohsuke.github.GHOrganization
@@ -18,10 +18,10 @@ class AllReposController(
         closedPullRequests: JTable,
         comments: JLabel,
         ghOrganization: GHOrganization
-) : BaseRepoListController<AllReposView, AllReposModel>(BaseModel.COLUMN_NAME) {
+) : BaseRepoListController<BaseReposView, AllReposModel>(BaseModel.COLUMN_NAME) {
     init {
         model = AllReposModel(bus, ghOrganization)
-        view = AllReposView(bus, reposTable, releases, branches, openPullRequests, closedPullRequests, comments, BaseModel.COLUMN_NAME)
+        view = BaseReposView(bus, reposTable, releases, branches, openPullRequests, closedPullRequests, comments, BaseModel.COLUMN_NAME)
     }
 
     @Subscribe(threadMode = MAIN)

@@ -22,7 +22,7 @@ import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
 
-abstract class BaseReposView(
+class BaseReposView(
         private val bus: EventBus,
         private val reposTable: JTable,
         private val releasesTable: JTable,

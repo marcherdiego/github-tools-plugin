@@ -3,7 +3,7 @@ package com.nerdscorner.android.plugin.github.ui.controllers
 import com.nerdscorner.android.plugin.github.ui.model.MyReposModel.UpdateRepositoryInfoTablesEvent
 import com.nerdscorner.android.plugin.github.ui.model.MyReposModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel
-import com.nerdscorner.android.plugin.github.ui.view.MyReposView
+import com.nerdscorner.android.plugin.github.ui.view.BaseReposView
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode.MAIN
 import org.kohsuke.github.GHMyself
@@ -20,9 +20,9 @@ class MyReposController(
         comments: JLabel,
         myselfGitHub: GHMyself,
         ghOrganization: GHOrganization
-) : BaseRepoListController<MyReposView, MyReposModel>(BaseModel.COLUMN_NAME) {
+) : BaseRepoListController<BaseReposView, MyReposModel>(BaseModel.COLUMN_NAME) {
     init {
-        view = MyReposView(bus, reposTable, releases, branches, openPullRequests, closedPullRequests, comments, BaseModel.COLUMN_NAME)
+        view = BaseReposView(bus, reposTable, releases, branches, openPullRequests, closedPullRequests, comments, BaseModel.COLUMN_NAME)
         model = MyReposModel(bus, ghOrganization, myselfGitHub)
     }
 

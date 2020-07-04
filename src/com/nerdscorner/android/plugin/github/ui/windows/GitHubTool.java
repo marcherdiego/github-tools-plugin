@@ -159,35 +159,35 @@ public class GitHubTool implements ToolWindowFactory {
             githubTokenLogin(oauthToken, organization);
         }
 
-        if (allAllReposController != null) {
-            allAllReposController.cancel();
+        if (allAllReposController == null) {
+            allAllReposController = new AllReposController(
+                    allReposTable,
+                    allRepoReleases,
+                    allRepoBranches,
+                    allRepoOpenPullRequestsTable,
+                    allRepoClosedPullRequestsTable,
+                    repoComments,
+                    ghOrganization
+            );
         }
-        allAllReposController = new AllReposController(
-                allReposTable,
-                allRepoReleases,
-                allRepoBranches,
-                allRepoOpenPullRequestsTable,
-                allRepoClosedPullRequestsTable,
-                repoComments,
-                ghOrganization
-        );
+        allAllReposController.cancel();
         allAllReposController.init();
         allAllReposController.setSelectedRepo(project.getName());
         allAllReposController.loadRepositories();
 
-        if (myReposController != null) {
-            myReposController.cancel();
+        if (myReposController == null) {
+            myReposController = new MyReposController(
+                    myReposTable,
+                    myReposReleasesTable,
+                    myReposBranchesTable,
+                    myReposOpenPrTable,
+                    myReposClosedPrTable,
+                    repoComments,
+                    myselfGitHub,
+                    ghOrganization
+            );
         }
-        myReposController = new MyReposController(
-                myReposTable,
-                myReposReleasesTable,
-                myReposBranchesTable,
-                myReposOpenPrTable,
-                myReposClosedPrTable,
-                repoComments,
-                myselfGitHub,
-                ghOrganization
-        );
+        myReposController.cancel();
         myReposController.init();
         myReposController.setSelectedRepo(project.getName());
         myReposController.loadRepositories();
