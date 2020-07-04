@@ -154,6 +154,7 @@ class ReposView(
 
     fun getRepoAt(row: Int, column: Int): Any = reposTable.getValueAt(row, column)
 
+    //Posted events
     class RepoClickedEvent(val row: Int, val column: Int, val clickCount: Int)
     class ReleaseClickedEvent(val release: GHReleaseWrapper?)
     class PullRequestClickedEvent(val column: Int, val pullRequest: GHPullRequestWrapper?)

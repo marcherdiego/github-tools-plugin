@@ -23,6 +23,7 @@ import java.util.HashMap
 abstract class BaseReposModel(val ghOrganization: GHOrganization) {
     lateinit var bus: EventBus
 
+    //Loader threads
     protected var loaderThread: Thread? = null
     private var releasesLoaderThread: Thread? = null
     private var prsLoaderThread: Thread? = null
@@ -149,6 +150,7 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
 
     fun getCurrentRepoUrl() = currentRepository?.fullUrl
 
+    //Posted events
     class UpdateRepositoryInfoTablesEvent(val tableModel: GHRepoTableModel, val tooltips: HashMap<String, String>)
 
     class BranchesLoadedEvent(val repoBranchesModel: GHBranchTableModel)
