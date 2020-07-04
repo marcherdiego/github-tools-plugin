@@ -14,24 +14,14 @@ class AllReposController(
         reposTable: JTable,
         releases: JTable,
         branches: JTable,
-        openPullRequestsTable: JTable,
-        closedPullRequestsTable: JTable,
+        openPullRequests: JTable,
+        closedPullRequests: JTable,
         comments: JLabel,
         ghOrganization: GHOrganization
-) : BaseRepoListController<AllReposView, AllReposModel>(
-        reposTable,
-        releases,
-        branches,
-        openPullRequestsTable,
-        closedPullRequestsTable,
-        comments,
-        ghOrganization,
-        BaseModel.COLUMN_NAME
-) {
+) : BaseRepoListController<AllReposView, AllReposModel>(BaseModel.COLUMN_NAME) {
     init {
         model = AllReposModel(bus, ghOrganization)
-        view = AllReposView(bus, reposTable, releasesTable, branchesTable, openPullRequestsTable, closedPullRequestsTable, comments,
-                            BaseModel.COLUMN_NAME)
+        view = AllReposView(bus, reposTable, releases, branches, openPullRequests, closedPullRequests, comments, BaseModel.COLUMN_NAME)
     }
 
     @Subscribe(threadMode = MAIN)

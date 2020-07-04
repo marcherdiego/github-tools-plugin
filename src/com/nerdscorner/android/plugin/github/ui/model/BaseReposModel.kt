@@ -27,7 +27,8 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
 
     var commentsUpdated: Boolean = false
 
-    private var currentRepository: GHRepositoryWrapper? = null
+    var currentRepository: GHRepositoryWrapper? = null
+    var selectedRepoRow = -1
 
     abstract fun loadRepositories()
 
@@ -58,7 +59,7 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
         bus.post(BranchesLoadedEvent(repoBranchesModel))
     }
 
-    protected fun loadPullRequests(latestReleaseDate: Date?) {
+    private fun loadPullRequests(latestReleaseDate: Date?) {
         var commentsUpdated = false
         if (latestReleaseDate == null) {
             commentsUpdated = true
@@ -123,6 +124,12 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
     fun getCurrentRepoName(): String? {
         return currentRepository?.ghRepository?.name
     }
+
+    fun cancel() {
+        ThreadUtils.cancelThreads(loaderThread, releasesLoaderThread, branchesLoaderThread)
+    }
+
+    fun getCurrentRepoUrl() = currentRepository?.fullUrl
 
     class BranchesLoadedEvent(val repoBranchesModel: GHBranchTableModel)
     class ReleasesLoadedEvent(val repoReleasesModel: GHReleaseTableModel)

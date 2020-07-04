@@ -15,24 +15,14 @@ class MyReposController(
         reposTable: JTable,
         releases: JTable,
         branches: JTable,
-        openPullRequestsTable: JTable,
-        closedPullRequestsTable: JTable,
+        openPullRequests: JTable,
+        closedPullRequests: JTable,
         comments: JLabel,
         myselfGitHub: GHMyself,
         ghOrganization: GHOrganization
-) : BaseRepoListController<MyReposView, MyReposModel>(
-        reposTable,
-        releases,
-        branches,
-        openPullRequestsTable,
-        closedPullRequestsTable,
-        comments,
-        ghOrganization,
-        BaseModel.COLUMN_NAME
-) {
+) : BaseRepoListController<MyReposView, MyReposModel>(BaseModel.COLUMN_NAME) {
     init {
-        view = MyReposView(bus, reposTable, releasesTable, branchesTable, openPullRequestsTable, closedPullRequestsTable, comments,
-                           BaseModel.COLUMN_NAME)
+        view = MyReposView(bus, reposTable, releases, branches, openPullRequests, closedPullRequests, comments, BaseModel.COLUMN_NAME)
         model = MyReposModel(bus, ghOrganization, myselfGitHub)
     }
 

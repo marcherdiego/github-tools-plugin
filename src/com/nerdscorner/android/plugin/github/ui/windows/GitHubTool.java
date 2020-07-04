@@ -8,12 +8,7 @@ import org.kohsuke.github.GitHub;
 
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
@@ -22,7 +17,6 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.nerdscorner.android.plugin.github.ui.controllers.AllReposController;
-import com.nerdscorner.android.plugin.github.ui.controllers.DependenciesController;
 import com.nerdscorner.android.plugin.github.ui.controllers.MyReposController;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
@@ -48,10 +42,6 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable myReposReleasesTable;
     private JTable myReposClosedPrTable;
     private MyReposController myReposController;
-
-    private JTable allReposDependenciesTable;
-    private JPanel dependenciesGraphPanel;
-    private DependenciesController dependenciesController;
 
     private JPanel loginPanel;
     private JPanel pluginPanel;
@@ -201,18 +191,5 @@ public class GitHubTool implements ToolWindowFactory {
         myReposController.init();
         myReposController.setSelectedRepo(project.getName());
         myReposController.loadRepositories();
-
-        if (dependenciesController != null) {
-            dependenciesController.cancel();
-        }
-        dependenciesController = new DependenciesController(
-                allReposDependenciesTable,
-                dependenciesGraphPanel,
-                ghOrganization,
-                myselfGitHub
-        );
-        dependenciesController.init();
-        dependenciesController.setSelectedRepo(project.getName());
-        dependenciesController.loadRepositories();
     }
 }

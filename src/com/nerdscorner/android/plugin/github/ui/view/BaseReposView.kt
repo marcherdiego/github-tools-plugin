@@ -23,13 +23,13 @@ import javax.swing.ListSelectionModel
 
 abstract class BaseReposView(
         protected val bus: EventBus,
-        protected val reposTable: JTable,
+        private val reposTable: JTable,
         protected val releasesTable: JTable,
         protected val branchesTable: JTable,
         protected val openPullRequestsTable: JTable,
         protected val closedPullRequestsTable: JTable,
-        protected val repoComments: JLabel,
-        protected val dataColumn: Int
+        private val repoComments: JLabel,
+        private val dataColumn: Int
 ) {
     var selectedRepo: String? = null
     private var currentRepository: GHRepositoryWrapper? = null
@@ -93,6 +93,8 @@ abstract class BaseReposView(
         if (reposTable.model is BaseModel<*>) {
             (reposTable.model as BaseModel<*>).removeAllRows()
         }
+
+        clearTables()
     }
 
     fun updateRepositoryInfoTables(tableModel: GHRepoTableModel, tooltips: HashMap<String, String>) {
@@ -133,7 +135,7 @@ abstract class BaseReposView(
         JTableUtils.centerColumns(closedPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
     }
 
-    fun setRepoComments(text: String) {
+    fun setRepoComments(text: String?) {
         repoComments.text = text
     }
 
@@ -144,6 +146,23 @@ abstract class BaseReposView(
     fun addClosedPullRequest(pullRequest: GHPullRequestWrapper) {
         (closedPullRequestsTable.model as GHPullRequestTableModel).addRow(pullRequest)
     }
+
+    fun clearTables() {
+        if (branchesTable.model is BaseModel<*>) {
+            (branchesTable.model as BaseModel<*>).removeAllRows()
+        }
+        if (releasesTable.model is BaseModel<*>) {
+            (releasesTable.model as BaseModel<*>).removeAllRows()
+        }
+        if (openPullRequestsTable.model is BaseModel<*>) {
+            (openPullRequestsTable.model as BaseModel<*>).removeAllRows()
+        }
+        if (closedPullRequestsTable.model is BaseModel<*>) {
+            (closedPullRequestsTable.model as BaseModel<*>).removeAllRows()
+        }
+    }
+
+    fun getRepoAt(row: Int, column: Int): Any = reposTable.getValueAt(row, column)
 
     class RepoClickedEvent(val row: Int, val column: Int, val clickCount: Int)
 }
