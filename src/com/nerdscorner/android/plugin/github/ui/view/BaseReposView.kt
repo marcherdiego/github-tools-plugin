@@ -1,6 +1,8 @@
 package com.nerdscorner.android.plugin.github.ui.view
 
+import com.nerdscorner.android.plugin.github.domain.gh.GHBranchWrapper
 import com.nerdscorner.android.plugin.github.domain.gh.GHPullRequestWrapper
+import com.nerdscorner.android.plugin.github.domain.gh.GHReleaseWrapper
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
@@ -8,7 +10,6 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableMo
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer
-import com.nerdscorner.android.plugin.utils.GithubUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter
@@ -22,12 +23,12 @@ import javax.swing.JTable
 import javax.swing.ListSelectionModel
 
 abstract class BaseReposView(
-        protected val bus: EventBus,
+        private val bus: EventBus,
         private val reposTable: JTable,
-        protected val releasesTable: JTable,
-        protected val branchesTable: JTable,
-        protected val openPullRequestsTable: JTable,
-        protected val closedPullRequestsTable: JTable,
+        private val releasesTable: JTable,
+        private val branchesTable: JTable,
+        private val openPullRequestsTable: JTable,
+        private val closedPullRequestsTable: JTable,
         private val repoComments: JLabel,
         private val dataColumn: Int
 ) {
@@ -51,37 +52,25 @@ abstract class BaseReposView(
         releasesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
                 val release = (releasesTable.model as GHReleaseTableModel).getRow(row)
-                GithubUtils.openWebLink(release?.fullUrl)
+                bus.post(ReleaseClickedEvent(release))
             }
         })
         openPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
                 val pullRequest = (openPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
-                if (column == GHPullRequestTableModel.COLUMN_CI_STATUS) {
-                    GithubUtils.openWebLink(pullRequest?.buildStatusUrl)
-                } else {
-                    GithubUtils.openWebLink(pullRequest?.fullUrl)
-                }
+                bus.post(PullRequestClickedEvent(column, pullRequest))
             }
         })
         closedPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
                 val pullRequest = (closedPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
-                if (column == GHPullRequestTableModel.COLUMN_CI_STATUS) {
-                    GithubUtils.openWebLink(pullRequest?.buildStatusUrl)
-                } else {
-                    GithubUtils.openWebLink(pullRequest?.fullUrl)
-                }
+                bus.post(PullRequestClickedEvent(column, pullRequest))
             }
         })
         branchesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
                 val branch = (branchesTable.model as GHBranchTableModel).getRow(row) ?: return
-                when (column) {
-                    GHBranchTableModel.COLUMN_NAME -> GithubUtils.openWebLink(branch.url)
-                    GHBranchTableModel.COLUMN_STATUS -> branch.openBuildInBrowser()
-                    GHBranchTableModel.COLUMN_TRIGGER_BUILD -> branch.triggerBuild()
-                }
+                bus.post(BranchClickedEvent(column, branch))
             }
         })
         reposTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -165,4 +154,7 @@ abstract class BaseReposView(
     fun getRepoAt(row: Int, column: Int): Any = reposTable.getValueAt(row, column)
 
     class RepoClickedEvent(val row: Int, val column: Int, val clickCount: Int)
+    class ReleaseClickedEvent(val release: GHReleaseWrapper?)
+    class PullRequestClickedEvent(val column: Int, val pullRequest: GHPullRequestWrapper?)
+    class BranchClickedEvent(val column: Int, val branch: GHBranchWrapper)
 }

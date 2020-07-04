@@ -9,7 +9,12 @@ import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.ReleasesLoa
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoDoesNotNeedReleaseEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoNeedsReleaseEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoNoReleasesYetEvent
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
 import com.nerdscorner.android.plugin.github.ui.view.BaseReposView
+import com.nerdscorner.android.plugin.github.ui.view.BaseReposView.BranchClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.BaseReposView.PullRequestClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.BaseReposView.ReleaseClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.BaseReposView.RepoClickedEvent
 import com.nerdscorner.android.plugin.utils.GithubUtils
 import com.nerdscorner.android.plugin.utils.Strings
@@ -21,8 +26,6 @@ abstract class BaseRepoListController<V : BaseReposView, M : BaseReposModel> int
 
     lateinit var view: V
     lateinit var model: M
-
-    var selectedRepo: String? = null
 
     fun init() {
         bus.register(this)
@@ -37,6 +40,10 @@ abstract class BaseRepoListController<V : BaseReposView, M : BaseReposModel> int
 
     fun loadRepositories() {
         model.loadRepositories()
+    }
+
+    fun setSelectedRepo(selectedRepo: String) {
+        view.selectedRepo = selectedRepo
     }
 
     @Subscribe
@@ -89,5 +96,28 @@ abstract class BaseRepoListController<V : BaseReposView, M : BaseReposModel> int
             GithubUtils.openWebLink(model.getCurrentRepoUrl())
         }
         model.selectedRepoRow = event.row
+    }
+
+    @Subscribe
+    fun onReleaseClicked(event: ReleaseClickedEvent) {
+        GithubUtils.openWebLink(event.release?.fullUrl)
+    }
+
+    @Subscribe
+    fun onPullRequestClicked(event: PullRequestClickedEvent) {
+        if (event.column == GHPullRequestTableModel.COLUMN_CI_STATUS) {
+            GithubUtils.openWebLink(event.pullRequest?.buildStatusUrl)
+        } else {
+            GithubUtils.openWebLink(event.pullRequest?.fullUrl)
+        }
+    }
+
+    @Subscribe
+    fun onBranchClicked(event: BranchClickedEvent) {
+        when (event.column) {
+            GHBranchTableModel.COLUMN_NAME -> GithubUtils.openWebLink(event.branch.url)
+            GHBranchTableModel.COLUMN_STATUS -> event.branch.openBuildInBrowser()
+            GHBranchTableModel.COLUMN_TRIGGER_BUILD -> event.branch.triggerBuild()
+        }
     }
 }
