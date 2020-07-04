@@ -7,6 +7,7 @@ import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.utils.Strings
+import com.nerdscorner.android.plugin.utils.ThreadUtils
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
@@ -24,11 +25,11 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
     val organizationName: String
         get() = ghOrganization.login
 
+    var commentsUpdated: Boolean = false
+
     private var currentRepository: GHRepositoryWrapper? = null
 
     abstract fun loadRepositories()
-
-    abstract fun loadRepoReleasesAndBranches(latestReleaseDate: Date?)
 
     @Throws(IOException::class)
     protected fun loadReleases() {
@@ -88,6 +89,34 @@ abstract class BaseReposModel(val bus: EventBus, val ghOrganization: GHOrganizat
         if (!commentsUpdated) {
             commentsUpdated = true
             bus.post(RepoDoesNotNeedReleaseEvent())
+        }
+    }
+
+    fun loadRepoReleasesAndBranches(latestReleaseDate: Date?) {
+        try {
+            commentsUpdated = false
+            ThreadUtils.cancelThreads(releasesLoaderThread, branchesLoaderThread)
+
+            branchesLoaderThread = Thread {
+                try {
+                    loadBranches()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            releasesLoaderThread = Thread {
+                try {
+                    loadReleases()
+                    loadPullRequests(latestReleaseDate)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+            branchesLoaderThread?.start()
+            releasesLoaderThread?.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
