@@ -1,5 +1,8 @@
 package com.nerdscorner.android.plugin.github.ui.windows;
 
+import org.greenrobot.eventbus.EventBus;
+
+import javax.annotation.Nullable;
 import javax.swing.*;
 
 public class ResultDialog extends JDialog {
@@ -8,50 +11,64 @@ public class ResultDialog extends JDialog {
     private JLabel resultMessage;
     private JButton secondaryAction;
 
-    public ResultDialog(String message) {
-        setContentPane(contentPane);
-        setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
-        buttonOK.addActionListener(e -> dispose());
-        resultMessage.setText(message);
-        secondaryAction.setVisible(false);
+    private int requestCode;
+
+    ResultDialog(String message) {
+        this(message, null, null);
     }
 
-    public ResultDialog(String message, String okButtonText, SuccessCallback callback) {
+    public ResultDialog(String message, String primaryButtonText, final EventBus bus) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
-        buttonOK.setText(okButtonText);
+        buttonOK.setText(primaryButtonText);
         buttonOK.addActionListener(e -> {
             dispose();
-            callback.onOk();
+            bus.post(new PrimaryButtonClickedEvent(requestCode));
         });
-        resultMessage.setText(message);
-    }
-
-    public ResultDialog(String message, String okButtonText, SuccessCallback success, String clearButtonText, ClearCallback clear) {
-        setContentPane(contentPane);
-        setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
-        buttonOK.setText(okButtonText);
-        buttonOK.addActionListener(e -> {
-            dispose();
-            success.onOk();
-        });
-        secondaryAction.setVisible(true);
-        secondaryAction.setText(clearButtonText);
         secondaryAction.addActionListener(e -> {
             dispose();
-            clear.onClear();
+            bus.post(new SecondaryButtonClickedEvent(requestCode));
         });
+        secondaryAction.setVisible(false);
         resultMessage.setText(message);
     }
 
-    public interface SuccessCallback {
-        void onOk();
+    public void updateLoadingDialog(@Nullable String title, @Nullable String message, String primaryActionText,
+                                    @Nullable String secondaryActionText, int requestCode) {
+        if (title != null) {
+            setTitle(title);
+        }
+        buttonOK.setText(primaryActionText);
+        secondaryAction.setVisible(secondaryActionText != null);
+        secondaryAction.setText(secondaryActionText);
+        this.requestCode = requestCode;
+        if (message != null) {
+            resultMessage.setText(message);
+        }
     }
 
-    public interface ClearCallback {
-        void onClear();
+    public int getRequestCode() {
+        return requestCode;
+    }
+
+    public void setRequestCode(int requestCode) {
+        this.requestCode = requestCode;
+    }
+
+    public static class PrimaryButtonClickedEvent {
+        public int requestCode;
+
+        PrimaryButtonClickedEvent(int requestCode) {
+            this.requestCode = requestCode;
+        }
+    }
+
+    public static class SecondaryButtonClickedEvent {
+        public int requestCode;
+
+        SecondaryButtonClickedEvent(int requestCode) {
+            this.requestCode = requestCode;
+        }
     }
 }

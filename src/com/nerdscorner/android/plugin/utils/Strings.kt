@@ -20,6 +20,7 @@ object Strings {
     const val REPO_DOES_NOT_NEED_RELEASE = "%s does not need to be released"
     const val REPO_NO_RELEASES_YET = "%s has no releases yet"
     const val DATE_FORMAT = "dd/MM/yyyy"
+    const val REBUILD_TRIGGERED = "Rebuild triggered"
     const val REBUILD_ERROR = "Rebuild error"
     const val LOGIN_ERROR = "Login error"
     const val EMPTY_OAUTH_TOKEN = "The Oauth token cannot be empty"

@@ -59,6 +59,6 @@ abstract class BaseModel<T : Wrapper> internal constructor(internal val items: M
     }
 
     companion object {
-        val COLUMN_NAME = 0
+        const val COLUMN_NAME = 0
     }
 }

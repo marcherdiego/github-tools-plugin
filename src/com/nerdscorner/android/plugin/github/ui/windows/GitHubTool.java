@@ -1,6 +1,7 @@
 package com.nerdscorner.android.plugin.github.ui.windows;
 
 import org.apache.commons.lang.StringUtils;
+import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
@@ -8,12 +9,7 @@ import org.kohsuke.github.GitHub;
 
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
@@ -21,9 +17,11 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.nerdscorner.android.plugin.github.ui.controllers.AllReposController;
-import com.nerdscorner.android.plugin.github.ui.controllers.DependenciesController;
-import com.nerdscorner.android.plugin.github.ui.controllers.MyReposController;
+import com.nerdscorner.android.plugin.github.ui.presenter.RepoListPresenter;
+import com.nerdscorner.android.plugin.github.ui.model.AllReposModel;
+import com.nerdscorner.android.plugin.github.ui.model.MyReposModel;
+import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
+import com.nerdscorner.android.plugin.github.ui.view.ReposView;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
 
@@ -40,18 +38,14 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable allRepoBranches;
     private JTable allRepoOpenPullRequestsTable;
     private JTable allRepoClosedPullRequestsTable;
-    private AllReposController allAllReposController;
+    private RepoListPresenter allAllReposPresenter;
 
     private JTable myReposTable;
     private JTable myReposBranchesTable;
     private JTable myReposOpenPrTable;
     private JTable myReposReleasesTable;
     private JTable myReposClosedPrTable;
-    private MyReposController myReposController;
-
-    private JTable allReposDependenciesTable;
-    private JPanel dependenciesGraphPanel;
-    private DependenciesController dependenciesController;
+    private RepoListPresenter myReposPresenter;
 
     private JPanel loginPanel;
     private JPanel pluginPanel;
@@ -169,50 +163,42 @@ public class GitHubTool implements ToolWindowFactory {
             githubTokenLogin(oauthToken, organization);
         }
 
-        if (allAllReposController != null) {
-            allAllReposController.cancel();
+        if (allAllReposPresenter == null) {
+            allAllReposPresenter = new RepoListPresenter(
+                    new ReposView(
+                            allReposTable,
+                            allRepoReleases,
+                            allRepoBranches,
+                            allRepoOpenPullRequestsTable,
+                            allRepoClosedPullRequestsTable,
+                            repoComments,
+                            BaseModel.COLUMN_NAME
+                    ),
+                    new AllReposModel(ghOrganization),
+                    new EventBus()
+            );
         }
-        allAllReposController = new AllReposController(
-                allReposTable,
-                allRepoReleases,
-                allRepoBranches,
-                allRepoOpenPullRequestsTable,
-                allRepoClosedPullRequestsTable,
-                repoComments,
-                ghOrganization
-        );
-        allAllReposController.init();
-        allAllReposController.setSelectedRepo(project.getName());
-        allAllReposController.loadRepositories();
+        allAllReposPresenter.init();
+        allAllReposPresenter.setSelectedRepo(project.getName());
+        allAllReposPresenter.loadRepositories();
 
-        if (myReposController != null) {
-            myReposController.cancel();
+        if (myReposPresenter == null) {
+            myReposPresenter = new RepoListPresenter(
+                    new ReposView(
+                            myReposTable,
+                            myReposReleasesTable,
+                            myReposBranchesTable,
+                            myReposOpenPrTable,
+                            myReposClosedPrTable,
+                            repoComments,
+                            BaseModel.COLUMN_NAME
+                    ),
+                    new MyReposModel(ghOrganization, myselfGitHub),
+                    new EventBus()
+            );
         }
-        myReposController = new MyReposController(
-                myReposTable,
-                myReposReleasesTable,
-                myReposBranchesTable,
-                myReposOpenPrTable,
-                myReposClosedPrTable,
-                repoComments,
-                myselfGitHub,
-                ghOrganization
-        );
-        myReposController.init();
-        myReposController.setSelectedRepo(project.getName());
-        myReposController.loadRepositories();
-
-        if (dependenciesController != null) {
-            dependenciesController.cancel();
-        }
-        dependenciesController = new DependenciesController(
-                allReposDependenciesTable,
-                dependenciesGraphPanel,
-                ghOrganization,
-                myselfGitHub
-        );
-        dependenciesController.init();
-        dependenciesController.setSelectedRepo(project.getName());
-        dependenciesController.loadRepositories();
+        myReposPresenter.init();
+        myReposPresenter.setSelectedRepo(project.getName());
+        myReposPresenter.loadRepositories();
     }
 }
