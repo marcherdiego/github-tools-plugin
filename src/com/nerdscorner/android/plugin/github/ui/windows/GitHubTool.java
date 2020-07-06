@@ -17,7 +17,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.nerdscorner.android.plugin.github.ui.controllers.RepoListController;
+import com.nerdscorner.android.plugin.github.ui.presenter.RepoListPresenter;
 import com.nerdscorner.android.plugin.github.ui.model.AllReposModel;
 import com.nerdscorner.android.plugin.github.ui.model.MyReposModel;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
@@ -38,14 +38,14 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable allRepoBranches;
     private JTable allRepoOpenPullRequestsTable;
     private JTable allRepoClosedPullRequestsTable;
-    private RepoListController allAllReposController;
+    private RepoListPresenter allAllReposPresenter;
 
     private JTable myReposTable;
     private JTable myReposBranchesTable;
     private JTable myReposOpenPrTable;
     private JTable myReposReleasesTable;
     private JTable myReposClosedPrTable;
-    private RepoListController myReposController;
+    private RepoListPresenter myReposPresenter;
 
     private JPanel loginPanel;
     private JPanel pluginPanel;
@@ -163,8 +163,8 @@ public class GitHubTool implements ToolWindowFactory {
             githubTokenLogin(oauthToken, organization);
         }
 
-        if (allAllReposController == null) {
-            allAllReposController = new RepoListController(
+        if (allAllReposPresenter == null) {
+            allAllReposPresenter = new RepoListPresenter(
                     new ReposView(
                             allReposTable,
                             allRepoReleases,
@@ -178,12 +178,12 @@ public class GitHubTool implements ToolWindowFactory {
                     new EventBus()
             );
         }
-        allAllReposController.init();
-        allAllReposController.setSelectedRepo(project.getName());
-        allAllReposController.loadRepositories();
+        allAllReposPresenter.init();
+        allAllReposPresenter.setSelectedRepo(project.getName());
+        allAllReposPresenter.loadRepositories();
 
-        if (myReposController == null) {
-            myReposController = new RepoListController(
+        if (myReposPresenter == null) {
+            myReposPresenter = new RepoListPresenter(
                     new ReposView(
                             myReposTable,
                             myReposReleasesTable,
@@ -197,8 +197,8 @@ public class GitHubTool implements ToolWindowFactory {
                     new EventBus()
             );
         }
-        myReposController.init();
-        myReposController.setSelectedRepo(project.getName());
-        myReposController.loadRepositories();
+        myReposPresenter.init();
+        myReposPresenter.setSelectedRepo(project.getName());
+        myReposPresenter.loadRepositories();
     }
 }

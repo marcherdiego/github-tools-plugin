@@ -26,7 +26,7 @@ object GithubUtils {
 
     fun openWebLink(url: String?) {
         try {
-            openWebLink(URI.create(url))
+            openWebLink(URI.create(url ?: return))
         } catch (ignored: Exception) {
         }
     }

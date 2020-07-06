@@ -1,6 +1,7 @@
 package com.nerdscorner.android.plugin.utils
 
 import com.intellij.ide.util.PropertiesComponent
+import com.squareup.okhttp.Call
 import com.squareup.okhttp.Callback
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.OkHttpClient
@@ -9,7 +10,8 @@ import com.squareup.okhttp.RequestBody
 import com.squareup.okhttp.Response
 import java.io.IOException
 
-object TravisCiUtils {
+object TravisCiUtils : CiEnvironment {
+    private var buildRequest: Call? = null
     private const val BASE_URL = "https://api.travis-ci.com"
     private const val RERUN_JOB_URL = "$BASE_URL/build/{id}/restart"
     private const val APPLICATION_JSON = "application/json"
@@ -19,11 +21,12 @@ object TravisCiUtils {
 
     private val client = OkHttpClient()
 
-    fun reRunJob(externalId: String, success: () -> Unit = {}, fail: (String?) -> Unit = {}) {
+    override fun triggerRebuild(externalId: String, success: () -> Unit, fail: (String?) -> Unit): CiEnvironment {
         val propertiesComponent = PropertiesComponent.getInstance()
         val travisToken = propertiesComponent.getValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK)
         if (travisToken.isEmpty()) {
             fail("Travis CI token not set")
+            return this
         }
         val rerunUrl = RERUN_JOB_URL.replace("{id}", externalId)
         val rerunJobRequest = Request
@@ -33,9 +36,8 @@ object TravisCiUtils {
                 .addHeader(AUTHORIZATION_HEADER, "token $travisToken")
                 .addHeader(API_VERSION_HEADER_KEY, API_VERSION_HEADER_VALUE)
                 .build()
-        client
-                .newCall(rerunJobRequest)
-                .enqueue(object : Callback {
+        buildRequest = client.newCall(rerunJobRequest)
+        buildRequest?.enqueue(object : Callback {
                     override fun onResponse(response: Response?) {
                         if (response?.isSuccessful == true) {
                             success()
@@ -48,5 +50,10 @@ object TravisCiUtils {
                         fail(exception?.message)
                     }
                 })
+        return this
+    }
+
+    override fun cancelRequest() {
+        buildRequest?.cancel()
     }
 }

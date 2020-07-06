@@ -10,6 +10,8 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableMo
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer
+import com.nerdscorner.android.plugin.github.ui.windows.ResultDialog
+import com.nerdscorner.android.plugin.github.ui.windows.SimpleInputDialog
 import com.nerdscorner.android.plugin.utils.JTableUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter
@@ -43,8 +45,9 @@ class ReposView(
                     ?.ghRelease
                     ?.published_at
         }
+    private var loadingDialog: ResultDialog? = null
 
-    fun init() {
+    init {
         reposTable.addMouseListener(object : SimpleMouseAdapter() {
             override fun mousePressed(row: Int, column: Int, clickCount: Int) {
                 bus.post(RepoClickedEvent(row, column, clickCount))
@@ -79,11 +82,14 @@ class ReposView(
         releasesTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         openPullRequestsTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         closedPullRequestsTable.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
+    }
 
+    fun init() {
+        selectedRepo = null
+        currentRepository = null
         if (reposTable.model is BaseModel<*>) {
             (reposTable.model as BaseModel<*>).removeAllRows()
         }
-
         clearTables()
     }
 
@@ -153,6 +159,38 @@ class ReposView(
     }
 
     fun getRepoAt(row: Int, column: Int): Any = reposTable.getValueAt(row, column)
+
+    fun showTriggeringBuildLoadingDialog(title: String, message: String, primaryActionText: String, requestCode: Int) {
+        loadingDialog?.dispose()
+        loadingDialog = ResultDialog(message, primaryActionText, bus)
+        loadingDialog?.requestCode = requestCode
+        loadingDialog?.title = title
+        show(loadingDialog)
+    }
+
+    fun requestTravisToken(title: String, message: String, requestCode: Int) {
+        val inputDialog = SimpleInputDialog(message, requestCode, bus)
+        inputDialog.pack()
+        inputDialog.setLocationRelativeTo(null)
+        inputDialog.title = title
+        inputDialog.isResizable = true
+        inputDialog.isVisible = true
+    }
+
+    fun updateLoadingDialog(title: String? = null, message: String? = null, primaryActionText: String,
+                            secondaryActionText: String? = null, requestCode: Int) {
+        loadingDialog?.updateLoadingDialog(title, message, primaryActionText, secondaryActionText, requestCode)
+        show(loadingDialog)
+    }
+
+    private fun show(dialog: ResultDialog?) {
+        dialog?.apply {
+            pack()
+            setLocationRelativeTo(null)
+            isResizable = true
+            isVisible = true
+        }
+    }
 
     //Posted events
     class RepoClickedEvent(val row: Int, val column: Int, val clickCount: Int)
