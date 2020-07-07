@@ -1,7 +1,8 @@
-package com.nerdscorner.android.plugin.utils
+package com.nerdscorner.android.plugin.ci
 
 import com.google.gson.JsonParser
 import com.intellij.ide.util.PropertiesComponent
+import com.nerdscorner.android.plugin.utils.Strings
 import com.squareup.okhttp.Call
 import com.squareup.okhttp.Callback
 import com.squareup.okhttp.MediaType
@@ -11,7 +12,7 @@ import com.squareup.okhttp.RequestBody
 import com.squareup.okhttp.Response
 import java.io.IOException
 
-object CircleCiUtils : CiEnvironment {
+object CircleCi : CiEnvironment {
     private var buildRequest: Call? = null
     private const val BASE_URL = "https://circleci.com/api/v2"
     private const val RERUN_WORKFLOW_URL = "$BASE_URL/workflow/{id}/rerun"

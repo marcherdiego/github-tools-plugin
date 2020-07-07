@@ -10,12 +10,12 @@ import com.nerdscorner.android.plugin.github.exceptions.MissingTravisCiTokenExce
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
-import com.nerdscorner.android.plugin.utils.CiEnvironment
-import com.nerdscorner.android.plugin.utils.CircleCiUtils
+import com.nerdscorner.android.plugin.ci.CiEnvironment
+import com.nerdscorner.android.plugin.ci.CircleCi
 import com.nerdscorner.android.plugin.utils.GithubUtils
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
-import com.nerdscorner.android.plugin.utils.TravisCiUtils
+import com.nerdscorner.android.plugin.ci.TravisCi
 import com.nerdscorner.android.plugin.utils.cancel
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
@@ -153,7 +153,7 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
         return currentRepository?.ghRepository?.name
     }
 
-    fun cancel() {
+    fun init() {
         commentsUpdated = false
         currentRepository = null
         selectedRepoRow = -1
@@ -173,14 +173,14 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 if (travisCiToken.isEmpty()) {
                     throw MissingTravisCiTokenException()
                 }
-                TravisCiUtils
+                TravisCi
             }
             branch.circleBuild -> {
                 val circleCiToken = propertiesComponent.getValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK)
                 if (circleCiToken.isEmpty()) {
                     throw MissingCircleCiTokenException()
                 }
-                CircleCiUtils
+                CircleCi
             }
             else -> {
                 return

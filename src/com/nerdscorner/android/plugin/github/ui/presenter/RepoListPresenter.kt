@@ -44,11 +44,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode.MAIN
 
-class RepoListPresenter(
-        private val view: ReposView,
-        private val model: BaseReposModel,
-        bus: EventBus
-) {
+class RepoListPresenter(private val view: ReposView, private val model: BaseReposModel, bus: EventBus) {
     init {
         view.bus = bus
         model.bus = bus
@@ -56,7 +52,7 @@ class RepoListPresenter(
     }
 
     fun init() {
-        model.cancel()
+        model.init()
         view.init()
     }
 

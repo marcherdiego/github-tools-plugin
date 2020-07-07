@@ -1,6 +1,7 @@
-package com.nerdscorner.android.plugin.utils
+package com.nerdscorner.android.plugin.ci
 
 import com.intellij.ide.util.PropertiesComponent
+import com.nerdscorner.android.plugin.utils.Strings
 import com.squareup.okhttp.Call
 import com.squareup.okhttp.Callback
 import com.squareup.okhttp.MediaType
@@ -10,7 +11,7 @@ import com.squareup.okhttp.RequestBody
 import com.squareup.okhttp.Response
 import java.io.IOException
 
-object TravisCiUtils : CiEnvironment {
+object TravisCi : CiEnvironment {
     private var buildRequest: Call? = null
     private const val BASE_URL = "https://api.travis-ci.com"
     private const val RERUN_JOB_URL = "$BASE_URL/build/{id}/restart"
