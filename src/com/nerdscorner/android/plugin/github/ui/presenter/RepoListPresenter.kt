@@ -24,9 +24,7 @@ import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.V
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.NewClosedPullRequestsEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.NewOpenPullRequestsEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.ReleasesLoadedEvent
-import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoDoesNotNeedReleaseEvent
-import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoNeedsReleaseEvent
-import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoNoReleasesYetEvent
+import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoCommentsUpdatedEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.UpdateRepositoryInfoTablesEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
@@ -38,7 +36,7 @@ import com.nerdscorner.android.plugin.github.ui.view.ReposView.RepoClickedEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ResultDialog.PrimaryButtonClickedEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ResultDialog.SecondaryButtonClickedEvent
 import com.nerdscorner.android.plugin.github.ui.windows.SimpleInputDialog.InputEnteredEvent
-import com.nerdscorner.android.plugin.utils.GithubUtils
+import com.nerdscorner.android.plugin.utils.BrowserUtils
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -93,18 +91,8 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
     }
 
     @Subscribe
-    fun onRepoNoReleasesYet(event: RepoNoReleasesYetEvent) {
-        view.setRepoComments(String.format(Strings.REPO_NO_RELEASES_YET, model.getCurrentRepoName()))
-    }
-
-    @Subscribe
-    fun onRepoNeedsRelease(event: RepoNeedsReleaseEvent) {
-        view.setRepoComments(String.format(Strings.REPO_NEEDS_RELEASE, model.getCurrentRepoName()))
-    }
-
-    @Subscribe
-    fun onRepoDoesNotNeedRelease(event: RepoDoesNotNeedReleaseEvent) {
-        view.setRepoComments(String.format(Strings.REPO_DOES_NOT_NEED_RELEASE, model.getCurrentRepoName()))
+    fun onRepoCommentsUpdated(event: RepoCommentsUpdatedEvent) {
+        view.setRepoComments(event.comments)
     }
 
     @Subscribe
@@ -113,34 +101,34 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
             if (model.selectedRepoRow == event.row || event.row == -1) {
                 return
             }
-            view.clearTables()
-            view.setRepoComments(null)
             model.currentRepository = view.getRepoAt(event.row, view.dataColumn) as GHRepositoryWrapper
             model.loadRepoReleasesAndBranches()
+            view.clearTables()
+            view.setRepoComments(null)
         } else if (event.clickCount == 2) {
-            GithubUtils.openWebLink(model.getCurrentRepoUrl())
+            BrowserUtils.openWebLink(model.getCurrentRepoUrl())
         }
         model.selectedRepoRow = event.row
     }
 
     @Subscribe
     fun onReleaseClicked(event: ReleaseClickedEvent) {
-        GithubUtils.openWebLink(event.release?.fullUrl)
+        BrowserUtils.openWebLink(event.release?.fullUrl)
     }
 
     @Subscribe
     fun onPullRequestClicked(event: PullRequestClickedEvent) {
-        if (event.column == GHPullRequestTableModel.COLUMN_CI_STATUS) {
-            GithubUtils.openWebLink(event.pullRequest?.buildStatusUrl)
-        } else {
-            GithubUtils.openWebLink(event.pullRequest?.fullUrl)
+        when (event.column) {
+            GHPullRequestTableModel.COLUMN_CI_STATUS -> BrowserUtils.openWebLink(event.pullRequest?.buildStatusUrl)
+            GHPullRequestTableModel.COLUMN_AUTHOR -> BrowserUtils.openWebLink(model.getGithubProfileUrl(event.pullRequest?.ghPullRequest))
+            else -> BrowserUtils.openWebLink(event.pullRequest?.fullUrl)
         }
     }
 
     @Subscribe
     fun onBranchClicked(event: BranchClickedEvent) {
         when (event.column) {
-            GHBranchTableModel.COLUMN_NAME -> GithubUtils.openWebLink(event.branch.url)
+            GHBranchTableModel.COLUMN_NAME -> BrowserUtils.openWebLink(event.branch.url)
             GHBranchTableModel.COLUMN_STATUS -> model.openBuildInBrowser(event.branch)
             GHBranchTableModel.COLUMN_TRIGGER_BUILD -> {
                 try {

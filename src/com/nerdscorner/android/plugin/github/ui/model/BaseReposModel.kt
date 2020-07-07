@@ -12,7 +12,7 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.ci.CiEnvironment
 import com.nerdscorner.android.plugin.ci.CircleCi
-import com.nerdscorner.android.plugin.utils.GithubUtils
+import com.nerdscorner.android.plugin.utils.BrowserUtils
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
 import com.nerdscorner.android.plugin.ci.TravisCi
@@ -21,6 +21,7 @@ import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
 import org.kohsuke.github.GHOrganization
+import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort
 import java.io.IOException
 import java.util.ArrayList
@@ -48,6 +49,15 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
 
     abstract fun loadRepositories()
 
+    fun init() {
+        commentsUpdated = false
+        currentRepository = null
+        selectedRepoRow = -1
+        currentBranchBuild = null
+        currentCiEnvironment = null
+        ThreadUtils.cancelThreads(loaderThread, releasesLoaderThread, prsLoaderThread, branchesLoaderThread)
+    }
+
     @Throws(IOException::class)
     protected fun loadReleases() {
         val repoReleasesModel = GHReleaseTableModel(ArrayList(), arrayOf(Strings.TAG, Strings.DATE))
@@ -57,6 +67,9 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 ?.withPageSize(SMALL_PAGE_SIZE)
                 ?.toList()
                 ?.forEach { ghRelease ->
+                    if (Thread.interrupted()) {
+                        return
+                    }
                     repoReleasesModel.addRow(GHReleaseWrapper(ghRelease))
                 }
         bus.post(ReleasesLoadedEvent(repoReleasesModel))
@@ -70,6 +83,9 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 ?.branches
                 ?.values
                 ?.forEach { branch ->
+                    if (Thread.interrupted()) {
+                        return
+                    }
                     repoBranchesModel.addRow(GHBranchWrapper(branch))
                 }
         bus.post(BranchesLoadedEvent(repoBranchesModel))
@@ -79,7 +95,7 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
         var commentsUpdated = false
         if (latestReleaseDate == null) {
             commentsUpdated = true
-            bus.post(RepoNoReleasesYetEvent())
+            bus.post(RepoCommentsUpdatedEvent(getFormattedComment(Strings.REPO_NO_RELEASES_YET, getCurrentRepoName())))
         }
         currentRepository
                 ?.ghRepository
@@ -90,6 +106,9 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 ?.list()
                 ?.withPageSize(SMALL_PAGE_SIZE)
                 ?.forEach { pullRequest ->
+                    if (Thread.interrupted()) {
+                        return
+                    }
                     if (pullRequest.state == GHIssueState.OPEN) {
                         bus.post(NewOpenPullRequestsEvent(GHPullRequestWrapper(pullRequest)))
                     } else if (pullRequest.state == GHIssueState.CLOSED) {
@@ -97,7 +116,7 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                             bus.post(NewClosedPullRequestsEvent(GHPullRequestWrapper(pullRequest)))
                             if (!commentsUpdated) {
                                 commentsUpdated = true
-                                bus.post(RepoNeedsReleaseEvent())
+                                bus.post(RepoCommentsUpdatedEvent(getFormattedComment(Strings.REPO_NEEDS_RELEASE, getCurrentRepoName())))
                             }
                         }
                     }
@@ -105,14 +124,14 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
         // If we haven't found any closed PR after the latest release, then this repo does not need to be released
         if (!commentsUpdated) {
             commentsUpdated = true
-            bus.post(RepoDoesNotNeedReleaseEvent())
+            bus.post(RepoCommentsUpdatedEvent(getFormattedComment(Strings.REPO_DOES_NOT_NEED_RELEASE, getCurrentRepoName())))
         }
     }
 
     fun loadRepoReleasesAndBranches() {
         try {
             commentsUpdated = false
-            ThreadUtils.cancelThreads(releasesLoaderThread, branchesLoaderThread)
+            ThreadUtils.cancelThreads(releasesLoaderThread, branchesLoaderThread, prsLoaderThread)
 
             branchesLoaderThread = Thread {
                 try {
@@ -153,15 +172,6 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
         return currentRepository?.ghRepository?.name
     }
 
-    fun init() {
-        commentsUpdated = false
-        currentRepository = null
-        selectedRepoRow = -1
-        currentBranchBuild = null
-        currentCiEnvironment = null
-        ThreadUtils.cancelThreads(loaderThread, releasesLoaderThread, prsLoaderThread, branchesLoaderThread)
-    }
-
     fun getCurrentRepoUrl() = currentRepository?.fullUrl
 
     @Throws(MissingTravisCiTokenException::class, MissingCircleCiTokenException::class)
@@ -182,14 +192,13 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 }
                 CircleCi
             }
-            else -> {
-                return
-            }
+            else -> return
         }
         currentCiEnvironment = ciEnvironment.triggerRebuild(
                 externalId = branch.externalBuildId,
                 success = {
                     bus.post(BuildSucceededEventEvent())
+                    currentBranchBuild = null
                 },
                 fail = { message ->
                     bus.post(BuildFailedEventEvent(message))
@@ -199,7 +208,6 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
 
     fun triggerPendingRebuild() {
         requestRebuild(currentBranchBuild ?: return)
-        currentBranchBuild = null
     }
 
     fun cancelRebuildRequest() {
@@ -215,18 +223,34 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
     }
 
     fun openBuildInBrowser(branch: GHBranchWrapper? = null) {
-        GithubUtils.openWebLink((branch ?: currentBranchBuild)?.buildStatusUrl)
+        BrowserUtils.openWebLink((branch ?: currentBranchBuild)?.buildStatusUrl)
     }
 
     fun clearCiToken() {
         propertiesComponent.setValue(
                 when {
-                    currentBranchBuild?.circleBuild == true -> Strings.TRAVIS_CI_TOKEN_PROPERTY
+                    currentBranchBuild?.circleBuild == true -> Strings.CIRCLE_CI_TOKEN_PROPERTY
                     currentBranchBuild?.travisBuild == true -> Strings.TRAVIS_CI_TOKEN_PROPERTY
                     else -> return
                 },
                 Strings.BLANK
         )
+    }
+
+    private fun getFormattedComment(comment: String, args: String?): String? {
+        return if (args == null) {
+            null
+        } else {
+            String.format(comment, args)
+        }
+    }
+
+    fun getGithubProfileUrl(pullRequest: GHPullRequest?): String? {
+        return try {
+            "$GITHUB_PROFILE_PREFIX${pullRequest?.user?.login}"
+        } catch (e: Exception) {
+            null
+        }
     }
 
     //Posted events
@@ -237,15 +261,15 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
     class NewOpenPullRequestsEvent(val pullRequest: GHPullRequestWrapper)
     class NewClosedPullRequestsEvent(val pullRequest: GHPullRequestWrapper)
 
-    class RepoNoReleasesYetEvent
-    class RepoNeedsReleaseEvent
-    class RepoDoesNotNeedReleaseEvent
+    class RepoCommentsUpdatedEvent(val comments: String?)
 
     class BuildSucceededEventEvent
     class BuildFailedEventEvent(val message: String?)
 
     companion object {
         private val propertiesComponent = PropertiesComponent.getInstance()
+
+        private const val GITHUB_PROFILE_PREFIX = "https://github.com/"
 
         const val LARGE_PAGE_SIZE = 500
         const val SMALL_PAGE_SIZE = 40

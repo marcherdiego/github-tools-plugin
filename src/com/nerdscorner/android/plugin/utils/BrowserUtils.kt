@@ -4,8 +4,7 @@ import java.awt.Desktop
 import java.net.URI
 import java.net.URL
 
-object GithubUtils {
-
+object BrowserUtils {
     fun openWebLink(uri: URI?) {
         try {
             with(Desktop.getDesktop()) {
