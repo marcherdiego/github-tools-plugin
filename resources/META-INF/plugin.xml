@@ -1,13 +1,14 @@
 <idea-plugin>
     <id>com.nerdscorner.android.plugin.github</id>
     <name>Github Tools</name>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
       A small tool to keep track of the Github repositories you have in your organization along with their pull requests, releases and more!
       It also provides a dependencies viewer and navigator
-      TravisCI and CircleCI integration to go directly to the build itself to monitor it
+      TravisCI and CircleCI integration to go directly to the build itself to monitor it.
+      You can also trigger a TravisCi build and a CircleCi workflow right from the plugin!
     ]]></description>
 
     <change-notes><![CDATA[
@@ -17,6 +18,7 @@
         Added trigger CircleCI and Travis CI builds from the IDE!
         Added MVP to the windows for maintenance purposes
         Improved Github capabilities and fetch performance
+        Added parameters panel to handle tokens
     ]]>
     </change-notes>
 
