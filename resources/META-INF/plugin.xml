@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.nerdscorner.android.plugin.github</id>
     <name>Github Tools</name>
-    <version>1.4.0</version>
+    <version>1.5.0</version>
     <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
@@ -13,8 +13,10 @@
     <change-notes><![CDATA[
         Improved dependencies tab.
         Added new column in repos table to see its status and get right into the CI build itself!
-        Improved dependencies comparator
-        Added trigger CircleCI and Travis CI builds from the IDE !
+        Improved dependencies comparator to stash and pop changes
+        Added trigger CircleCI and Travis CI builds from the IDE!
+        Added MVP to the windows for maintenance purposes
+        Improved Github capabilities and fetch performance
     ]]>
     </change-notes>
 

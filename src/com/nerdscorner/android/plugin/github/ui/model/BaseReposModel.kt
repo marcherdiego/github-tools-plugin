@@ -16,6 +16,7 @@ import com.nerdscorner.android.plugin.utils.BrowserUtils
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
 import com.nerdscorner.android.plugin.ci.TravisCi
+import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent
 import com.nerdscorner.android.plugin.utils.cancel
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
@@ -216,10 +217,12 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
 
     fun saveTravisToken(token: String?) {
         propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, token)
+        EventBus.getDefault().post(ParameterUpdatedEvent())
     }
 
     fun saveCircleToken(token: String?) {
         propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, token)
+        EventBus.getDefault().post(ParameterUpdatedEvent())
     }
 
     fun openBuildInBrowser(branch: GHBranchWrapper? = null) {
@@ -235,6 +238,7 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 },
                 Strings.BLANK
         )
+        EventBus.getDefault().post(ParameterUpdatedEvent())
     }
 
     private fun getFormattedComment(comment: String, args: String?): String? {
