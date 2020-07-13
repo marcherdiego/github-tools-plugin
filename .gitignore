@@ -1,1 +1,5 @@
 out/
+
+# Android Studio & IntelliJ
+.idea/
+*.iml
