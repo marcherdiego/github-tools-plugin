@@ -15,6 +15,8 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     val fullUrl: URL
         get() = ghRepository.htmlUrl
 
+    var changelog: String? = null
+
     init {
         val repoDescription = ghRepository.description
         this.description = if (repoDescription.isNullOrEmpty()) {

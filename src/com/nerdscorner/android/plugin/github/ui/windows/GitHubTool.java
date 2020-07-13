@@ -19,11 +19,14 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent;
 import com.nerdscorner.android.plugin.github.ui.model.AllReposModel;
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel;
 import com.nerdscorner.android.plugin.github.ui.model.MyReposModel;
 import com.nerdscorner.android.plugin.github.ui.model.ParametersModel;
+import com.nerdscorner.android.plugin.github.ui.presenter.ExperimentalPresenter;
 import com.nerdscorner.android.plugin.github.ui.presenter.ParametersPresenter;
 import com.nerdscorner.android.plugin.github.ui.presenter.RepoListPresenter;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView;
 import com.nerdscorner.android.plugin.github.ui.view.ParametersView;
 import com.nerdscorner.android.plugin.github.ui.view.ReposView;
 import com.nerdscorner.android.plugin.utils.Strings;
@@ -57,6 +60,9 @@ public class GitHubTool implements ToolWindowFactory {
     private JTextField organizationName;
     private JButton saveButton;
     private ParametersPresenter parametersPresenter;
+
+    private JButton createAppsChangelogButton;
+    private ExperimentalPresenter experimentalPresenter;
 
     private JPanel loginPanel;
     private JPanel pluginPanel;
@@ -239,5 +245,13 @@ public class GitHubTool implements ToolWindowFactory {
         myReposPresenter.init();
         myReposPresenter.setSelectedRepo(project.getName());
         myReposPresenter.loadRepositories();
+
+        if (experimentalPresenter == null) {
+            experimentalPresenter = new ExperimentalPresenter(
+                    new ExperimentalView(createAppsChangelogButton),
+                    new ExperimentalModel(ghOrganization),
+                    new EventBus()
+            );
+        }
     }
 }
