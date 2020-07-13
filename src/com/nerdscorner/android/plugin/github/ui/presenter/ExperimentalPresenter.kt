@@ -26,8 +26,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onLibraryFetchedSuccessfully(event: LibraryFetchedSuccessfullyEvent) {
-        val progress = "%.2f".format(event.totalProgress)
-        view.updateChangelogProgress("Completed: $progress% | Fetched ${event.libraryName}'s changelog")
+        view.updateChangelogProgress("Completed: ${event.totalProgress.toInt()}% | Fetched ${event.libraryName}'s changelog")
     }
 
     @Subscribe

@@ -33,6 +33,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
                 IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
                 val repositoryWrapper = GHRepositoryWrapper(repository)
                 repositoryWrapper.changelog = getLastChangelogEntry(writer.toString())
+                repositoryWrapper.alias = it.first
                 androidLibraries.add(repositoryWrapper)
                 bus.post(LibraryFetchedSuccessfullyEvent(it.first, totalProgress))
             }
@@ -75,7 +76,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
             val versionMatch = libraryVersionRegex.find(changelog)
             val libraryVersion = versionMatch?.value
             result
-                    .append("## ${library.name} [$libraryVersion](${library.fullUrl}/releases/tag/v$libraryVersion)")
+                    .append("## ${library.alias} [v$libraryVersion](${library.fullUrl}/releases/tag/v$libraryVersion)")
                     .append(System.lineSeparator())
                     .append(addChangelogIndent(changelog))
         }
@@ -98,7 +99,9 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
                     }
                     result.append(System.lineSeparator())
                 }
-        return result.toString()
+        return result
+                .dropLast(System.lineSeparator().length)
+                .toString()
     }
 
     companion object {
