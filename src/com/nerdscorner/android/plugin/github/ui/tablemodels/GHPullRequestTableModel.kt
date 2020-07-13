@@ -28,14 +28,14 @@ class GHPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper>, c
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            COLUMN_CI_STATUS -> pullRequestWrapper.buildStatus
+            COLUMN_CI_STATUS -> pullRequestWrapper.buildStatus?.capitalize()
             else -> null
         }
     }
 
     companion object {
         private const val COLUMN_TITLE = 0
-        private const val COLUMN_AUTHOR = 1
+        const val COLUMN_AUTHOR = 1
         const val COLUMN_DATE = 2
         const val COLUMN_CI_STATUS = 3
     }

@@ -17,10 +17,17 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.nerdscorner.android.plugin.github.ui.presenter.RepoListPresenter;
+import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent;
 import com.nerdscorner.android.plugin.github.ui.model.AllReposModel;
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel;
 import com.nerdscorner.android.plugin.github.ui.model.MyReposModel;
+import com.nerdscorner.android.plugin.github.ui.model.ParametersModel;
+import com.nerdscorner.android.plugin.github.ui.presenter.ExperimentalPresenter;
+import com.nerdscorner.android.plugin.github.ui.presenter.ParametersPresenter;
+import com.nerdscorner.android.plugin.github.ui.presenter.RepoListPresenter;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView;
+import com.nerdscorner.android.plugin.github.ui.view.ParametersView;
 import com.nerdscorner.android.plugin.github.ui.view.ReposView;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
@@ -47,6 +54,16 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable myReposClosedPrTable;
     private RepoListPresenter myReposPresenter;
 
+    private JTextField githubToken;
+    private JTextField circleCiToken;
+    private JTextField travisToken;
+    private JTextField organizationName;
+    private JButton saveButton;
+    private ParametersPresenter parametersPresenter;
+
+    private JButton createAppsChangelogButton;
+    private ExperimentalPresenter experimentalPresenter;
+
     private JPanel loginPanel;
     private JPanel pluginPanel;
     private JTextField oauthTokenField;
@@ -57,6 +74,8 @@ public class GitHubTool implements ToolWindowFactory {
     private JLabel repoComments;
     private JPanel repoCommentsContainer;
     private JTextField organizationField;
+    private JLabel changelogProgress;
+
     private Project project;
 
     @Override
@@ -97,6 +116,7 @@ public class GitHubTool implements ToolWindowFactory {
                             ViewUtils.INSTANCE.hide(loginPanel);
                             propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
                             propertiesComponent.setValue(Strings.ORGANIZATION_NAME_PROPERTY, organization);
+                            EventBus.getDefault().post(new ParameterUpdatedEvent());
                             oauthTokenField.setText(null);
                         } else {
                             ResultDialog resultDialog = new ResultDialog(Strings.VERIFY_OAUTH_TOKEN);
@@ -123,6 +143,7 @@ public class GitHubTool implements ToolWindowFactory {
                 propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
                 propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK);
                 propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK);
+                EventBus.getDefault().post(new ParameterUpdatedEvent());
                 github = null;
                 ghOrganization = null;
                 myselfGitHub = null;
@@ -132,9 +153,18 @@ public class GitHubTool implements ToolWindowFactory {
         reloadViewButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+                String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
+                String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
+                github = null;
+                ghOrganization = null;
+                myselfGitHub = null;
+                githubTokenLogin(oauthToken, organization);
                 loadTablesInfo();
             }
         });
+
+        loadParametersPanel();
     }
 
     private boolean githubTokenLogin(String oauthKey, String organization) {
@@ -151,6 +181,22 @@ public class GitHubTool implements ToolWindowFactory {
             e.printStackTrace();
         }
         return false;
+    }
+
+    private void loadParametersPanel() {
+        if (parametersPresenter == null) {
+            parametersPresenter = new ParametersPresenter(
+                    new ParametersView(
+                            githubToken,
+                            circleCiToken,
+                            travisToken,
+                            organizationName,
+                            saveButton
+                    ),
+                    new ParametersModel(),
+                    new EventBus()
+            );
+        }
     }
 
     private void loadTablesInfo() {
@@ -200,5 +246,13 @@ public class GitHubTool implements ToolWindowFactory {
         myReposPresenter.init();
         myReposPresenter.setSelectedRepo(project.getName());
         myReposPresenter.loadRepositories();
+
+        if (experimentalPresenter == null) {
+            experimentalPresenter = new ExperimentalPresenter(
+                    new ExperimentalView(createAppsChangelogButton, changelogProgress),
+                    new ExperimentalModel(ghOrganization),
+                    new EventBus()
+            );
+        }
     }
 }

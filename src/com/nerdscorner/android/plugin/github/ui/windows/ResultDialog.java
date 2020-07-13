@@ -13,7 +13,7 @@ public class ResultDialog extends JDialog {
 
     private int requestCode;
 
-    ResultDialog(String message) {
+    public ResultDialog(String message) {
         this(message, null, null);
     }
 

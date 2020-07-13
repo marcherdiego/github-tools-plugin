@@ -7,6 +7,7 @@ object Strings {
     const val TRAVIS_CI_TOKEN_PROPERTY = "travis_ci_property"
     const val CIRCLE_CI_TOKEN_PROPERTY = "circle_ci_property"
 
+    const val HASH_POUND = "#"
     const val BLANK = ""
     const val NAME = "Name"
     const val TITLE = "Title"
@@ -23,6 +24,7 @@ object Strings {
     const val REBUILD_TRIGGERED = "Rebuild triggered"
     const val REBUILD_ERROR = "Rebuild error"
     const val LOGIN_ERROR = "Login error"
+    const val CHANGELOG = "Libraries changelog"
     const val EMPTY_OAUTH_TOKEN = "The OAuth Token cannot be empty"
     const val EMPTY_ORGANIZATION_NAME = "The organization's name cannot be empty"
     const val VERIFY_OAUTH_TOKEN = "Verify your organization's name, your OAuth Token and its permissions"

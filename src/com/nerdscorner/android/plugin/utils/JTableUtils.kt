@@ -51,10 +51,14 @@ object JTableUtils {
             horizontalAlignment = JLabel.CENTER
         }
         columns.forEach { column ->
-            table
-                    .columnModel
-                    .getColumn(column)
-                    .cellRenderer = columnRenderer
+            try {
+                table
+                        .columnModel
+                        .getColumn(column)
+                        .cellRenderer = columnRenderer
+            } catch (e: Exception) {
+                // Nothing to do here
+            }
         }
     }
 }
