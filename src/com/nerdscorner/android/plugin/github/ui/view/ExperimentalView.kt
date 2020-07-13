@@ -4,8 +4,9 @@ import org.greenrobot.eventbus.EventBus
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JButton
+import javax.swing.JLabel
 
-class ExperimentalView(createAppsChangelogButton: JButton) {
+class ExperimentalView(createAppsChangelogButton: JButton, private val changelogProgress: JLabel) {
     lateinit var bus: EventBus
 
     init {
@@ -14,6 +15,15 @@ class ExperimentalView(createAppsChangelogButton: JButton) {
                 bus.post(CreateAppsChangelogButtonClickedEvent())
             }
         })
+        setChangelogProgressVisibility(false)
+    }
+
+    fun setChangelogProgressVisibility(visible: Boolean) {
+        changelogProgress.isVisible = visible
+    }
+
+    fun updateChangelogProgress(message: String) {
+        changelogProgress.text = message
     }
 
     class CreateAppsChangelogButtonClickedEvent

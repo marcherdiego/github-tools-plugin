@@ -2,12 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a92aa8a7-dc4e-41ea-8c3e-91087392e1f1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/domain/gh/GHRepositoryWrapper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/domain/gh/GHRepositoryWrapper.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/META-INF/plugin.xml" beforeDir="false" afterPath="$PROJECT_DIR$/resources/META-INF/plugin.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/ExperimentalModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/ExperimentalModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/presenter/ExperimentalPresenter.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/presenter/ExperimentalPresenter.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/view/ExperimentalView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/view/ExperimentalView.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.form" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.form" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/Strings.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/Strings.kt" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,8 +25,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="173">
-              <caret line="105" column="28" selection-start-line="105" selection-start-column="28" selection-end-line="105" selection-end-column="28" />
+            <state relative-caret-position="424">
+              <caret line="251" column="38" lean-forward="true" selection-start-line="251" selection-start-column="38" selection-end-line="251" selection-end-column="38" />
               <folding>
                 <element signature="e#7086#7741#0" expanded="true" />
                 <element signature="e#7740#7741#0" expanded="true" />
@@ -37,10 +38,10 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/view/ExperimentalView.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="18" column="47" selection-start-line="18" selection-start-column="47" selection-end-line="18" selection-end-column="47" />
+            <state relative-caret-position="240">
+              <caret line="16" column="8" lean-forward="true" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="8" />
               <folding>
-                <element signature="e#55#189#0" expanded="true" />
+                <element signature="e#55#215#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -49,8 +50,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/presenter/ExperimentalPresenter.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="376">
-              <caret line="26" column="20" selection-start-line="26" selection-start-column="20" selection-end-line="26" selection-end-column="20" />
+            <state relative-caret-position="400">
+              <caret line="29" column="44" selection-start-line="29" selection-start-column="44" selection-end-line="29" selection-end-column="44" />
               <folding>
                 <element signature="e#60#282#0" expanded="true" />
               </folding>
@@ -59,30 +60,27 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.java">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/ExperimentalModel.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="9" column="23" lean-forward="true" selection-start-line="9" selection-start-column="23" selection-end-line="9" selection-end-column="23" />
+            <state relative-caret-position="171">
+              <caret line="36" column="65" selection-start-line="36" selection-start-column="65" selection-end-line="36" selection-end-column="65" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="e#56#510#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.form">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form">
           <provider selected="true" editor-type-id="ui-designer" />
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/ExperimentalModel.kt">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="34" column="13" lean-forward="true" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="13" />
-              <folding>
-                <element signature="e#56#510#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="171">
+              <caret line="40" column="48" selection-start-line="40" selection-start-column="48" selection-end-line="40" selection-end-column="48" />
             </state>
           </provider>
         </entry>
@@ -143,19 +141,19 @@
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/BaseReposModel.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/presenter/ParametersPresenter.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/JTableUtils.kt" />
-        <option value="$PROJECT_DIR$/resources/META-INF/plugin.xml" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/view/ExperimentalView.kt" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/AllReposModel.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/domain/gh/GHRepositoryWrapper.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.form" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ResultDialog.java" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/utils/Strings.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.java" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.form" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/view/ExperimentalView.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/presenter/ExperimentalPresenter.kt" />
         <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/ExperimentalModel.kt" />
-        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.form" />
+        <option value="$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form" />
+        <option value="$PROJECT_DIR$/resources/META-INF/plugin.xml" />
       </list>
     </option>
   </component>
@@ -191,179 +189,13 @@
             <path>
               <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
               <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
               <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="model" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="presenter" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="tablemodels" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="tables" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="view" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="windows" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="windows" type="462c0819:PsiDirectoryNode" />
-              <item name="ChangelogResultDialog" type="e9f4de52:FormNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="windows" type="462c0819:PsiDirectoryNode" />
-              <item name="GitHubTool" type="e9f4de52:FormNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="github" type="462c0819:PsiDirectoryNode" />
-              <item name="ui" type="462c0819:PsiDirectoryNode" />
-              <item name="windows" type="462c0819:PsiDirectoryNode" />
-              <item name="ResultDialog" type="e9f4de52:FormNode" />
-            </path>
-            <path>
-              <item name="TalPlugin" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TalPlugin" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="com" type="462c0819:PsiDirectoryNode" />
-              <item name="nerdscorner" type="462c0819:PsiDirectoryNode" />
-              <item name="android" type="462c0819:PsiDirectoryNode" />
-              <item name="plugin" type="462c0819:PsiDirectoryNode" />
-              <item name="utils" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="462c0819:PsiDirectoryNode" />
+              <item name="META-INF" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -378,7 +210,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="UI_DESIGNER_EDITOR_MODE.PaletteManager.SHOW" value="true" />
-    <property name="UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH" value="27" />
+    <property name="UI_DESIGNER_EDITOR_MODE.PaletteManager.WIDTH" value="290" />
     <property name="UI_DESIGNER_EDITOR_MODE.UIDesignerToolWindowManager.WIDTH" value="255" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="android.project.structure.last.selected" value="SDK Location" />
@@ -524,15 +356,15 @@
       <window_info id="UI Designer" />
       <window_info id="Capture Tool" />
       <window_info id="Favorites" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.01831502" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21733822" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Version Control" sideWeight="0.498779" weight="0.3297491" />
-      <window_info anchor="bottom" id="Terminal" sideWeight="0.497558" weight="0.26762247" />
+      <window_info anchor="bottom" id="Terminal" sideWeight="0.497558" weight="0.12425329" />
       <window_info anchor="bottom" id="Event Log" sideWeight="0.502442" side_tool="true" weight="0.3297491" />
       <window_info anchor="bottom" id="Messages" weight="0.3297491" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3297491" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.4981685" visible="true" weight="0.09438471" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4981685" visible="true" weight="0.45280764" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.27120668" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -719,13 +551,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="8" column="31" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -749,9 +574,6 @@
           <caret line="11" column="22" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form">
-      <provider selected="true" editor-type-id="ui-designer" />
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/view/ParametersView.kt">
       <provider selected="true" editor-type-id="text-editor">
@@ -826,31 +648,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/view/ExperimentalView.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="47" selection-start-line="18" selection-start-column="47" selection-end-line="18" selection-end-column="47" />
-          <folding>
-            <element signature="e#55#189#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/AllReposModel.kt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="21" column="73" selection-start-line="21" selection-start-column="54" selection-end-line="21" selection-end-column="73" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="173">
-          <caret line="105" column="28" selection-start-line="105" selection-start-column="28" selection-end-line="105" selection-end-column="28" />
-          <folding>
-            <element signature="e#7086#7741#0" expanded="true" />
-            <element signature="e#7740#7741#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -875,38 +676,69 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/presenter/ExperimentalPresenter.kt">
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="376">
-          <caret line="26" column="20" selection-start-line="26" selection-start-column="20" selection-end-line="26" selection-end-column="20" />
+        <state relative-caret-position="424">
+          <caret line="251" column="38" lean-forward="true" selection-start-line="251" selection-start-column="38" selection-end-line="251" selection-end-column="38" />
           <folding>
-            <element signature="e#60#282#0" expanded="true" />
+            <element signature="e#7086#7741#0" expanded="true" />
+            <element signature="e#7740#7741#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.java">
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/view/ExperimentalView.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="9" column="23" lean-forward="true" selection-start-line="9" selection-start-column="23" selection-end-line="9" selection-end-column="23" />
+        <state relative-caret-position="240">
+          <caret line="16" column="8" lean-forward="true" selection-start-line="16" selection-start-column="8" selection-end-line="16" selection-end-column="8" />
           <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/ExperimentalModel.kt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" column="13" lean-forward="true" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="13" />
-          <folding>
-            <element signature="e#56#510#0" expanded="true" />
+            <element signature="e#55#215#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.form">
       <provider selected="true" editor-type-id="ui-designer" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/ChangelogResultDialog.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="45" lean-forward="true" selection-start-column="45" selection-end-column="45" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/presenter/ExperimentalPresenter.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="400">
+          <caret line="29" column="44" selection-start-line="29" selection-start-column="44" selection-end-line="29" selection-end-column="44" />
+          <folding>
+            <element signature="e#60#282#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/model/ExperimentalModel.kt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="36" column="65" selection-start-line="36" selection-start-column="65" selection-end-line="36" selection-end-column="65" />
+          <folding>
+            <element signature="e#56#510#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/nerdscorner/android/plugin/github/ui/windows/GitHubTool.form">
+      <provider selected="true" editor-type-id="ui-designer" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/resources/META-INF/plugin.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="40" column="48" selection-start-line="40" selection-start-column="48" selection-end-line="40" selection-end-column="48" />
+        </state>
+      </provider>
     </entry>
   </component>
   <component name="masterDetails">

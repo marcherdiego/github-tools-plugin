@@ -21,9 +21,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
     fun fetchAppsChangelog() {
         androidLibraries.clear()
         librariesLoaderThread.cancel()
+        var totalProgress = 0f
+        val progressStep = 100f / ANDROID_LIBS.size.toFloat()
         librariesLoaderThread = Thread {
             ANDROID_LIBS.forEach {
-                val repository = ghOrganization.getRepository(it) ?: return@forEach
+                totalProgress += progressStep
+                val repository = ghOrganization.getRepository(it.second) ?: return@forEach
                 val changelogFile = getRepoChangelog(repository) ?: return@forEach
                 val fileInputStream = changelogFile.read()
                 val writer = StringWriter()
@@ -31,7 +34,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
                 val repositoryWrapper = GHRepositoryWrapper(repository)
                 repositoryWrapper.changelog = getLastChangelogEntry(writer.toString())
                 androidLibraries.add(repositoryWrapper)
-                bus.post(LibraryFetchedSuccessfullyEvent(repositoryWrapper.name))
+                bus.post(LibraryFetchedSuccessfullyEvent(it.first, totalProgress))
             }
             bus.post(LibrariesFetchedSuccessfullyEvent())
         }
@@ -100,26 +103,26 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
 
     companion object {
         private val ANDROID_LIBS = listOf(
-                "details-view-android",
-                "android-chat",
-                "dcp-android",
-                "notifications-android",
-                "camera-android",
-                "ui-android",
-                "android-upload-service",
-                "sockets-android",
-                "networking-android",
-                "configurators-android",
-                "testing-sdk-android",
-                "commons-android",
-                "androidThumborUtils",
-                "tal-android-oauth"
+                Pair("Details View", "details-view-android"),
+                Pair("Chat", "android-chat"),
+                Pair("DCP", "dcp-android"),
+                Pair("Notifications", "notifications-android"),
+                Pair("Camera", "camera-android"),
+                Pair("UI", "ui-android"),
+                Pair("Upload Service", "android-upload-service"),
+                Pair("Sockets", "sockets-android"),
+                Pair("Networking", "networking-android"),
+                Pair("Configurator", "configurators-android"),
+                Pair("Testing SDK", "testing-sdk-android"),
+                Pair("Commons", "commons-android"),
+                Pair("Thumbor Utils", "androidThumborUtils"),
+                Pair("OAuth", "tal-android-oauth")
         )
 
         private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
         private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
     }
 
-    class LibraryFetchedSuccessfullyEvent(val libraryName: String)
+    class LibraryFetchedSuccessfullyEvent(val libraryName: String, val totalProgress: Float)
     class LibrariesFetchedSuccessfullyEvent
 }

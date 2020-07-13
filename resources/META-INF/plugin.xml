@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.nerdscorner.android.plugin.github</id>
     <name>Github Tools</name>
-    <version>1.6.0</version>
+    <version>1.7.0</version>
     <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
@@ -19,6 +19,7 @@
         Added MVP to the windows for maintenance purposes
         Improved Github capabilities and fetch performance
         Added parameters panel to handle tokens
+        Added Apps changelog creation!
     ]]>
     </change-notes>
 

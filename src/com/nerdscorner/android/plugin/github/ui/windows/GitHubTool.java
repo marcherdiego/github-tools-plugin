@@ -74,6 +74,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JLabel repoComments;
     private JPanel repoCommentsContainer;
     private JTextField organizationField;
+    private JLabel changelogProgress;
 
     private Project project;
 
@@ -248,7 +249,7 @@ public class GitHubTool implements ToolWindowFactory {
 
         if (experimentalPresenter == null) {
             experimentalPresenter = new ExperimentalPresenter(
-                    new ExperimentalView(createAppsChangelogButton),
+                    new ExperimentalView(createAppsChangelogButton, changelogProgress),
                     new ExperimentalModel(ghOrganization),
                     new EventBus()
             );
