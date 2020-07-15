@@ -61,4 +61,13 @@ object JTableUtils {
             }
         }
     }
+
+    fun getSelectedItem(table: JTable): Any? {
+        val row = table.selectedRow
+        val column = table.selectedColumn
+        if (row == -1 || column == -1) {
+            return null
+        }
+        return table.getValueAt(row, column)
+    }
 }

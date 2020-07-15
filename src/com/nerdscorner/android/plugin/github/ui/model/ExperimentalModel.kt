@@ -65,7 +65,9 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
                 val writer = StringWriter()
                 IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
                 repository.changelog = getLastChangelogEntry(writer.toString())
-                bus.post(LibraryFetchedSuccessfullyEvent(repository.name, totalProgress))
+                val repositoryAlias = libsAlias.getOrDefault(repository.name, repository.name)
+                repository.alias = repositoryAlias
+                bus.post(LibraryFetchedSuccessfullyEvent(repositoryAlias, totalProgress))
             }
             bus.post(LibrariesFetchedSuccessfullyEvent())
         }
@@ -90,7 +92,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
             val versionMatch = libraryVersionRegex.find(changelog)
             val libraryVersion = versionMatch?.value
             result
-                    .append("## ${library.name} [v$libraryVersion](${library.fullUrl}/releases/tag/v$libraryVersion)")
+                    .append("## ${library.alias} [v$libraryVersion](${library.fullUrl}/releases/tag/v$libraryVersion)")
                     .append(System.lineSeparator())
                     .append(addChangelogIndent(changelog))
         }
@@ -118,24 +120,18 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
                 .toString()
     }
 
-    fun addLibrary(libraryName: String) {
-        val library = findLibrary(libraryName) ?: return
-        includedLibrariesNames.add(libraryName)
+    fun addLibrary(library: GHRepositoryWrapper) {
+        includedLibrariesNames.add(library.name)
         includedLibraries.add(library)
         excludedLibraries.remove(library)
         propertiesComponent.setValue(INCLUDED_LIBRARIES_PROPERTY, gson.toJson(includedLibrariesNames))
     }
 
-    fun removeLibrary(libraryName: String) {
-        val library = findLibrary(libraryName) ?: return
+    fun removeLibrary(library: GHRepositoryWrapper) {
         excludedLibraries.add(library)
         includedLibraries.remove(library)
-        includedLibrariesNames.remove(libraryName)
+        includedLibrariesNames.remove(library.name)
         propertiesComponent.setValue(INCLUDED_LIBRARIES_PROPERTY, gson.toJson(includedLibrariesNames))
-    }
-
-    private fun findLibrary(library: String?) = allLibraries.find {
-        it.name == library
     }
 
     class LibraryFetchedSuccessfullyEvent(val libraryName: String, val totalProgress: Float)
@@ -147,7 +143,22 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
         private val propertiesComponent = PropertiesComponent.getInstance()
         private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
         private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
-
+        private val libsAlias = HashMap<String, String>().apply {
+            put("details-view-android", "Details View")
+            put("android-chat", "Chat")
+            put("dcp-android", "DCP")
+            put("notifications-android", "Notifications")
+            put("camera-android", "Camera")
+            put("ui-android", "UI")
+            put("android-upload-service", "Upload Service")
+            put("sockets-android", "Sockets")
+            put("networking-android", "Networking")
+            put("configurators-android", "Configurator")
+            put("testing-sdk-android", "Testing SDK")
+            put("commons-android", "Commons")
+            put("androidThumborUtils", "Thumbor Utils")
+            put("tal-android-oauth", "OAuth")
+        }
         private val stringListTypeToken = object : TypeToken<List<String>>() {}.type
         private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
     }

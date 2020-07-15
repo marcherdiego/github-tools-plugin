@@ -64,8 +64,8 @@ public class GitHubTool implements ToolWindowFactory {
     private JButton createAppsChangelogButton;
     private JButton addLibraryButton;
     private JButton removeLibraryButton;
-    private JList excludedRepos;
-    private JList includedRepos;
+    private JTable excludedRepos;
+    private JTable includedRepos;
     private JButton releaseLibrariesButton;
     private ExperimentalPresenter experimentalPresenter;
 

@@ -1,21 +1,23 @@
 package com.nerdscorner.android.plugin.github.ui.view
 
+import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
+import com.nerdscorner.android.plugin.utils.JTableUtils
 import com.nerdscorner.android.plugin.utils.onClick
 import org.greenrobot.eventbus.EventBus
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
-import javax.swing.DefaultListModel
 import javax.swing.JButton
 import javax.swing.JLabel
-import javax.swing.JList
+import javax.swing.JTable
 
 class ExperimentalView(
         createAppsChangelogButton: JButton,
         private val changelogProgress: JLabel,
         addLibraryButton: JButton,
         removeLibraryButton: JButton,
-        private val excludedRepos: JList<*>,
-        private val includedRepos: JList<*>,
+        private val excludedRepos: JTable,
+        private val includedRepos: JTable,
         releaseLibrariesButton: JButton) {
 
     lateinit var bus: EventBus
@@ -46,17 +48,17 @@ class ExperimentalView(
         changelogProgress.text = message
     }
 
-    fun updateExcludedLibraries(model: DefaultListModel<String>) {
+    fun updateExcludedLibraries(model: GHRepoTableModel) {
         excludedRepos.model = model
     }
 
-    fun updateIncludedLibraries(model: DefaultListModel<String>) {
+    fun updateIncludedLibraries(model: GHRepoTableModel) {
         includedRepos.model = model
     }
 
-    fun getSelectedExcludedLibrary(): String? = excludedRepos.selectedValue?.toString()
+    fun getSelectedExcludedLibrary(): GHRepositoryWrapper? = JTableUtils.getSelectedItem(excludedRepos) as? GHRepositoryWrapper
 
-    fun getSelectedIncludedLibrary(): String? = includedRepos.selectedValue?.toString()
+    fun getSelectedIncludedLibrary(): GHRepositoryWrapper? = JTableUtils.getSelectedItem(includedRepos) as? GHRepositoryWrapper
 
     class CreateAppsChangelogButtonClickedEvent
     class AddLibraryButtonClickedEvent

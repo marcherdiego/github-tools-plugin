@@ -4,6 +4,7 @@ import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibrariesFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibraryFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReposLoadedEvent
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.AddLibraryButtonClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateAppsChangelogButtonClickedEvent
@@ -12,7 +13,6 @@ import com.nerdscorner.android.plugin.github.ui.windows.ChangelogResultDialog
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
-import javax.swing.DefaultListModel
 
 class ExperimentalPresenter(private val view: ExperimentalView, private val model: ExperimentalModel, bus: EventBus) {
     init {
@@ -64,27 +64,23 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     }
 
     private fun refreshLists() {
-        val excludedLibrariesModel = DefaultListModel<String>()
-        model
+        val excludeLibraries = model
                 .allLibraries
                 .subtract(model.includedLibraries)
                 .sortedBy {
                     it.name
                 }
-                .forEach {
-                    excludedLibrariesModel.addElement(it.name)
-                }
+                .toMutableList()
+        val excludedLibrariesModel = GHRepoTableModel(excludeLibraries,  arrayOf(Strings.NAME))
         view.updateExcludedLibraries(excludedLibrariesModel)
 
-        val includedLibrariesModel = DefaultListModel<String>()
-        model
+        val includeLibraries = model
                 .includedLibraries
                 .sortedBy {
                     it.name
                 }
-                .forEach {
-                    includedLibrariesModel.addElement(it.name)
-                }
+                .toMutableList()
+        val includedLibrariesModel = GHRepoTableModel(includeLibraries,  arrayOf(Strings.NAME))
         view.updateIncludedLibraries(includedLibrariesModel)
     }
 }
