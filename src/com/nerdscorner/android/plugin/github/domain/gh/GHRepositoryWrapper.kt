@@ -1,7 +1,5 @@
 package com.nerdscorner.android.plugin.github.domain.gh
 
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.Companion
 import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHRepository
 
