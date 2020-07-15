@@ -62,6 +62,11 @@ public class GitHubTool implements ToolWindowFactory {
     private ParametersPresenter parametersPresenter;
 
     private JButton createAppsChangelogButton;
+    private JButton addLibraryButton;
+    private JButton removeLibraryButton;
+    private JList excludedRepos;
+    private JList includedRepos;
+    private JButton releaseLibrariesButton;
     private ExperimentalPresenter experimentalPresenter;
 
     private JPanel loginPanel;
@@ -220,12 +225,11 @@ public class GitHubTool implements ToolWindowFactory {
                             repoComments,
                             BaseModel.COLUMN_NAME
                     ),
-                    new AllReposModel(ghOrganization),
+                    new AllReposModel(ghOrganization, project.getName()),
                     new EventBus()
             );
         }
         allAllReposPresenter.init();
-        allAllReposPresenter.setSelectedRepo(project.getName());
         allAllReposPresenter.loadRepositories();
 
         if (myReposPresenter == null) {
@@ -239,17 +243,24 @@ public class GitHubTool implements ToolWindowFactory {
                             repoComments,
                             BaseModel.COLUMN_NAME
                     ),
-                    new MyReposModel(ghOrganization, myselfGitHub),
+                    new MyReposModel(ghOrganization, myselfGitHub, project.getName()),
                     new EventBus()
             );
         }
         myReposPresenter.init();
-        myReposPresenter.setSelectedRepo(project.getName());
         myReposPresenter.loadRepositories();
 
         if (experimentalPresenter == null) {
             experimentalPresenter = new ExperimentalPresenter(
-                    new ExperimentalView(createAppsChangelogButton, changelogProgress),
+                    new ExperimentalView(
+                            createAppsChangelogButton,
+                            changelogProgress,
+                            addLibraryButton,
+                            removeLibraryButton,
+                            excludedRepos,
+                            includedRepos,
+                            releaseLibrariesButton
+                    ),
                     new ExperimentalModel(ghOrganization),
                     new EventBus()
             );

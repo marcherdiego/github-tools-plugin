@@ -29,7 +29,7 @@ import java.util.ArrayList
 import java.util.Date
 import java.util.HashMap
 
-abstract class BaseReposModel(val ghOrganization: GHOrganization) {
+abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOrganization) {
     lateinit var bus: EventBus
 
     //Loader threads

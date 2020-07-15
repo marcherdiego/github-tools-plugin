@@ -1,41 +1,71 @@
 package com.nerdscorner.android.plugin.github.ui.model
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.intellij.ide.util.PropertiesComponent
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.cancel
 import org.apache.commons.io.IOUtils
 import org.greenrobot.eventbus.EventBus
-import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHOrganization
-import org.kohsuke.github.GHRepository
 import java.io.StringWriter
 import java.nio.charset.Charset
-import kotlin.Exception
 
 class ExperimentalModel(private val ghOrganization: GHOrganization) {
     lateinit var bus: EventBus
 
-    private val androidLibraries = mutableListOf<GHRepositoryWrapper>()
+    val allLibraries = mutableListOf<GHRepositoryWrapper>()
+    val excludedLibraries = mutableListOf<GHRepositoryWrapper>()
+    val includedLibraries = mutableListOf<GHRepositoryWrapper>()
+    val includedLibrariesNames = mutableListOf<String>()
     private var librariesLoaderThread: Thread? = null
+    private var reposLoaderThread: Thread? = null
+
+    init {
+        // Restore Included Libraries
+        val includedLibrariesJson = propertiesComponent.getValue(INCLUDED_LIBRARIES_PROPERTY, Strings.EMPTY_LIST)
+        gson
+                .fromJson<List<String>>(includedLibrariesJson, stringListTypeToken)
+                .forEach {
+                    includedLibrariesNames.add(it)
+                }
+    }
+
+    fun loadRepositories() {
+        reposLoaderThread.cancel()
+        allLibraries.clear()
+        reposLoaderThread = Thread {
+            ghOrganization
+                    .listRepositories()
+                    .withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
+                    .forEach { repository ->
+                        if (repository.isFork.not() && repository.fullName.startsWith(ghOrganization.login)) {
+                            val repo = GHRepositoryWrapper(repository)
+                            allLibraries.add(repo)
+                            if (repository.name in includedLibrariesNames) {
+                                includedLibraries.add(repo)
+                            }
+                        }
+                    }
+            bus.post(ReposLoadedEvent())
+        }
+        reposLoaderThread?.start()
+    }
 
     fun fetchAppsChangelog() {
-        androidLibraries.clear()
         librariesLoaderThread.cancel()
         var totalProgress = 0f
-        val progressStep = 100f / ANDROID_LIBS.size.toFloat()
+        val progressStep = 100f / includedLibraries.size.toFloat()
         librariesLoaderThread = Thread {
-            ANDROID_LIBS.forEach {
+            includedLibraries.forEach { repository ->
                 totalProgress += progressStep
-                val repository = ghOrganization.getRepository(it.second) ?: return@forEach
-                val changelogFile = getRepoChangelog(repository) ?: return@forEach
+                val changelogFile = repository.getRepoChangelog() ?: return@forEach
                 val fileInputStream = changelogFile.read()
                 val writer = StringWriter()
                 IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
-                val repositoryWrapper = GHRepositoryWrapper(repository)
-                repositoryWrapper.changelog = getLastChangelogEntry(writer.toString())
-                repositoryWrapper.alias = it.first
-                androidLibraries.add(repositoryWrapper)
-                bus.post(LibraryFetchedSuccessfullyEvent(it.first, totalProgress))
+                repository.changelog = getLastChangelogEntry(writer.toString())
+                bus.post(LibraryFetchedSuccessfullyEvent(repository.name, totalProgress))
             }
             bus.post(LibrariesFetchedSuccessfullyEvent())
         }
@@ -50,25 +80,9 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
         return fullChangelog.substring(firstIndex, lastIndex)
     }
 
-    private fun getRepoChangelog(repository: GHRepository): GHContent? {
-        return try {
-            repository.getFileContent("changelog.md")
-        } catch (e: Exception) {
-            try {
-                repository.getFileContent("CHANGELOG.md")
-            } catch (e: Exception) {
-                try {
-                    repository.getFileContent("CHANGELOG.MD")
-                } catch (e: Exception) {
-                    null
-                }
-            }
-        }
-    }
-
     fun getLibrariesChangelog(): String {
         val result = StringBuilder()
-        androidLibraries.forEach { library ->
+        includedLibraries.forEach { library ->
             val changelog = library.changelog
             if (changelog.isNullOrEmpty()) {
                 return@forEach
@@ -76,7 +90,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
             val versionMatch = libraryVersionRegex.find(changelog)
             val libraryVersion = versionMatch?.value
             result
-                    .append("## ${library.alias} [v$libraryVersion](${library.fullUrl}/releases/tag/v$libraryVersion)")
+                    .append("## ${library.name} [v$libraryVersion](${library.fullUrl}/releases/tag/v$libraryVersion)")
                     .append(System.lineSeparator())
                     .append(addChangelogIndent(changelog))
         }
@@ -104,28 +118,37 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
                 .toString()
     }
 
-    companion object {
-        private val ANDROID_LIBS = listOf(
-                Pair("Details View", "details-view-android"),
-                Pair("Chat", "android-chat"),
-                Pair("DCP", "dcp-android"),
-                Pair("Notifications", "notifications-android"),
-                Pair("Camera", "camera-android"),
-                Pair("UI", "ui-android"),
-                Pair("Upload Service", "android-upload-service"),
-                Pair("Sockets", "sockets-android"),
-                Pair("Networking", "networking-android"),
-                Pair("Configurator", "configurators-android"),
-                Pair("Testing SDK", "testing-sdk-android"),
-                Pair("Commons", "commons-android"),
-                Pair("Thumbor Utils", "androidThumborUtils"),
-                Pair("OAuth", "tal-android-oauth")
-        )
+    fun addLibrary(libraryName: String) {
+        val library = findLibrary(libraryName) ?: return
+        includedLibrariesNames.add(libraryName)
+        includedLibraries.add(library)
+        excludedLibraries.remove(library)
+        propertiesComponent.setValue(INCLUDED_LIBRARIES_PROPERTY, gson.toJson(includedLibrariesNames))
+    }
 
-        private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
-        private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
+    fun removeLibrary(libraryName: String) {
+        val library = findLibrary(libraryName) ?: return
+        excludedLibraries.add(library)
+        includedLibraries.remove(library)
+        includedLibrariesNames.remove(libraryName)
+        propertiesComponent.setValue(INCLUDED_LIBRARIES_PROPERTY, gson.toJson(includedLibrariesNames))
+    }
+
+    private fun findLibrary(library: String?) = allLibraries.find {
+        it.name == library
     }
 
     class LibraryFetchedSuccessfullyEvent(val libraryName: String, val totalProgress: Float)
     class LibrariesFetchedSuccessfullyEvent
+    class ReposLoadedEvent
+
+    companion object {
+        private val gson = Gson()
+        private val propertiesComponent = PropertiesComponent.getInstance()
+        private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
+        private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
+
+        private val stringListTypeToken = object : TypeToken<List<String>>() {}.type
+        private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
+    }
 }

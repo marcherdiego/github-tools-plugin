@@ -1,5 +1,6 @@
 package com.nerdscorner.android.plugin.github.domain.gh
 
+import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHRepository
 
 import java.io.Serializable
@@ -16,7 +17,6 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         get() = ghRepository.htmlUrl
 
     var changelog: String? = null
-    var alias: String? = null
 
     init {
         val repoDescription = ghRepository.description
@@ -27,13 +27,30 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         }
     }
 
+    fun getRepoChangelog(): GHContent? {
+        return try {
+            ghRepository.getFileContent("changelog.md")
+        } catch (e: Exception) {
+            try {
+                ghRepository.getFileContent("CHANGELOG.md")
+            } catch (e: Exception) {
+                try {
+                    ghRepository.getFileContent("CHANGELOG.MD")
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        }
+    }
+
     override fun toString(): String {
         return name
     }
 
     override fun compare(other: Wrapper): Int {
         return if (other is GHRepositoryWrapper) {
-            other.name.toLowerCase().compareTo(name.toLowerCase())
+            other.name.toLowerCase()
+                    .compareTo(name.toLowerCase())
         } else {
             0
         }

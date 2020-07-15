@@ -9,7 +9,8 @@ import org.kohsuke.github.GHOrganization
 import java.util.ArrayList
 import java.util.HashMap
 
-class MyReposModel(ghOrganization: GHOrganization, private val myselfGitHub: GHMyself) : BaseReposModel(ghOrganization) {
+class MyReposModel(ghOrganization: GHOrganization, private val myselfGitHub: GHMyself, selectedRepo: String)
+    : BaseReposModel(selectedRepo, ghOrganization) {
     override fun loadRepositories() {
         loaderThread.cancel()
         loaderThread = Thread {

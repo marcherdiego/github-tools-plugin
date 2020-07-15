@@ -58,14 +58,10 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
         model.loadRepositories()
     }
 
-    fun setSelectedRepo(selectedRepo: String) {
-        view.selectedRepo = selectedRepo
-    }
-
     @Subscribe(threadMode = MAIN)
     fun onUpdateRepositoryInfoTables(event: UpdateRepositoryInfoTablesEvent) {
         view.setPullRequestTableModels()
-        view.updateRepositoryInfoTables(event.tableModel, event.tooltips)
+        view.updateRepositoryInfoTables(model.selectedRepo, event.tableModel, event.tooltips)
         model.loadRepoReleasesAndBranches()
     }
 

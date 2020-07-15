@@ -35,7 +35,6 @@ class ReposView(
 ) {
     lateinit var bus: EventBus
 
-    var selectedRepo: String? = null
     private var currentRepository: GHRepositoryWrapper? = null
 
     val latestReleaseDate: Date?
@@ -85,7 +84,6 @@ class ReposView(
     }
 
     fun init() {
-        selectedRepo = null
         currentRepository = null
         if (reposTable.model is BaseModel<*>) {
             (reposTable.model as BaseModel<*>).removeAllRows()
@@ -93,18 +91,15 @@ class ReposView(
         clearTables()
     }
 
-    fun updateRepositoryInfoTables(tableModel: GHRepoTableModel, tooltips: HashMap<String, String>) {
-        JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable)
-
+    fun updateRepositoryInfoTables(selectedRepo: String, tableModel: GHRepoTableModel, tooltips: HashMap<String, String>) {
         reposTable.model = tableModel
         val column = reposTable.getColumn(Strings.NAME)
         column.cellRenderer = ColumnRenderer(tooltips)
-
-        val selectedRow = reposTable.selectedRow
-        if (selectedRow == -1) {
-            return
+        val repoLocation = JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable)
+        if (repoLocation != null) {
+            currentRepository = repoLocation.first
+            bus.post(RepoClickedEvent(repoLocation.second, repoLocation.third, 1))
         }
-        currentRepository = reposTable.getValueAt(selectedRow, dataColumn) as GHRepositoryWrapper
         repoComments.text = null
     }
 

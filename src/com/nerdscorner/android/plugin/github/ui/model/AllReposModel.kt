@@ -8,7 +8,7 @@ import org.kohsuke.github.GHOrganization
 import java.util.ArrayList
 import java.util.HashMap
 
-class AllReposModel(ghOrganization: GHOrganization) : BaseReposModel(ghOrganization) {
+class AllReposModel(ghOrganization: GHOrganization, selectedRepo: String) : BaseReposModel(selectedRepo, ghOrganization) {
     override fun loadRepositories() {
         loaderThread.cancel()
         loaderThread = Thread {

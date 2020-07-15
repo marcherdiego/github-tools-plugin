@@ -3,18 +3,23 @@ package com.nerdscorner.android.plugin.github.ui.presenter
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibrariesFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibraryFetchedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReposLoadedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.AddLibraryButtonClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateAppsChangelogButtonClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.RemoveLibraryButtonEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ChangelogResultDialog
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
+import javax.swing.DefaultListModel
 
 class ExperimentalPresenter(private val view: ExperimentalView, private val model: ExperimentalModel, bus: EventBus) {
     init {
         view.bus = bus
         model.bus = bus
         bus.register(this)
+        model.loadRepositories()
     }
 
     @Subscribe
@@ -39,5 +44,47 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         resultDialog.title = Strings.CHANGELOG
         resultDialog.isResizable = true
         resultDialog.isVisible = true
+    }
+
+    @Subscribe
+    fun onReposLoaded(event: ReposLoadedEvent) {
+        refreshLists()
+    }
+
+    @Subscribe
+    fun onAddLibraryButtonClicked(event: AddLibraryButtonClickedEvent) {
+        model.addLibrary(view.getSelectedExcludedLibrary() ?: return)
+        refreshLists()
+    }
+
+    @Subscribe
+    fun onRemoveLibraryButton(event: RemoveLibraryButtonEvent) {
+        model.removeLibrary(view.getSelectedIncludedLibrary() ?: return)
+        refreshLists()
+    }
+
+    private fun refreshLists() {
+        val excludedLibrariesModel = DefaultListModel<String>()
+        model
+                .allLibraries
+                .subtract(model.includedLibraries)
+                .sortedBy {
+                    it.name
+                }
+                .forEach {
+                    excludedLibrariesModel.addElement(it.name)
+                }
+        view.updateExcludedLibraries(excludedLibrariesModel)
+
+        val includedLibrariesModel = DefaultListModel<String>()
+        model
+                .includedLibraries
+                .sortedBy {
+                    it.name
+                }
+                .forEach {
+                    includedLibrariesModel.addElement(it.name)
+                }
+        view.updateIncludedLibraries(includedLibrariesModel)
     }
 }
