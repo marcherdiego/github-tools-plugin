@@ -9,10 +9,13 @@ import com.nerdscorner.android.plugin.utils.cancel
 import org.apache.commons.io.IOUtils
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHOrganization
+import org.kohsuke.github.GHUser
+import org.kohsuke.github.GitHub
 import java.io.StringWriter
+import java.lang.Exception
 import java.nio.charset.Charset
 
-class ExperimentalModel(private val ghOrganization: GHOrganization) {
+class ExperimentalModel(private val ghOrganization: GHOrganization, private val github: GitHub) {
     lateinit var bus: EventBus
 
     val allLibraries = mutableListOf<GHRepositoryWrapper>()
@@ -21,6 +24,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
     val includedLibrariesNames = mutableListOf<String>()
     private var librariesLoaderThread: Thread? = null
     private var reposLoaderThread: Thread? = null
+    private var releasesCreatorThread: Thread? = null
 
     init {
         // Restore Included Libraries
@@ -60,18 +64,23 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
         librariesLoaderThread = Thread {
             includedLibraries.forEach { repository ->
                 totalProgress += progressStep
-                val changelogFile = repository.getRepoChangelog() ?: return@forEach
-                val fileInputStream = changelogFile.read()
-                val writer = StringWriter()
-                IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
-                repository.changelog = getLastChangelogEntry(writer.toString())
-                val repositoryAlias = libsAlias.getOrDefault(repository.name, repository.name)
-                repository.alias = repositoryAlias
-                bus.post(LibraryFetchedSuccessfullyEvent(repositoryAlias, totalProgress))
+                ensureChangelog(repository) ?: return@forEach
+                bus.post(LibraryFetchedSuccessfullyEvent(repository.alias, totalProgress))
             }
             bus.post(LibrariesFetchedSuccessfullyEvent())
         }
         librariesLoaderThread?.start()
+    }
+
+    private fun ensureChangelog(repository: GHRepositoryWrapper): String? {
+        val changelogFile = repository.getRepoChangelog()
+        val fileInputStream = changelogFile?.read() ?: return null
+        val writer = StringWriter()
+        IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
+        repository.changelog = getLastChangelogEntry(writer.toString())
+        val repositoryAlias = libsAlias.getOrDefault(repository.name, repository.name)
+        repository.alias = repositoryAlias
+        return repository.changelog
     }
 
     private fun getLastChangelogEntry(fullChangelog: String): String {
@@ -89,8 +98,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
             if (changelog.isNullOrEmpty()) {
                 return@forEach
             }
-            val versionMatch = libraryVersionRegex.find(changelog)
-            val libraryVersion = versionMatch?.value
+            val libraryVersion = libraryVersionRegex.find(changelog)?.value
             result
                     .append("## ${library.alias} [v$libraryVersion](${library.fullUrl}/releases/tag/v$libraryVersion)")
                     .append(System.lineSeparator())
@@ -134,9 +142,63 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
         propertiesComponent.setValue(INCLUDED_LIBRARIES_PROPERTY, gson.toJson(includedLibrariesNames))
     }
 
-    class LibraryFetchedSuccessfullyEvent(val libraryName: String, val totalProgress: Float)
+    fun createLibrariesReleases() {
+        releasesCreatorThread.cancel()
+        releasesCreatorThread = Thread {
+            try {
+                val androidReviewersTeam = ghOrganization
+                        .teams
+                        .entries
+                        .firstOrNull {
+                            it.key == ANDROID_REVIEWERS_TEAM_NAME
+                        }
+                        ?.value
+                val externalReviewers = mutableListOf<GHUser>()
+                EXTERNAL_REVIEWERS.forEach { userName ->
+                    externalReviewers.add(github.getUser(userName))
+                }
+
+                var totalProgress = 0f
+                val progressStep = 100f / includedLibraries.size.toFloat()
+                includedLibraries.forEach { library ->
+                    val changelog = ensureChangelog(library) ?: return@forEach
+                    bus.post(CreatingReleaseCandidateEvent(library.alias, totalProgress))
+                    val libraryVersion = libraryVersionRegex.find(changelog)?.value
+                    val developSha = library.ghRepository.getRef(DEVELOP_REF).`object`.sha
+                    val rcBranchName = RC_REF_PREFIX + libraryVersion
+                    library.ghRepository.createRef(rcBranchName, developSha)
+                    val rcPullRequest = library.ghRepository.createPullRequest(
+                            "rc-$libraryVersion -> master",
+                            rcBranchName,
+                            MASTER_REF,
+                            changelog
+                    )
+
+                    //Assign reviewers
+                    rcPullRequest.requestTeamReviewers(listOf(androidReviewersTeam))
+                    try {
+                        rcPullRequest.requestReviewers(externalReviewers)
+                    } catch (e: Exception) {
+                        //Can't self assign a PR review
+                    }
+                    totalProgress += progressStep
+                    bus.post(ReleaseCreatedSuccessfullyEvent(library.alias, totalProgress))
+                }
+                bus.post(ReleasesCreatedSuccessfullyEvent())
+            } catch (e: Exception) {
+                bus.post(ReleasesCreationFailedEvent(e.message))
+            }
+        }
+        releasesCreatorThread?.start()
+    }
+
+    class LibraryFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
     class LibrariesFetchedSuccessfullyEvent
     class ReposLoadedEvent
+    class CreatingReleaseCandidateEvent(val libraryName: String?, val totalProgress: Float)
+    class ReleaseCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
+    class ReleasesCreatedSuccessfullyEvent
+    class ReleasesCreationFailedEvent(val message: String?)
 
     companion object {
         private val gson = Gson()
@@ -161,5 +223,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization) {
         }
         private val stringListTypeToken = object : TypeToken<List<String>>() {}.type
         private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
+
+        private const val MASTER_REF = "refs/heads/master"
+        private const val DEVELOP_REF = "refs/heads/develop"
+        private const val RC_REF_PREFIX = "refs/heads/rc-"
+
+        private val EXTERNAL_REVIEWERS = listOf("rtss00")
+        private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
     }
 }

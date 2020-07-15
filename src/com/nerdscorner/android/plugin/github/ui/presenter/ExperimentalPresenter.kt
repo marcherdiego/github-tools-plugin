@@ -1,13 +1,18 @@
 package com.nerdscorner.android.plugin.github.ui.presenter
 
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.CreatingReleaseCandidateEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibrariesFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibraryFetchedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseCreatedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreatedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreationFailedEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReposLoadedEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.AddLibraryButtonClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateAppsChangelogButtonClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.ReleaseLibrariesButtonEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.RemoveLibraryButtonEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ChangelogResultDialog
 import com.nerdscorner.android.plugin.utils.Strings
@@ -24,19 +29,19 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onCreateAppsChangelogButtonClicked(event: CreateAppsChangelogButtonClickedEvent) {
-        view.setChangelogProgressVisibility(true)
-        view.updateChangelogProgress("Fetching libraries changelog...")
+        view.setAndroidMessagesVisibility(true)
+        view.updateAndroidMessages("Fetching libraries changelog...")
         model.fetchAppsChangelog()
     }
 
     @Subscribe
     fun onLibraryFetchedSuccessfully(event: LibraryFetchedSuccessfullyEvent) {
-        view.updateChangelogProgress("Completed: ${event.totalProgress.toInt()}% | Fetched ${event.libraryName}'s changelog")
+        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Fetched ${event.libraryName}'s changelog.")
     }
 
     @Subscribe
     fun onLibrariesFetchedSuccessfully(event: LibrariesFetchedSuccessfullyEvent) {
-        view.setChangelogProgressVisibility(false)
+        view.setAndroidMessagesVisibility(false)
 
         val resultDialog = ChangelogResultDialog(model.getLibrariesChangelog())
         resultDialog.pack()
@@ -61,6 +66,33 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     fun onRemoveLibraryButton(event: RemoveLibraryButtonEvent) {
         model.removeLibrary(view.getSelectedIncludedLibrary() ?: return)
         refreshLists()
+    }
+
+    @Subscribe
+    fun onReleaseLibrariesButton(event: ReleaseLibrariesButtonEvent) {
+        view.setAndroidMessagesVisibility(true)
+        view.updateAndroidMessages("Creating libraries release candidates...")
+        model.createLibrariesReleases()
+    }
+
+    @Subscribe
+    fun onCreatingReleaseCandidate(event: CreatingReleaseCandidateEvent) {
+        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Creating ${event.libraryName}'s RC...")
+    }
+
+    @Subscribe
+    fun onReleaseCreatedSuccessfully(event: ReleaseCreatedSuccessfullyEvent) {
+        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Created ${event.libraryName}'s RC.")
+    }
+
+    @Subscribe
+    fun onReleasesCreatedSuccessfully(event: ReleasesCreatedSuccessfullyEvent) {
+        view.setAndroidMessagesVisibility(false)
+    }
+
+    @Subscribe
+    fun onReleasesCreationFailed(event: ReleasesCreationFailedEvent) {
+        view.setAndroidMessagesVisibility(false)
     }
 
     private fun refreshLists() {

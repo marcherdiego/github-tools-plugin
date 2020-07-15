@@ -261,7 +261,7 @@ public class GitHubTool implements ToolWindowFactory {
                             includedRepos,
                             releaseLibrariesButton
                     ),
-                    new ExperimentalModel(ghOrganization),
+                    new ExperimentalModel(ghOrganization, github),
                     new EventBus()
             );
         }

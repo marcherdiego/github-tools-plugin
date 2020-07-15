@@ -13,7 +13,7 @@ import javax.swing.JTable
 
 class ExperimentalView(
         createAppsChangelogButton: JButton,
-        private val changelogProgress: JLabel,
+        private val androidMessages: JLabel,
         addLibraryButton: JButton,
         removeLibraryButton: JButton,
         private val excludedRepos: JTable,
@@ -37,15 +37,15 @@ class ExperimentalView(
         releaseLibrariesButton.onClick {
             bus.post(ReleaseLibrariesButtonEvent())
         }
-        setChangelogProgressVisibility(false)
+        setAndroidMessagesVisibility(false)
     }
 
-    fun setChangelogProgressVisibility(visible: Boolean) {
-        changelogProgress.isVisible = visible
+    fun setAndroidMessagesVisibility(visible: Boolean) {
+        androidMessages.isVisible = visible
     }
 
-    fun updateChangelogProgress(message: String) {
-        changelogProgress.text = message
+    fun updateAndroidMessages(message: String) {
+        androidMessages.text = message
     }
 
     fun updateExcludedLibraries(model: GHRepoTableModel) {
