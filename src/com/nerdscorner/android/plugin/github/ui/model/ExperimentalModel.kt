@@ -9,6 +9,7 @@ import com.nerdscorner.android.plugin.utils.cancel
 import org.apache.commons.io.IOUtils
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHOrganization
+import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
 import org.kohsuke.github.GitHub
 import java.io.StringWriter
@@ -64,7 +65,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         librariesLoaderThread = Thread {
             includedLibraries.forEach { repository ->
                 totalProgress += progressStep
-                ensureChangelog(repository) ?: return@forEach
+                ensureChangelog(repository)
                 bus.post(LibraryFetchedSuccessfullyEvent(repository.alias, totalProgress))
             }
             bus.post(LibrariesFetchedSuccessfullyEvent())
@@ -72,29 +73,20 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         librariesLoaderThread?.start()
     }
 
-    private fun ensureChangelog(repository: GHRepositoryWrapper): String? {
+    private fun ensureChangelog(repository: GHRepositoryWrapper) {
         val changelogFile = repository.getRepoChangelog()
-        val fileInputStream = changelogFile?.read() ?: return null
+        val fileInputStream = changelogFile?.read() ?: return
         val writer = StringWriter()
         IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
-        repository.changelog = getLastChangelogEntry(writer.toString())
+        repository.fullChangelog = writer.toString()
         val repositoryAlias = libsAlias.getOrDefault(repository.name, repository.name)
         repository.alias = repositoryAlias
-        return repository.changelog
-    }
-
-    private fun getLastChangelogEntry(fullChangelog: String): String {
-        var match = changelogStartRegex.find(fullChangelog)
-        val firstIndex = match?.range?.first() ?: 0
-        match = match?.next()
-        val lastIndex = match?.range?.first() ?: fullChangelog.length
-        return fullChangelog.substring(firstIndex, lastIndex)
     }
 
     fun getLibrariesChangelog(): String {
         val result = StringBuilder()
         includedLibraries.forEach { library ->
-            val changelog = library.changelog
+            val changelog = library.lastChangelogEntry
             if (changelog.isNullOrEmpty()) {
                 return@forEach
             }
@@ -107,9 +99,9 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         return result.toString()
     }
 
-    private fun addChangelogIndent(trimmedChangelog: String): String {
+    private fun addChangelogIndent(changelog: String): String {
         val result = StringBuilder()
-        trimmedChangelog
+        changelog
                 .split(System.lineSeparator())
                 .drop(1)
                 .forEach { line ->
@@ -146,13 +138,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         releasesCreatorThread.cancel()
         releasesCreatorThread = Thread {
             try {
-                val androidReviewersTeam = ghOrganization
-                        .teams
-                        .entries
-                        .firstOrNull {
-                            it.key == ANDROID_REVIEWERS_TEAM_NAME
-                        }
-                        ?.value
+                val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
                 val externalReviewers = mutableListOf<GHUser>()
                 EXTERNAL_REVIEWERS.forEach { userName ->
                     externalReviewers.add(github.getUser(userName))
@@ -161,25 +147,42 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 var totalProgress = 0f
                 val progressStep = 100f / includedLibraries.size.toFloat()
                 includedLibraries.forEach { library ->
-                    val changelog = ensureChangelog(library) ?: return@forEach
+                    ensureChangelog(library)
+                    val (emptyChangelog, changelogHasChanges, trimmedChangelog) = library.removeUnusedChangelogBlocks() ?: return@forEach
+                    if (emptyChangelog) {
+                        totalProgress += progressStep
+                        return@forEach
+                    }
                     bus.post(CreatingReleaseCandidateEvent(library.alias, totalProgress))
-                    val libraryVersion = libraryVersionRegex.find(changelog)?.value
+                    val libraryVersion = libraryVersionRegex.find(trimmedChangelog)?.value
                     val developSha = library.ghRepository.getRef(DEVELOP_REF).`object`.sha
                     val rcBranchName = RC_REF_PREFIX + libraryVersion
-                    library.ghRepository.createRef(rcBranchName, developSha)
-                    val rcPullRequest = library.ghRepository.createPullRequest(
-                            "rc-$libraryVersion -> master",
-                            rcBranchName,
-                            MASTER_REF,
-                            changelog
-                    )
+                    // Create rc branch
+                    library
+                            .ghRepository
+                            .createRef(rcBranchName, developSha)
+                    if (changelogHasChanges) {
+                        // If changelog has been trimmed, then create a commit with the new changelog
+                        library
+                                .getRepoChangelog()
+                                ?.update(trimmedChangelog, CHANGELOG_CLEANUP_COMMIT_MESSAGE, rcBranchName)
+                    }
+                    // Create Pull Request
+                    val rcPullRequest = library
+                            .ghRepository
+                            .createPullRequest(
+                                    "rc-$libraryVersion -> master",
+                                    rcBranchName,
+                                    MASTER_REF,
+                                    library.removeUnusedChangelogBlocks(library.lastChangelogEntry)?.third
+                            )
 
-                    //Assign reviewers
+                    // Assign reviewers
                     rcPullRequest.requestTeamReviewers(listOf(androidReviewersTeam))
                     try {
                         rcPullRequest.requestReviewers(externalReviewers)
                     } catch (e: Exception) {
-                        //Can't self assign a PR review
+                        // Can't self assign a PR review
                     }
                     totalProgress += progressStep
                     bus.post(ReleaseCreatedSuccessfullyEvent(library.alias, totalProgress))
@@ -190,6 +193,16 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             }
         }
         releasesCreatorThread?.start()
+    }
+
+    private fun getReviewersTeam(teamName: String): GHTeam? {
+        return ghOrganization
+                .teams
+                .entries
+                .firstOrNull {
+                    it.key == teamName
+                }
+                ?.value
     }
 
     class LibraryFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
@@ -204,7 +217,6 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         private val gson = Gson()
         private val propertiesComponent = PropertiesComponent.getInstance()
         private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
-        private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
         private val libsAlias = HashMap<String, String>().apply {
             put("details-view-android", "Details View")
             put("android-chat", "Chat")
@@ -227,8 +239,8 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         private const val MASTER_REF = "refs/heads/master"
         private const val DEVELOP_REF = "refs/heads/develop"
         private const val RC_REF_PREFIX = "refs/heads/rc-"
-
-        private val EXTERNAL_REVIEWERS = listOf("rtss00")
+        private const val CHANGELOG_CLEANUP_COMMIT_MESSAGE = "Changelog cleanup"
         private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
+        private val EXTERNAL_REVIEWERS = listOf("rtss00")
     }
 }

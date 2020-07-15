@@ -1,5 +1,7 @@
 package com.nerdscorner.android.plugin.github.domain.gh
 
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.Companion
 import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHRepository
 
@@ -16,8 +18,15 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     val fullUrl: URL
         get() = ghRepository.htmlUrl
 
-    var changelog: String? = null
+    var fullChangelog: String? = null
+
+    val lastChangelogEntry: String?
+        get() = lastChangelogEntry()
+
     var alias: String? = null
+
+    @Transient
+    var changelogFile: GHContent? = null
 
     init {
         val repoDescription = ghRepository.description
@@ -29,7 +38,8 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     }
 
     fun getRepoChangelog(): GHContent? {
-        return try {
+        //if (changelogFile == null) {
+        changelogFile = try {
             ghRepository.getFileContent("changelog.md")
         } catch (e: Exception) {
             try {
@@ -42,6 +52,34 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
                 }
             }
         }
+        //}
+        return changelogFile
+    }
+
+
+    private fun lastChangelogEntry(): String? {
+        val fullChangelog = fullChangelog ?: return null
+        var match = changelogStartRegex.find(fullChangelog)
+        val firstIndex = match?.range?.first() ?: 0
+        match = match?.next()
+        val lastIndex = match?.range?.first() ?: fullChangelog.length
+        return fullChangelog.substring(firstIndex, lastIndex)
+    }
+
+    fun removeUnusedChangelogBlocks(changelog: String? = fullChangelog): Triple<Boolean, Boolean, String>? {
+        var resultChangelog = changelog ?: return null
+        val newBlockMatch = newBlockRegex.find(resultChangelog)
+        if (newBlockMatch != null) {
+            resultChangelog = resultChangelog.removeRange(newBlockMatch.range.first() - 1, newBlockMatch.range.last() - 1)
+        }
+
+        val fixedBlockMatch = fixedBlockRegex.find(resultChangelog)
+        if (fixedBlockMatch != null) {
+            resultChangelog = resultChangelog.removeRange(fixedBlockMatch.range.first() - 1, fixedBlockMatch.range.last() - 1)
+        }
+        val emptyChangelog = newBlockMatch != null && fixedBlockMatch != null
+        val hasChanges = newBlockMatch != null || fixedBlockMatch != null
+        return Triple(emptyChangelog, hasChanges, resultChangelog)
     }
 
     override fun toString(): String {
@@ -55,5 +93,11 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         } else {
             0
         }
+    }
+
+    companion object {
+        private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
+        private val newBlockRegex = "## New\n[^-]".toRegex()
+        private val fixedBlockRegex = "## Fixed\n[^-]".toRegex()
     }
 }

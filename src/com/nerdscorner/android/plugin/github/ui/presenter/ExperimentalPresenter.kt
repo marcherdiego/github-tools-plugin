@@ -92,7 +92,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onReleasesCreationFailed(event: ReleasesCreationFailedEvent) {
-        view.setAndroidMessagesVisibility(false)
+        view.updateAndroidMessages("Failed: ${event.message}")
     }
 
     private fun refreshLists() {
