@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JTable
+import javax.swing.ListSelectionModel
 
 class ExperimentalView(
         createAppsChangelogButton: JButton,
@@ -17,6 +18,7 @@ class ExperimentalView(
         addLibraryButton: JButton,
         removeLibraryButton: JButton,
         private val excludedRepos: JTable,
+        private val includedReposLabel: JLabel,
         private val includedRepos: JTable,
         releaseLibrariesButton: JButton,
         createVersionBumpsButton: JButton) {
@@ -41,6 +43,8 @@ class ExperimentalView(
         createVersionBumpsButton.onClick {
             bus.post(CreateVersionBumpsClickedEvent())
         }
+        excludedRepos.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
+        includedRepos.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         setAndroidMessagesVisibility(false)
     }
 
@@ -63,6 +67,10 @@ class ExperimentalView(
     fun getSelectedExcludedLibrary(): GHRepositoryWrapper? = JTableUtils.getSelectedItem(excludedRepos) as? GHRepositoryWrapper
 
     fun getSelectedIncludedLibrary(): GHRepositoryWrapper? = JTableUtils.getSelectedItem(includedRepos) as? GHRepositoryWrapper
+
+    fun updateIncludedLibrariesLabel(text: String) {
+        includedReposLabel.text = text
+    }
 
     class CreateAppsChangelogClickedEvent
     class AddLibraryClickedEvent

@@ -143,7 +143,10 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
     fun onPrimaryButtonClicked(event: PrimaryButtonClickedEvent) {
         when (event.requestCode) {
             REQUEST_CODE_LAUNCH_BUILD -> model.cancelRebuildRequest()
-            REQUEST_CODE_BUILD_SUCCEEDED -> model.openBuildInBrowser()
+            REQUEST_CODE_BUILD_SUCCEEDED -> {
+                model.openBuildInBrowser()
+                model.clearCurrentBranchBuild()
+            }
             REQUEST_CODE_BUILD_FAILED -> {
                 view.updateLoadingDialog(
                         message = RE_RUNNING_BUILD,

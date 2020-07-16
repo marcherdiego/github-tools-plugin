@@ -135,7 +135,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
                     it.name
                 }
                 .toMutableList()
-        val excludedLibrariesModel = GHRepoTableModel(excludeLibraries,  arrayOf(Strings.NAME))
+        val excludedLibrariesModel = GHRepoTableModel(excludeLibraries, arrayOf(Strings.NAME))
         view.updateExcludedLibraries(excludedLibrariesModel)
 
         val includeLibraries = model
@@ -144,7 +144,9 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
                     it.name
                 }
                 .toMutableList()
-        val includedLibrariesModel = GHRepoTableModel(includeLibraries,  arrayOf(Strings.NAME))
+        val includedLibrariesModel = GHRepoTableModel(includeLibraries, arrayOf(Strings.NAME))
         view.updateIncludedLibraries(includedLibrariesModel)
+
+        view.updateIncludedLibrariesLabel("Included repos (${includeLibraries.size})")
     }
 }

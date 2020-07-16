@@ -81,6 +81,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JTextField organizationField;
     private JLabel changelogProgress;
     private JButton createVersionBumpsButton;
+    private JLabel includedReposLabel;
 
     private Project project;
 
@@ -259,6 +260,7 @@ public class GitHubTool implements ToolWindowFactory {
                             addLibraryButton,
                             removeLibraryButton,
                             excludedRepos,
+                            includedReposLabel,
                             includedRepos,
                             releaseLibrariesButton,
                             createVersionBumpsButton

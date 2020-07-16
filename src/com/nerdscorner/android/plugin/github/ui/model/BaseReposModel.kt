@@ -199,12 +199,15 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
                 externalId = branch.externalBuildId,
                 success = {
                     bus.post(BuildSucceededEventEvent())
-                    currentBranchBuild = null
                 },
                 fail = { message ->
                     bus.post(BuildFailedEventEvent(message))
                 }
         )
+    }
+
+    fun clearCurrentBranchBuild() {
+        currentBranchBuild = null
     }
 
     fun triggerPendingRebuild() {
