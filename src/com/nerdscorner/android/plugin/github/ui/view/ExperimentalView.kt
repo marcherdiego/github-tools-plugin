@@ -3,6 +3,7 @@ package com.nerdscorner.android.plugin.github.ui.view
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.utils.JTableUtils
+import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.onClick
 import org.greenrobot.eventbus.EventBus
 import java.awt.event.MouseAdapter
@@ -43,6 +44,16 @@ class ExperimentalView(
         createVersionBumpsButton.onClick {
             bus.post(CreateVersionBumpsClickedEvent())
         }
+        excludedRepos.addMouseListener(object : SimpleDoubleClickAdapter() {
+            override fun onDoubleClick(row: Int, column: Int) {
+                bus.post(AddLibraryClickedEvent())
+            }
+        })
+        includedRepos.addMouseListener(object : SimpleDoubleClickAdapter() {
+            override fun onDoubleClick(row: Int, column: Int) {
+                bus.post(RemoveLibraryClickedEvent())
+            }
+        })
         excludedRepos.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         includedRepos.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         setAndroidMessagesVisibility(false)

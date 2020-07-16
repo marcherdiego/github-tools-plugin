@@ -34,9 +34,11 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onCreateAppsChangelogButtonClicked(event: CreateAppsChangelogClickedEvent) {
-        view.setAndroidMessagesVisibility(true)
-        view.updateAndroidMessages("Fetching libraries changelog...")
-        model.fetchAppsChangelog()
+        if (model.includedLibraries.isNotEmpty()) {
+            view.setAndroidMessagesVisibility(true)
+            view.updateAndroidMessages("Fetching libraries changelog...")
+            model.fetchAppsChangelog()
+        }
     }
 
     @Subscribe
@@ -75,9 +77,11 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onReleaseLibrariesClicked(event: ReleaseLibrariesClickedEvent) {
-        view.setAndroidMessagesVisibility(true)
-        view.updateAndroidMessages("Creating libraries release candidates...")
-        model.createLibrariesReleases()
+        if (model.includedLibraries.isNotEmpty()) {
+            view.setAndroidMessagesVisibility(true)
+            view.updateAndroidMessages("Creating libraries release candidates...")
+            model.createLibrariesReleases()
+        }
     }
 
     @Subscribe
@@ -102,9 +106,11 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onCreateVersionBumpsClicked(event: CreateVersionBumpsClickedEvent) {
-        view.setAndroidMessagesVisibility(true)
-        view.updateAndroidMessages("Creating libraries version bumps...")
-        model.createVersionBumps()
+        if (model.includedLibraries.isNotEmpty()) {
+            view.setAndroidMessagesVisibility(true)
+            view.updateAndroidMessages("Creating libraries version bumps...")
+            model.createVersionBumps()
+        }
     }
 
     @Subscribe

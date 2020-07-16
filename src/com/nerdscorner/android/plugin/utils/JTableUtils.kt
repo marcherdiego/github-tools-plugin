@@ -24,7 +24,7 @@ object JTableUtils {
 
     abstract class SimpleDoubleClickAdapter : SimpleMouseAdapter() {
         override fun mousePressed(row: Int, column: Int, clickCount: Int) {
-            if (clickCount == 2) {
+            if (clickCount % 2 == 0) {
                 onDoubleClick(row, column)
             }
         }
