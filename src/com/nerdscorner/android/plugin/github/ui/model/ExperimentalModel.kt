@@ -26,6 +26,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     private var librariesLoaderThread: Thread? = null
     private var reposLoaderThread: Thread? = null
     private var releasesCreatorThread: Thread? = null
+    private var versionBumpCreatorThread: Thread? = null
 
     init {
         // Restore Included Libraries
@@ -90,9 +91,8 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             if (changelog.isNullOrEmpty()) {
                 return@forEach
             }
-            val libraryVersion = libraryVersionRegex.find(changelog)?.value
             result
-                    .append("## ${library.alias} [v$libraryVersion](${library.fullUrl}/releases/tag/v$libraryVersion)")
+                    .append("## ${library.alias} [v${library.version}](${library.fullUrl}/releases/tag/v${library.version})")
                     .append(System.lineSeparator())
                     .append(addChangelogIndent(changelog))
         }
@@ -154,9 +154,8 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                         return@forEach
                     }
                     bus.post(CreatingReleaseCandidateEvent(library.alias, totalProgress))
-                    val libraryVersion = libraryVersionRegex.find(trimmedChangelog)?.value
                     val developSha = library.ghRepository.getRef(DEVELOP_REF).`object`.sha
-                    val rcBranchName = RC_REF_PREFIX + libraryVersion
+                    val rcBranchName = RC_REF_PREFIX + library.version
                     // Create rc branch
                     library
                             .ghRepository
@@ -171,7 +170,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     val rcPullRequest = library
                             .ghRepository
                             .createPullRequest(
-                                    "rc-$libraryVersion -> master",
+                                    "rc-${library.version} -> master",
                                     rcBranchName,
                                     MASTER_REF,
                                     library.removeUnusedChangelogBlocks(library.lastChangelogEntry)?.third
@@ -205,18 +204,84 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 ?.value
     }
 
+    fun createVersionBumps() {
+        versionBumpCreatorThread.cancel()
+        versionBumpCreatorThread = Thread {
+            try {
+                val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
+                val externalReviewers = mutableListOf<GHUser>()
+                EXTERNAL_REVIEWERS.forEach { userName ->
+                    externalReviewers.add(github.getUser(userName))
+                }
+
+                var totalProgress = 0f
+                val progressStep = 100f / includedLibraries.size.toFloat()
+                includedLibraries.forEach { library ->
+                    ensureChangelog(library)
+                    bus.post(CreatingVersionBumpEvent(library.alias, totalProgress))
+                    val developSha = library.ghRepository.getRef(DEVELOP_REF).`object`.sha
+                    val nextVersion = getNextVersion(library.version ?: return@forEach)
+                    val versionBumpBranchName = VERSION_BUMP_REF_PREFIX + nextVersion
+                    // Create rc branch
+                    library
+                            .ghRepository
+                            .createRef(versionBumpBranchName, developSha)
+                    library
+                            .getRepoChangelog()
+                            ?.update(library.getNextVersionChangelog(nextVersion), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranchName)
+                    // Create Pull Request
+                    val versionBumpPullRequest = library
+                            .ghRepository
+                            .createPullRequest(
+                                    "Version bump $nextVersion -> develop",
+                                    versionBumpBranchName,
+                                    DEVELOP_REF,
+                                    "Library version bump"
+                            )
+
+                    // Assign reviewers
+                    versionBumpPullRequest.requestTeamReviewers(listOf(androidReviewersTeam))
+                    try {
+                        versionBumpPullRequest.requestReviewers(externalReviewers)
+                    } catch (e: Exception) {
+                        // Can't self assign a PR review
+                    }
+                    totalProgress += progressStep
+                    bus.post(VersionBumpCreatedSuccessfullyEvent(library.alias, totalProgress))
+                }
+                bus.post(VersionBumpsCreatedSuccessfullyEvent())
+            } catch (e: Exception) {
+                bus.post(VersionBumpCreationFailedEvent(e.message))
+            }
+        }
+        versionBumpCreatorThread?.start()
+    }
+
+    private fun getNextVersion(version: String): String {
+        // Assuming version = X.Y.Z
+        val tokens = version.split(".")
+        val major = tokens[0]
+        val minor = tokens[1].toInt()
+        return "$major.${minor + 1}.0"
+    }
+
     class LibraryFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
     class LibrariesFetchedSuccessfullyEvent
     class ReposLoadedEvent
+
     class CreatingReleaseCandidateEvent(val libraryName: String?, val totalProgress: Float)
     class ReleaseCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
     class ReleasesCreatedSuccessfullyEvent
     class ReleasesCreationFailedEvent(val message: String?)
 
+    class CreatingVersionBumpEvent(val libraryName: String?, val totalProgress: Float)
+    class VersionBumpCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
+    class VersionBumpsCreatedSuccessfullyEvent
+    class VersionBumpCreationFailedEvent(val message: String?)
+
     companion object {
         private val gson = Gson()
         private val propertiesComponent = PropertiesComponent.getInstance()
-        private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
         private val libsAlias = HashMap<String, String>().apply {
             put("details-view-android", "Details View")
             put("android-chat", "Chat")
@@ -239,6 +304,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         private const val MASTER_REF = "refs/heads/master"
         private const val DEVELOP_REF = "refs/heads/develop"
         private const val RC_REF_PREFIX = "refs/heads/rc-"
+        private const val VERSION_BUMP_REF_PREFIX = "refs/heads/version_bump-"
         private const val CHANGELOG_CLEANUP_COMMIT_MESSAGE = "Changelog cleanup"
         private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
         private val EXTERNAL_REVIEWERS = listOf("rtss00")

@@ -2,18 +2,23 @@ package com.nerdscorner.android.plugin.github.ui.presenter
 
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.CreatingReleaseCandidateEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.CreatingVersionBumpEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibrariesFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibraryFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreationFailedEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReposLoadedEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpCreatedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpCreationFailedEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpsCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.AddLibraryButtonClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateAppsChangelogButtonClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.ReleaseLibrariesButtonEvent
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.RemoveLibraryButtonEvent
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.AddLibraryClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateAppsChangelogClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateVersionBumpsClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.ReleaseLibrariesClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.RemoveLibraryClickedEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ChangelogResultDialog
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
@@ -28,7 +33,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     }
 
     @Subscribe
-    fun onCreateAppsChangelogButtonClicked(event: CreateAppsChangelogButtonClickedEvent) {
+    fun onCreateAppsChangelogButtonClicked(event: CreateAppsChangelogClickedEvent) {
         view.setAndroidMessagesVisibility(true)
         view.updateAndroidMessages("Fetching libraries changelog...")
         model.fetchAppsChangelog()
@@ -57,19 +62,19 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     }
 
     @Subscribe
-    fun onAddLibraryButtonClicked(event: AddLibraryButtonClickedEvent) {
+    fun onAddLibraryClicked(event: AddLibraryClickedEvent) {
         model.addLibrary(view.getSelectedExcludedLibrary() ?: return)
         refreshLists()
     }
 
     @Subscribe
-    fun onRemoveLibraryButton(event: RemoveLibraryButtonEvent) {
+    fun onRemoveLibraryClicked(event: RemoveLibraryClickedEvent) {
         model.removeLibrary(view.getSelectedIncludedLibrary() ?: return)
         refreshLists()
     }
 
     @Subscribe
-    fun onReleaseLibrariesButton(event: ReleaseLibrariesButtonEvent) {
+    fun onReleaseLibrariesClicked(event: ReleaseLibrariesClickedEvent) {
         view.setAndroidMessagesVisibility(true)
         view.updateAndroidMessages("Creating libraries release candidates...")
         model.createLibrariesReleases()
@@ -92,6 +97,33 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onReleasesCreationFailed(event: ReleasesCreationFailedEvent) {
+        view.updateAndroidMessages("Failed: ${event.message}")
+    }
+
+    @Subscribe
+    fun onCreateVersionBumpsClicked(event: CreateVersionBumpsClickedEvent) {
+        view.setAndroidMessagesVisibility(true)
+        view.updateAndroidMessages("Creating libraries version bumps...")
+        model.createVersionBumps()
+    }
+
+    @Subscribe
+    fun onCreatingVersionBump(event: CreatingVersionBumpEvent) {
+        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Creating ${event.libraryName}'s version bump...")
+    }
+
+    @Subscribe
+    fun onVersionBumpCreatedSuccessfully(event: VersionBumpCreatedSuccessfullyEvent) {
+        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Created ${event.libraryName}'s version bump.")
+    }
+
+    @Subscribe
+    fun onVersionBumpsCreatedSuccessfully(event: VersionBumpsCreatedSuccessfullyEvent) {
+        view.setAndroidMessagesVisibility(false)
+    }
+
+    @Subscribe
+    fun onVersionBumpCreationFailed(event: VersionBumpCreationFailedEvent) {
         view.updateAndroidMessages("Failed: ${event.message}")
     }
 

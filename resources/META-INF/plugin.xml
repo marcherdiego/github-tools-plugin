@@ -1,39 +1,43 @@
 <idea-plugin>
     <id>com.nerdscorner.android.plugin.github</id>
     <name>Github Tools</name>
-    <version>1.7.2</version>
+    <version>1.8.0</version>
     <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
-      A small tool to keep track of the Github repositories you have in your organization along with their pull requests, releases and more!
-      It also provides a dependencies viewer and navigator
-      TravisCI and CircleCI integration to go directly to the build itself to monitor it.
-      You can also trigger a TravisCi build and a CircleCi workflow right from the plugin!
+        A small tool to keep track of the Github repositories you have in your organization along with their pull requests, releases and more!<br><br>
+        Release candidates features
+        <ul>
+            <li>You can create release candidates branches (with their corresponding Pull Request)</li>
+            <li>You can create the Apps changelog based on the compilation of the libraries ones</li>
+            <li>You can create the libraries version bumps (with their corresponding Pull Request) to get ready for the next sprint!</li>
+        </ul>
+        CI features
+        <ul>
+            <li>TravisCI and CircleCI integration to go directly to the build itself to monitor it.</li>
+            <li>You can also trigger a TravisCi build and a CircleCi workflow right from the plugin!</li>
+            <li>View branch CI build status</li>
+        </ul>
+        Miscellaneous
+        <ul>
+            <li>Included dependencies comparator to make a comparison of the Android dependencies changes between two branches</li>
+        </ul>
     ]]></description>
 
     <change-notes><![CDATA[
-        Improved dependencies tab.
-        Added new column in repos table to see its status and get right into the CI build itself!
-        Improved dependencies comparator to stash and pop changes
-        Added trigger CircleCI and Travis CI builds from the IDE!
-        Added MVP to the windows for maintenance purposes
-        Improved Github capabilities and fetch performance
-        Added parameters panel to handle tokens
-        Added Apps changelog creation!
+        <ul>
+            <li>Added parameters panel to handle tokens</li>
+            <li>Added Apps changelog creation!</li>
+            <li>Added libraries release candidates creation!</li>
+            <li>Added libraries version bump creation!</li>
+        </ul>
     ]]>
     </change-notes>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
     <idea-version since-build="145.0"/>
     <depends>com.intellij.modules.lang</depends>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
         <toolWindow id="Github Tools" anchor="right" factoryClass="com.nerdscorner.android.plugin.github.ui.windows.GitHubTool"/>
     </extensions>
 
@@ -47,5 +51,4 @@
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </action>
     </actions>
-
 </idea-plugin>

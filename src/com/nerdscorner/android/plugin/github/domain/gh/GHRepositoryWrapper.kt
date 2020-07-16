@@ -23,6 +23,9 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
 
     var alias: String? = null
 
+    val version: String?
+        get() = extractCurrentVersion()
+
     @Transient
     var changelogFile: GHContent? = null
 
@@ -80,6 +83,12 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         return Triple(emptyChangelog, hasChanges, resultChangelog)
     }
 
+    private fun extractCurrentVersion(): String? {
+        return libraryVersionRegex
+                .find(fullChangelog ?: return null)
+                ?.value
+    }
+
     override fun toString(): String {
         return name
     }
@@ -93,8 +102,22 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         }
     }
 
+    fun getNextVersionChangelog(nextVersion: String): String {
+        return StringBuilder()
+                .append("# $nextVersion")
+                .append(System.lineSeparator())
+                .append("## New")
+                .append(System.lineSeparator())
+                .append("## Fixed")
+                .append(System.lineSeparator())
+                .append(System.lineSeparator())
+                .append(fullChangelog)
+                .toString()
+    }
+
     companion object {
         private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
+        private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
         private val newBlockRegex = "## New\n[^-]".toRegex()
         private val fixedBlockRegex = "## Fixed\n[^-]".toRegex()
     }

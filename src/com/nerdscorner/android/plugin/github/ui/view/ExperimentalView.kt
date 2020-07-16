@@ -18,24 +18,28 @@ class ExperimentalView(
         removeLibraryButton: JButton,
         private val excludedRepos: JTable,
         private val includedRepos: JTable,
-        releaseLibrariesButton: JButton) {
+        releaseLibrariesButton: JButton,
+        createVersionBumpsButton: JButton) {
 
     lateinit var bus: EventBus
 
     init {
         createAppsChangelogButton.addMouseListener(object : MouseAdapter() {
             override fun mousePressed(e: MouseEvent?) {
-                bus.post(CreateAppsChangelogButtonClickedEvent())
+                bus.post(CreateAppsChangelogClickedEvent())
             }
         })
         addLibraryButton.onClick {
-            bus.post(AddLibraryButtonClickedEvent())
+            bus.post(AddLibraryClickedEvent())
         }
         removeLibraryButton.onClick {
-            bus.post(RemoveLibraryButtonEvent())
+            bus.post(RemoveLibraryClickedEvent())
         }
         releaseLibrariesButton.onClick {
-            bus.post(ReleaseLibrariesButtonEvent())
+            bus.post(ReleaseLibrariesClickedEvent())
+        }
+        createVersionBumpsButton.onClick {
+            bus.post(CreateVersionBumpsClickedEvent())
         }
         setAndroidMessagesVisibility(false)
     }
@@ -60,8 +64,9 @@ class ExperimentalView(
 
     fun getSelectedIncludedLibrary(): GHRepositoryWrapper? = JTableUtils.getSelectedItem(includedRepos) as? GHRepositoryWrapper
 
-    class CreateAppsChangelogButtonClickedEvent
-    class AddLibraryButtonClickedEvent
-    class RemoveLibraryButtonEvent
-    class ReleaseLibrariesButtonEvent
+    class CreateAppsChangelogClickedEvent
+    class AddLibraryClickedEvent
+    class RemoveLibraryClickedEvent
+    class ReleaseLibrariesClickedEvent
+    class CreateVersionBumpsClickedEvent
 }
