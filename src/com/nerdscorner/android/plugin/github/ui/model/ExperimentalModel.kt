@@ -75,8 +75,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     }
 
     private fun ensureChangelog(repository: GHRepositoryWrapper) {
-        val changelogFile = repository.getRepoChangelog()
-        val fileInputStream = changelogFile?.read() ?: return
+        val fileInputStream = repository.changelogFile?.read() ?: return
         val writer = StringWriter()
         IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
         repository.fullChangelog = writer.toString()
@@ -154,35 +153,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                         return@forEach
                     }
                     bus.post(CreatingReleaseCandidateEvent(library.alias, totalProgress))
-                    val developSha = library.ghRepository.getRef(DEVELOP_REF).`object`.sha
-                    val rcBranchName = RC_REF_PREFIX + library.version
-                    // Create rc branch
-                    library
-                            .ghRepository
-                            .createRef(rcBranchName, developSha)
-                    if (changelogHasChanges) {
-                        // If changelog has been trimmed, then create a commit with the new changelog
-                        library
-                                .getRepoChangelog()
-                                ?.update(trimmedChangelog, CHANGELOG_CLEANUP_COMMIT_MESSAGE, rcBranchName)
-                    }
-                    // Create Pull Request
-                    val rcPullRequest = library
-                            .ghRepository
-                            .createPullRequest(
-                                    "rc-${library.version} -> master",
-                                    rcBranchName,
-                                    MASTER_REF,
-                                    library.removeUnusedChangelogBlocks(library.lastChangelogEntry)?.third
-                            )
-                    library.rcPullRequestUrl = rcPullRequest.htmlUrl.toString()
-                    // Assign reviewers
-                    rcPullRequest.requestTeamReviewers(listOf(androidReviewersTeam))
-                    try {
-                        rcPullRequest.requestReviewers(externalReviewers)
-                    } catch (e: Exception) {
-                        // Can't self assign a PR review
-                    }
+                    library.createRelease(androidReviewersTeam, externalReviewers, changelogHasChanges, trimmedChangelog)
                     totalProgress += progressStep
                     releasedLibraries.add(library)
                     bus.post(ReleaseCreatedSuccessfullyEvent(library.alias, totalProgress))
@@ -214,39 +185,15 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 EXTERNAL_REVIEWERS.forEach { userName ->
                     externalReviewers.add(github.getUser(userName))
                 }
-
                 var totalProgress = 0f
                 val progressStep = 100f / includedLibraries.size.toFloat()
                 val bumpedLibraries = mutableListOf<GHRepositoryWrapper>()
                 includedLibraries.forEach { library ->
                     ensureChangelog(library)
                     bus.post(CreatingVersionBumpEvent(library.alias, totalProgress))
-                    val developSha = library.ghRepository.getRef(DEVELOP_REF).`object`.sha
-                    val nextVersion = library.nextVersion ?: return@forEach
-                    val versionBumpBranchName = VERSION_BUMP_REF_PREFIX + nextVersion
-                    // Create rc branch
-                    library
-                            .ghRepository
-                            .createRef(versionBumpBranchName, developSha)
-                    library
-                            .getRepoChangelog()
-                            ?.update(library.getNextVersionChangelog(), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranchName)
-                    // Create Pull Request
-                    val versionBumpPullRequest = library
-                            .ghRepository
-                            .createPullRequest(
-                                    "Version bump $nextVersion -> develop",
-                                    versionBumpBranchName,
-                                    DEVELOP_REF,
-                                    "Library version bump"
-                            )
-                    library.versionBumpPullRequestUrl = versionBumpPullRequest.htmlUrl.toString()
-                    // Assign reviewers
-                    versionBumpPullRequest.requestTeamReviewers(listOf(androidReviewersTeam))
-                    try {
-                        versionBumpPullRequest.requestReviewers(externalReviewers)
-                    } catch (e: Exception) {
-                        // Can't self assign a PR review
+                    val libraryBumped = library.createVersionBump(androidReviewersTeam, externalReviewers)
+                    if (libraryBumped.not()) {
+                        return@forEach
                     }
                     totalProgress += progressStep
                     bumpedLibraries.add(library)
@@ -296,11 +243,6 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         private val stringListTypeToken = object : TypeToken<List<String>>() {}.type
         private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
 
-        private const val MASTER_REF = "refs/heads/master"
-        private const val DEVELOP_REF = "refs/heads/develop"
-        private const val RC_REF_PREFIX = "refs/heads/rc-"
-        private const val VERSION_BUMP_REF_PREFIX = "refs/heads/version_bump-"
-        private const val CHANGELOG_CLEANUP_COMMIT_MESSAGE = "Changelog cleanup"
         private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
         private val EXTERNAL_REVIEWERS = listOf("rtss00")
     }

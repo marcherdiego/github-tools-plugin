@@ -1,7 +1,11 @@
 package com.nerdscorner.android.plugin.github.domain.gh
 
 import org.kohsuke.github.GHContent
+import org.kohsuke.github.GHPullRequest
+import org.kohsuke.github.GHRef
 import org.kohsuke.github.GHRepository
+import org.kohsuke.github.GHTeam
+import org.kohsuke.github.GHUser
 
 import java.io.Serializable
 import java.net.URL
@@ -19,21 +23,48 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     var fullChangelog: String? = null
 
     val lastChangelogEntry: String?
-        get() = lastChangelogEntry()
+        get() {
+            val fullChangelog = fullChangelog ?: return null
+            var match = changelogStartRegex.find(fullChangelog)
+            val firstIndex = match?.range?.first() ?: 0
+            match = match?.next()
+            val lastIndex = match?.range?.first() ?: fullChangelog.length
+            return fullChangelog.substring(firstIndex, lastIndex)
+        }
 
     var alias: String? = null
 
     val version: String?
-        get() = extractCurrentVersion()
+        get() {
+            return libraryVersionRegex.find(fullChangelog ?: return null)?.value
+        }
 
     val nextVersion: String?
-        get() = extractNextVersion()
+        get() {
+            // Assuming version = X.Y.Z
+            val tokens = version?.split(".") ?: return null
+            val major = tokens[0]
+            val minor = tokens[1].toInt()
+            return "$major.${minor + 1}.0"
+        }
 
     var rcPullRequestUrl: String? = null
     var versionBumpPullRequestUrl: String? = null
 
-    @Transient
-    var changelogFile: GHContent? = null
+    val changelogFile: GHContent?
+        get() = try {
+            ghRepository.getFileContent("CHANGELOG.md")
+        } catch (e: Exception) {
+            try {
+                ghRepository.getFileContent("CHANGELOG.MD")
+            } catch (e: Exception) {
+                try {
+                    ghRepository.getFileContent("changelog.md")
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        }
 
     init {
         val repoDescription = ghRepository.description
@@ -42,33 +73,6 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         } else {
             repoDescription
         }
-    }
-
-    fun getRepoChangelog(): GHContent? {
-        changelogFile = try {
-            ghRepository.getFileContent("changelog.md")
-        } catch (e: Exception) {
-            try {
-                ghRepository.getFileContent("CHANGELOG.md")
-            } catch (e: Exception) {
-                try {
-                    ghRepository.getFileContent("CHANGELOG.MD")
-                } catch (e: Exception) {
-                    null
-                }
-            }
-        }
-        return changelogFile
-    }
-
-
-    private fun lastChangelogEntry(): String? {
-        val fullChangelog = fullChangelog ?: return null
-        var match = changelogStartRegex.find(fullChangelog)
-        val firstIndex = match?.range?.first() ?: 0
-        match = match?.next()
-        val lastIndex = match?.range?.first() ?: fullChangelog.length
-        return fullChangelog.substring(firstIndex, lastIndex)
     }
 
     fun removeUnusedChangelogBlocks(changelog: String? = fullChangelog): Triple<Boolean, Boolean, String>? {
@@ -87,20 +91,6 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         return Triple(emptyChangelog, hasChanges, resultChangelog)
     }
 
-    private fun extractCurrentVersion(): String? {
-        return libraryVersionRegex
-                .find(fullChangelog ?: return null)
-                ?.value
-    }
-
-    private fun extractNextVersion(): String? {
-        // Assuming version = X.Y.Z
-        val tokens = version?.split(".") ?: return null
-        val major = tokens[0]
-        val minor = tokens[1].toInt()
-        return "$major.${minor + 1}.0"
-    }
-
     override fun toString(): String {
         return name
     }
@@ -114,7 +104,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         }
     }
 
-    fun getNextVersionChangelog(): String {
+    private fun getNextVersionChangelog(): String {
         return StringBuilder()
                 .append("# $nextVersion")
                 .append(System.lineSeparator())
@@ -127,10 +117,69 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
                 .toString()
     }
 
+    fun createRelease(reviewersTeam: GHTeam?, externalReviewers: MutableList<GHUser>, changelogHasChanges: Boolean, changelog: String) {
+        // Create rc branch
+        val rcBranch = createBranchOut(DEVELOP_REF, RC_REF_PREFIX + version)
+
+        if (changelogHasChanges) {
+            // If changelog has been trimmed, then create a commit with the new changelog
+            changelogFile?.update(changelog, CHANGELOG_CLEANUP_COMMIT_MESSAGE, rcBranch?.ref)
+        }
+
+        // Create Pull Request
+        val rcPullRequest = ghRepository.createPullRequest(
+                "rc-$version -> master",
+                rcBranch?.ref,
+                MASTER_REF,
+                removeUnusedChangelogBlocks(lastChangelogEntry)?.third
+        )
+        rcPullRequestUrl = rcPullRequest.htmlUrl.toString()
+        assignReviewers(rcPullRequest, reviewersTeam, externalReviewers)
+    }
+
+    fun createVersionBump(reviewersTeam: GHTeam?, externalReviewers: MutableList<GHUser>): Boolean {
+        // Create version bump branch
+        val versionBumpBranch = createBranchOut(DEVELOP_REF, VERSION_BUMP_REF_PREFIX + (nextVersion ?: return false))
+
+        // Update changelog file
+        changelogFile?.update(getNextVersionChangelog(), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranch?.ref) ?: return false
+
+        // Create Pull Request
+        val versionBumpPullRequest = ghRepository.createPullRequest(
+                "Version bump $nextVersion -> develop",
+                versionBumpBranch?.ref,
+                DEVELOP_REF,
+                "Library version bump"
+        )
+        versionBumpPullRequestUrl = versionBumpPullRequest.htmlUrl.toString()
+        assignReviewers(versionBumpPullRequest, reviewersTeam, externalReviewers)
+        return true
+    }
+
+    private fun createBranchOut(from: String, to: String): GHRef? {
+        val fromSha = ghRepository.getRef(from).`object`.sha
+        return ghRepository.createRef(to, fromSha)
+    }
+
+    private fun assignReviewers(pullRequest: GHPullRequest, reviewersTeam: GHTeam?, externalReviewers: MutableList<GHUser>) {
+        pullRequest.requestTeamReviewers(listOf(reviewersTeam))
+        try {
+            pullRequest.requestReviewers(externalReviewers)
+        } catch (e: java.lang.Exception) {
+            // Can't self assign a PR review
+        }
+    }
+
     companion object {
         private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
         private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
         private val newBlockRegex = "## New\n[^-]".toRegex()
         private val fixedBlockRegex = "## Fixed\n[^-]".toRegex()
+
+        private const val RC_REF_PREFIX = "refs/heads/rc-"
+        private const val VERSION_BUMP_REF_PREFIX = "refs/heads/version_bump-"
+        private const val DEVELOP_REF = "refs/heads/develop"
+        private const val MASTER_REF = "refs/heads/master"
+        private const val CHANGELOG_CLEANUP_COMMIT_MESSAGE = "Changelog cleanup"
     }
 }
