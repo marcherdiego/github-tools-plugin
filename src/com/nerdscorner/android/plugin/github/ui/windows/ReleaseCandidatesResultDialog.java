@@ -55,6 +55,7 @@ public class ReleaseCandidatesResultDialog extends JDialog {
                 reposTable,
                 ReleaseCandidateTableModel.COLUMN_NAME,
                 ReleaseCandidateTableModel.COLUMN_VERSION,
+                ReleaseCandidateTableModel.COLUMN_STATUS,
                 ReleaseCandidateTableModel.COLUMN_PULL_REQUEST
         );
         reposTable.addMouseListener(new SimpleDoubleClickAdapter() {
@@ -74,6 +75,11 @@ public class ReleaseCandidatesResultDialog extends JDialog {
                         String rcBranch = "https://github.com/" + organizationName + "/" + repoName + "/tree/" + branchName;
                         BrowserUtils.INSTANCE.openWebLink(rcBranch);
                         break;
+                    case ReleaseCandidateTableModel.COLUMN_STATUS:
+                        if (repo.getBumpErrorMessage() != null) {
+                            showResultDialog(repo);
+                        }
+                        break;
                     case ReleaseCandidateTableModel.COLUMN_PULL_REQUEST:
                         BrowserUtils.INSTANCE.openWebLink(repo.getRcPullRequestUrl());
                         break;
@@ -82,5 +88,19 @@ public class ReleaseCandidatesResultDialog extends JDialog {
         });
         reposTable.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         return this;
+    }
+
+    private void showResultDialog(GHRepositoryWrapper repository) {
+        setVisible(false);
+
+        String message = repository.getName() + " not released because: " + repository.getBumpErrorMessage();
+        ResultDialog resultDialog = new ResultDialog(message);
+        resultDialog.pack();
+        resultDialog.setLocationRelativeTo(null);
+        resultDialog.setTitle(Strings.ERROR_DETAILS);
+        resultDialog.setResizable(false);
+        resultDialog.setVisible(true);
+
+        setVisible(true);
     }
 }

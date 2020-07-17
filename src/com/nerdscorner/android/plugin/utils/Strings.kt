@@ -36,4 +36,5 @@ object Strings {
     const val VERSION_BUMPS = "Version Bumps"
     const val PREVIOUS_VERSION = "Previous Version"
     const val NEXT_VERSION = "Next Version"
+    const val ERROR_DETAILS = "Error details"
 }

@@ -53,7 +53,10 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         }
 
     var rcPullRequestUrl: String? = null
+    var rcCreationErrorMessage: String? = null
+
     var versionBumpPullRequestUrl: String? = null
+    var bumpErrorMessage: String? = null
 
     val changelogFile: GHContent?
         get() = try {
@@ -70,7 +73,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
             }
         }
 
-    val versoinsFile: GHContent?
+    val versionsFile: GHContent?
         get() = try {
             ghRepository.getFileContent("buildSrc/src/main/kotlin/Versions.kt")
         } catch (e: Exception) {
@@ -149,22 +152,38 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
 
     fun createVersionBump(reviewersTeam: GHTeam?, externalReviewers: MutableList<GHUser>): Boolean {
         // Create version bump branch
-        val versionBumpBranch = createBranchOut(DEVELOP_REF, VERSION_BUMP_REF_PREFIX + (nextVersion ?: return false))
+        val nextVersion = nextVersion ?: run {
+            bumpErrorMessage = "Unable to determine next version"
+            return false
+        }
+        val versionBumpBranch = createBranchOut(DEVELOP_REF, VERSION_BUMP_REF_PREFIX + nextVersion)
 
         // Update changelog file
-        changelogFile?.update(getNextVersionChangelog(), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranch?.ref) ?: return false
+        changelogFile?.let {
+            it.update(getNextVersionChangelog(), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranch?.ref)
 
-        // Update Versions.kt file
-        versoinsFile
-                ?.read()
-                ?.let {
-                    val versionsFileContent = getFileContent(it)
-                    val updatedVersionsFile = versionsFileContent.replace(
-                            "const val libraryVersion = \"$version\"",
-                            "const val libraryVersion = \"$nextVersion\""
-                    )
-                    versoinsFile?.update(updatedVersionsFile, VERSION_BUMP_COMMIT_MESSAGE, versionBumpBranch?.ref)
-                }
+            // Update Versions.kt file
+            versionsFile
+                    ?.read()
+                    ?.let { fileContents ->
+                        val versionsFileContent = getFileContent(fileContents)
+                        val updatedVersionsFile = versionsFileContent.replace(
+                                "const val libraryVersion = \"$version\"",
+                                "const val libraryVersion = \"$nextVersion\""
+                        )
+                        versionsFile?.update(updatedVersionsFile, VERSION_BUMP_COMMIT_MESSAGE, versionBumpBranch?.ref)
+                    }
+            ?: run {
+                // Versions file not found
+                bumpErrorMessage = "Unable to find Versions.kt file"
+                versionBumpBranch?.delete()
+                return false
+            }
+        } ?: run {
+            bumpErrorMessage = "Unable to find CHANGELOG.MD file"
+            versionBumpBranch?.delete()
+            return false
+        }
 
         // Create Pull Request
         val versionBumpPullRequest = ghRepository.createPullRequest(

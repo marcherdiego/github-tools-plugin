@@ -7,10 +7,8 @@ import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.Librarie
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibraryFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreatedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreationFailedEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReposLoadedEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpCreatedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpCreationFailedEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpsCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.ReleaseCandidateTableModel
@@ -104,8 +102,9 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         val rcCreatedDialog = ReleaseCandidatesResultDialog()
                 .setReposTableModel(
                         ReleaseCandidateTableModel(
+                                model.includedLibraries,
                                 event.releasedLibraries,
-                                arrayOf(Strings.NAME, Strings.VERSION, Strings.PULL_REQUEST)
+                                arrayOf(Strings.NAME, Strings.VERSION, Strings.STATUS, Strings.PULL_REQUEST)
                         )
                 )
         rcCreatedDialog.pack()
@@ -113,11 +112,6 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         rcCreatedDialog.title = Strings.RELEASES
         rcCreatedDialog.isResizable = true
         rcCreatedDialog.isVisible = true
-    }
-
-    @Subscribe
-    fun onReleasesCreationFailed(event: ReleasesCreationFailedEvent) {
-        view.updateAndroidMessages("Failed: ${event.message}")
     }
 
     @Subscribe
@@ -145,8 +139,9 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         val versionBumpsCreatedDialog = VersionBumpsResultDialog()
                 .setReposTableModel(
                         VersionBumpsTableModel(
+                                model.includedLibraries,
                                 event.bumpedLibraries,
-                                arrayOf(Strings.NAME, Strings.PREVIOUS_VERSION, Strings.NEXT_VERSION, Strings.PULL_REQUEST)
+                                arrayOf(Strings.NAME, Strings.PREVIOUS_VERSION, Strings.NEXT_VERSION, Strings.STATUS, Strings.PULL_REQUEST)
                         )
                 )
         versionBumpsCreatedDialog.pack()
@@ -154,11 +149,6 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         versionBumpsCreatedDialog.title = Strings.VERSION_BUMPS
         versionBumpsCreatedDialog.isResizable = true
         versionBumpsCreatedDialog.isVisible = true
-    }
-
-    @Subscribe
-    fun onVersionBumpCreationFailed(event: VersionBumpCreationFailedEvent) {
-        view.updateAndroidMessages("Failed: ${event.message}")
     }
 
     private fun refreshLists() {

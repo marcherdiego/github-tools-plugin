@@ -14,7 +14,7 @@ public class ResultDialog extends JDialog {
     private int requestCode;
 
     public ResultDialog(String message) {
-        this(message, null, null);
+        this(message, "Close", null);
     }
 
     public ResultDialog(String message, String primaryButtonText, final EventBus bus) {
@@ -24,11 +24,15 @@ public class ResultDialog extends JDialog {
         buttonOK.setText(primaryButtonText);
         buttonOK.addActionListener(e -> {
             dispose();
-            bus.post(new PrimaryButtonClickedEvent(requestCode));
+            if (bus != null) {
+                bus.post(new PrimaryButtonClickedEvent(requestCode));
+            }
         });
         secondaryAction.addActionListener(e -> {
             dispose();
-            bus.post(new SecondaryButtonClickedEvent(requestCode));
+            if (bus != null) {
+                bus.post(new SecondaryButtonClickedEvent(requestCode));
+            }
         });
         secondaryAction.setVisible(false);
         resultMessage.setText(message);
