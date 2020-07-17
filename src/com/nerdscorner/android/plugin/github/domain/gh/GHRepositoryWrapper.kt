@@ -1,14 +1,18 @@
 package com.nerdscorner.android.plugin.github.domain.gh
 
+import org.apache.commons.io.IOUtils
 import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHRef
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
+import java.io.InputStream
 
 import java.io.Serializable
+import java.io.StringWriter
 import java.net.URL
+import java.nio.charset.Charset
 
 class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wrapper(), Serializable {
     val description: String
@@ -66,6 +70,13 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
             }
         }
 
+    val versoinsFile: GHContent?
+        get() = try {
+            ghRepository.getFileContent("buildSrc/src/main/kotlin/Versions.kt")
+        } catch (e: Exception) {
+            null
+        }
+
     init {
         val repoDescription = ghRepository.description
         this.description = if (repoDescription.isNullOrEmpty()) {
@@ -73,6 +84,18 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         } else {
             repoDescription
         }
+    }
+
+    private fun getFileContent(fileInputStream: InputStream): String {
+        val writer = StringWriter()
+        IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
+        return writer.toString()
+    }
+
+    fun ensureChangelog() {
+        fullChangelog = getFileContent(changelogFile?.read() ?: return)
+        val repositoryAlias = libsAlias.getOrDefault(name, name)
+        alias = repositoryAlias
     }
 
     fun removeUnusedChangelogBlocks(changelog: String? = fullChangelog): Triple<Boolean, Boolean, String>? {
@@ -89,19 +112,6 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         val emptyChangelog = newBlockMatch != null && fixedBlockMatch != null
         val hasChanges = newBlockMatch != null || fixedBlockMatch != null
         return Triple(emptyChangelog, hasChanges, resultChangelog)
-    }
-
-    override fun toString(): String {
-        return name
-    }
-
-    override fun compare(other: Wrapper): Int {
-        return if (other is GHRepositoryWrapper) {
-            other.name.toLowerCase()
-                    .compareTo(name.toLowerCase())
-        } else {
-            0
-        }
     }
 
     private fun getNextVersionChangelog(): String {
@@ -144,6 +154,18 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         // Update changelog file
         changelogFile?.update(getNextVersionChangelog(), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranch?.ref) ?: return false
 
+        // Update Versions.kt file
+        versoinsFile
+                ?.read()
+                ?.let {
+                    val versionsFileContent = getFileContent(it)
+                    val updatedVersionsFile = versionsFileContent.replace(
+                            "const val libraryVersion = \"$version\"",
+                            "const val libraryVersion = \"$nextVersion\""
+                    )
+                    versoinsFile?.update(updatedVersionsFile, VERSION_BUMP_COMMIT_MESSAGE, versionBumpBranch?.ref)
+                }
+
         // Create Pull Request
         val versionBumpPullRequest = ghRepository.createPullRequest(
                 "Version bump $nextVersion -> develop",
@@ -170,6 +192,19 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         }
     }
 
+    override fun toString() = name
+
+    override fun compare(other: Wrapper): Int {
+        return if (other is GHRepositoryWrapper) {
+            other
+                    .name
+                    .toLowerCase()
+                    .compareTo(name.toLowerCase())
+        } else {
+            0
+        }
+    }
+
     companion object {
         private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
         private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
@@ -180,6 +215,24 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         private const val VERSION_BUMP_REF_PREFIX = "refs/heads/version_bump-"
         private const val DEVELOP_REF = "refs/heads/develop"
         private const val MASTER_REF = "refs/heads/master"
+        private const val VERSION_BUMP_COMMIT_MESSAGE = "Version bump"
         private const val CHANGELOG_CLEANUP_COMMIT_MESSAGE = "Changelog cleanup"
+
+        private val libsAlias = HashMap<String, String>().apply {
+            put("details-view-android", "Details View")
+            put("android-chat", "Chat")
+            put("dcp-android", "DCP")
+            put("notifications-android", "Notifications")
+            put("camera-android", "Camera")
+            put("ui-android", "UI")
+            put("android-upload-service", "Upload Service")
+            put("sockets-android", "Sockets")
+            put("networking-android", "Networking")
+            put("configurators-android", "Configurator")
+            put("testing-sdk-android", "Testing SDK")
+            put("commons-android", "Commons")
+            put("androidThumborUtils", "Thumbor Utils")
+            put("tal-android-oauth", "OAuth")
+        }
     }
 }

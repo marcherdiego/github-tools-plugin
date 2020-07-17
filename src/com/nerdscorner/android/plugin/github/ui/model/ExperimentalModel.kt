@@ -6,15 +6,12 @@ import com.intellij.ide.util.PropertiesComponent
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.cancel
-import org.apache.commons.io.IOUtils
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHOrganization
 import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
 import org.kohsuke.github.GitHub
-import java.io.StringWriter
 import java.lang.Exception
-import java.nio.charset.Charset
 
 class ExperimentalModel(private val ghOrganization: GHOrganization, private val github: GitHub) {
     lateinit var bus: EventBus
@@ -66,21 +63,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         librariesLoaderThread = Thread {
             includedLibraries.forEach { repository ->
                 totalProgress += progressStep
-                ensureChangelog(repository)
+                repository.ensureChangelog()
                 bus.post(LibraryFetchedSuccessfullyEvent(repository.alias, totalProgress))
             }
             bus.post(LibrariesFetchedSuccessfullyEvent())
         }
         librariesLoaderThread?.start()
-    }
-
-    private fun ensureChangelog(repository: GHRepositoryWrapper) {
-        val fileInputStream = repository.changelogFile?.read() ?: return
-        val writer = StringWriter()
-        IOUtils.copy(fileInputStream, writer, Charset.defaultCharset())
-        repository.fullChangelog = writer.toString()
-        val repositoryAlias = libsAlias.getOrDefault(repository.name, repository.name)
-        repository.alias = repositoryAlias
     }
 
     fun getLibrariesChangelog(): String {
@@ -146,7 +134,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 var totalProgress = 0f
                 val progressStep = 100f / includedLibraries.size.toFloat()
                 includedLibraries.forEach { library ->
-                    ensureChangelog(library)
+                    library.ensureChangelog()
                     val (emptyChangelog, changelogHasChanges, trimmedChangelog) = library.removeUnusedChangelogBlocks() ?: return@forEach
                     if (emptyChangelog) {
                         totalProgress += progressStep
@@ -189,7 +177,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 val progressStep = 100f / includedLibraries.size.toFloat()
                 val bumpedLibraries = mutableListOf<GHRepositoryWrapper>()
                 includedLibraries.forEach { library ->
-                    ensureChangelog(library)
+                    library.ensureChangelog()
                     bus.post(CreatingVersionBumpEvent(library.alias, totalProgress))
                     val libraryBumped = library.createVersionBump(androidReviewersTeam, externalReviewers)
                     if (libraryBumped.not()) {
@@ -224,22 +212,6 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     companion object {
         private val gson = Gson()
         private val propertiesComponent = PropertiesComponent.getInstance()
-        private val libsAlias = HashMap<String, String>().apply {
-            put("details-view-android", "Details View")
-            put("android-chat", "Chat")
-            put("dcp-android", "DCP")
-            put("notifications-android", "Notifications")
-            put("camera-android", "Camera")
-            put("ui-android", "UI")
-            put("android-upload-service", "Upload Service")
-            put("sockets-android", "Sockets")
-            put("networking-android", "Networking")
-            put("configurators-android", "Configurator")
-            put("testing-sdk-android", "Testing SDK")
-            put("commons-android", "Commons")
-            put("androidThumborUtils", "Thumbor Utils")
-            put("tal-android-oauth", "OAuth")
-        }
         private val stringListTypeToken = object : TypeToken<List<String>>() {}.type
         private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
 
