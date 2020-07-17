@@ -217,11 +217,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
 
                 var totalProgress = 0f
                 val progressStep = 100f / includedLibraries.size.toFloat()
+                val bumpedLibraries = mutableListOf<GHRepositoryWrapper>()
                 includedLibraries.forEach { library ->
                     ensureChangelog(library)
                     bus.post(CreatingVersionBumpEvent(library.alias, totalProgress))
                     val developSha = library.ghRepository.getRef(DEVELOP_REF).`object`.sha
-                    val nextVersion = getNextVersion(library.version ?: return@forEach)
+                    val nextVersion = library.nextVersion ?: return@forEach
                     val versionBumpBranchName = VERSION_BUMP_REF_PREFIX + nextVersion
                     // Create rc branch
                     library
@@ -229,7 +230,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                             .createRef(versionBumpBranchName, developSha)
                     library
                             .getRepoChangelog()
-                            ?.update(library.getNextVersionChangelog(nextVersion), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranchName)
+                            ?.update(library.getNextVersionChangelog(), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranchName)
                     // Create Pull Request
                     val versionBumpPullRequest = library
                             .ghRepository
@@ -248,22 +249,15 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                         // Can't self assign a PR review
                     }
                     totalProgress += progressStep
+                    bumpedLibraries.add(library)
                     bus.post(VersionBumpCreatedSuccessfullyEvent(library.alias, totalProgress))
                 }
-                bus.post(VersionBumpsCreatedSuccessfullyEvent())
+                bus.post(VersionBumpsCreatedSuccessfullyEvent(bumpedLibraries))
             } catch (e: Exception) {
                 bus.post(VersionBumpCreationFailedEvent(e.message))
             }
         }
         versionBumpCreatorThread?.start()
-    }
-
-    private fun getNextVersion(version: String): String {
-        // Assuming version = X.Y.Z
-        val tokens = version.split(".")
-        val major = tokens[0]
-        val minor = tokens[1].toInt()
-        return "$major.${minor + 1}.0"
     }
 
     class LibraryFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
@@ -277,7 +271,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
 
     class CreatingVersionBumpEvent(val libraryName: String?, val totalProgress: Float)
     class VersionBumpCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
-    class VersionBumpsCreatedSuccessfullyEvent
+    class VersionBumpsCreatedSuccessfullyEvent(val bumpedLibraries: MutableList<GHRepositoryWrapper>)
     class VersionBumpCreationFailedEvent(val message: String?)
 
     companion object {

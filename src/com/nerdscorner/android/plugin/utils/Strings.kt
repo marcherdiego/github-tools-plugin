@@ -33,4 +33,7 @@ object Strings {
     const val VERSION = "Version"
     const val RELEASES = "Releases"
     const val PULL_REQUEST = "Pull Request"
+    const val VERSION_BUMPS = "Version Bumps"
+    const val PREVIOUS_VERSION = "Previous Version"
+    const val NEXT_VERSION = "Next Version"
 }

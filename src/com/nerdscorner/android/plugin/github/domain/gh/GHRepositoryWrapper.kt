@@ -26,6 +26,9 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     val version: String?
         get() = extractCurrentVersion()
 
+    val nextVersion: String?
+        get() = extractNextVersion()
+
     var rcPullRequestUrl: String? = null
     var versionBumpPullRequestUrl: String? = null
 
@@ -90,6 +93,14 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
                 ?.value
     }
 
+    private fun extractNextVersion(): String? {
+        // Assuming version = X.Y.Z
+        val tokens = version?.split(".") ?: return null
+        val major = tokens[0]
+        val minor = tokens[1].toInt()
+        return "$major.${minor + 1}.0"
+    }
+
     override fun toString(): String {
         return name
     }
@@ -103,7 +114,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         }
     }
 
-    fun getNextVersionChangelog(nextVersion: String): String {
+    fun getNextVersionChangelog(): String {
         return StringBuilder()
                 .append("# $nextVersion")
                 .append(System.lineSeparator())

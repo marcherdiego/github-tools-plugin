@@ -5,22 +5,19 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.*;
 
-import com.intellij.ide.util.PropertiesComponent;
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper;
-import com.nerdscorner.android.plugin.github.ui.tablemodels.ReleaseCandidateTableModel;
+import com.nerdscorner.android.plugin.github.ui.tablemodels.VersionBumpsTableModel;
 import com.nerdscorner.android.plugin.utils.BrowserUtils;
 import com.nerdscorner.android.plugin.utils.JTableUtils;
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter;
-import com.nerdscorner.android.plugin.utils.Strings;
 
-public class ReleaseCandidatesResultDialog extends JDialog {
-    private String organizationName = PropertiesComponent.getInstance().getValue(Strings.ORGANIZATION_NAME_PROPERTY);
+public class VersionBumpsResultDialog extends JDialog {
     private JPanel contentPane;
     private JTable reposTable;
     private JButton openAllPRsButton;
     private JButton closeButton;
 
-    public ReleaseCandidatesResultDialog() {
+    public VersionBumpsResultDialog() {
         setContentPane(contentPane);
         setModal(true);
 
@@ -38,44 +35,39 @@ public class ReleaseCandidatesResultDialog extends JDialog {
                 if (e.getClickCount() == 1) {
                     int rows = reposTable.getRowCount();
                     for (int i = 0; i < rows; i++) {
-                        GHRepositoryWrapper repo = ((ReleaseCandidateTableModel) reposTable.getModel()).getRow(i);
+                        GHRepositoryWrapper repo = ((VersionBumpsTableModel) reposTable.getModel()).getRow(i);
                         if (repo == null) {
                             continue;
                         }
-                        BrowserUtils.INSTANCE.openWebLink(repo.getRcPullRequestUrl());
+                        BrowserUtils.INSTANCE.openWebLink(repo.getVersionBumpPullRequestUrl());
                     }
                 }
             }
         });
     }
 
-    public ReleaseCandidatesResultDialog setReposTableModel(ReleaseCandidateTableModel model) {
+    public VersionBumpsResultDialog setReposTableModel(VersionBumpsTableModel model) {
         reposTable.setModel(model);
         JTableUtils.INSTANCE.centerColumns(
                 reposTable,
-                ReleaseCandidateTableModel.COLUMN_NAME,
-                ReleaseCandidateTableModel.COLUMN_VERSION,
-                ReleaseCandidateTableModel.COLUMN_PULL_REQUEST
+                VersionBumpsTableModel.COLUMN_NAME,
+                VersionBumpsTableModel.COLUMN_PREVIOUS_VERSION,
+                VersionBumpsTableModel.COLUMN_NEXT_VERSION,
+                VersionBumpsTableModel.COLUMN_PULL_REQUEST
         );
         reposTable.addMouseListener(new SimpleDoubleClickAdapter() {
             @Override
             public void onDoubleClick(int row, int column) {
-                GHRepositoryWrapper repo = ((ReleaseCandidateTableModel) reposTable.getModel()).getRow(row);
+                GHRepositoryWrapper repo = ((VersionBumpsTableModel) reposTable.getModel()).getRow(row);
                 if (repo == null) {
                     return;
                 }
                 switch (column) {
-                    case ReleaseCandidateTableModel.COLUMN_NAME:
+                    case VersionBumpsTableModel.COLUMN_NAME:
                         BrowserUtils.INSTANCE.openWebLink(repo.getFullUrl());
                         break;
-                    case ReleaseCandidateTableModel.COLUMN_VERSION:
-                        String repoName = repo.getName();
-                        String branchName = "rc-" + repo.getVersion();
-                        String rcBranch = "https://github.com/" + organizationName + "/" + repoName + "/tree/" + branchName;
-                        BrowserUtils.INSTANCE.openWebLink(rcBranch);
-                        break;
-                    case ReleaseCandidateTableModel.COLUMN_PULL_REQUEST:
-                        BrowserUtils.INSTANCE.openWebLink(repo.getRcPullRequestUrl());
+                    case VersionBumpsTableModel.COLUMN_PULL_REQUEST:
+                        BrowserUtils.INSTANCE.openWebLink(repo.getVersionBumpPullRequestUrl());
                         break;
                 }
             }
