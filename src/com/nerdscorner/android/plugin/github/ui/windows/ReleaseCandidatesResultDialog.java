@@ -15,13 +15,13 @@ import com.nerdscorner.android.plugin.utils.Strings;
 
 public class ReleaseCandidatesResultDialog extends JDialog {
     private String organizationName = PropertiesComponent.getInstance().getValue(Strings.ORGANIZATION_NAME_PROPERTY);
-    private JPanel contentPane;
+    private JPanel rootPanel;
     private JTable reposTable;
     private JButton openAllPRsButton;
     private JButton closeButton;
 
     public ReleaseCandidatesResultDialog() {
-        setContentPane(contentPane);
+        setContentPane(rootPanel);
         setModal(true);
 
         closeButton.addMouseListener(new MouseAdapter() {
@@ -76,7 +76,7 @@ public class ReleaseCandidatesResultDialog extends JDialog {
                         BrowserUtils.INSTANCE.openWebLink(rcBranch);
                         break;
                     case ReleaseCandidateTableModel.COLUMN_STATUS:
-                        if (repo.getBumpErrorMessage() != null) {
+                        if (repo.getRcCreationErrorMessage() != null) {
                             showResultDialog(repo);
                         }
                         break;
@@ -93,7 +93,7 @@ public class ReleaseCandidatesResultDialog extends JDialog {
     private void showResultDialog(GHRepositoryWrapper repository) {
         setVisible(false);
 
-        String message = repository.getName() + " not released because: " + repository.getBumpErrorMessage();
+        String message = repository.getName() + " not released because: " + repository.getRcCreationErrorMessage();
         ResultDialog resultDialog = new ResultDialog(message);
         resultDialog.pack();
         resultDialog.setLocationRelativeTo(null);

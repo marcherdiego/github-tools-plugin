@@ -182,10 +182,10 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     library.ensureChangelog()
                     bus.post(CreatingVersionBumpEvent(library.alias, totalProgress))
                     val libraryBumped = library.createVersionBump(androidReviewersTeam, externalReviewers)
+                    totalProgress += progressStep
                     if (libraryBumped.not()) {
                         return@forEach
                     }
-                    totalProgress += progressStep
                     bumpedLibraries.add(library)
                     bus.post(VersionBumpCreatedSuccessfullyEvent(library.alias, totalProgress))
                 } catch (e: Exception) {
