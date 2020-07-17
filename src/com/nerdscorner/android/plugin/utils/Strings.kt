@@ -30,4 +30,7 @@ object Strings {
     const val LOGGED_AS = "Logged in as %s (%s)"
     const val ENTER_CIRCLE_CI_TOKEN = "Enter CircleCI API Token"
     const val ENTER_TRAVIS_CI_TOKEN = "Enter Travis CI API Token"
+    const val VERSION = "Version"
+    const val RELEASES = "Releases"
+    const val PULL_REQUEST = "Pull Request"
 }

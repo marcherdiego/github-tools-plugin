@@ -13,6 +13,7 @@ import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionB
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpCreationFailedEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpsCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
+import com.nerdscorner.android.plugin.github.ui.tablemodels.ReleaseCandidateTableModel
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.AddLibraryClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateAppsChangelogClickedEvent
@@ -20,6 +21,7 @@ import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateVers
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.ReleaseLibrariesClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.RemoveLibraryClickedEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ChangelogResultDialog
+import com.nerdscorner.android.plugin.github.ui.windows.ReleaseCandidatesResultDialog
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -97,6 +99,19 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     @Subscribe
     fun onReleasesCreatedSuccessfully(event: ReleasesCreatedSuccessfullyEvent) {
         view.setAndroidMessagesVisibility(false)
+        val rcCreatedDialog = ReleaseCandidatesResultDialog()
+                .setMessage("Libraries released")
+                .setReposTableModel(
+                        ReleaseCandidateTableModel(
+                                event.releasedLibraries,
+                                arrayOf(Strings.NAME, Strings.VERSION, Strings.PULL_REQUEST)
+                        )
+                )
+        rcCreatedDialog.pack()
+        rcCreatedDialog.setLocationRelativeTo(null)
+        rcCreatedDialog.title = Strings.RELEASES
+        rcCreatedDialog.isResizable = true
+        rcCreatedDialog.isVisible = true
     }
 
     @Subscribe

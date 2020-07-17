@@ -143,7 +143,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 EXTERNAL_REVIEWERS.forEach { userName ->
                     externalReviewers.add(github.getUser(userName))
                 }
-
+                val releasedLibraries = mutableListOf<GHRepositoryWrapper>()
                 var totalProgress = 0f
                 val progressStep = 100f / includedLibraries.size.toFloat()
                 includedLibraries.forEach { library ->
@@ -175,7 +175,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                                     MASTER_REF,
                                     library.removeUnusedChangelogBlocks(library.lastChangelogEntry)?.third
                             )
-
+                    library.rcPullRequestUrl = rcPullRequest.htmlUrl.toString()
                     // Assign reviewers
                     rcPullRequest.requestTeamReviewers(listOf(androidReviewersTeam))
                     try {
@@ -184,9 +184,10 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                         // Can't self assign a PR review
                     }
                     totalProgress += progressStep
+                    releasedLibraries.add(library)
                     bus.post(ReleaseCreatedSuccessfullyEvent(library.alias, totalProgress))
                 }
-                bus.post(ReleasesCreatedSuccessfullyEvent())
+                bus.post(ReleasesCreatedSuccessfullyEvent(releasedLibraries))
             } catch (e: Exception) {
                 bus.post(ReleasesCreationFailedEvent(e.message))
             }
@@ -238,7 +239,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                                     DEVELOP_REF,
                                     "Library version bump"
                             )
-
+                    library.versionBumpPullRequestUrl = versionBumpPullRequest.htmlUrl.toString()
                     // Assign reviewers
                     versionBumpPullRequest.requestTeamReviewers(listOf(androidReviewersTeam))
                     try {
@@ -271,7 +272,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
 
     class CreatingReleaseCandidateEvent(val libraryName: String?, val totalProgress: Float)
     class ReleaseCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
-    class ReleasesCreatedSuccessfullyEvent
+    class ReleasesCreatedSuccessfullyEvent(val releasedLibraries: MutableList<GHRepositoryWrapper>)
     class ReleasesCreationFailedEvent(val message: String?)
 
     class CreatingVersionBumpEvent(val libraryName: String?, val totalProgress: Float)

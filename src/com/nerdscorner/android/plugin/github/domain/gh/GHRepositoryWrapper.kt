@@ -26,6 +26,9 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     val version: String?
         get() = extractCurrentVersion()
 
+    var rcPullRequestUrl: String? = null
+    var versionBumpPullRequestUrl: String? = null
+
     @Transient
     var changelogFile: GHContent? = null
 
@@ -39,7 +42,6 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     }
 
     fun getRepoChangelog(): GHContent? {
-        //if (changelogFile == null) {
         changelogFile = try {
             ghRepository.getFileContent("changelog.md")
         } catch (e: Exception) {
@@ -53,7 +55,6 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
                 }
             }
         }
-        //}
         return changelogFile
     }
 
