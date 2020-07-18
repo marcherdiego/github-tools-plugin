@@ -22,6 +22,7 @@ import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.RemoveLibr
 import com.nerdscorner.android.plugin.github.ui.windows.ChangelogResultDialog
 import com.nerdscorner.android.plugin.github.ui.windows.ReleaseCandidatesResultDialog
 import com.nerdscorner.android.plugin.github.ui.windows.VersionBumpsResultDialog
+import com.nerdscorner.android.plugin.utils.MultilineStringLabel
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -46,7 +47,8 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onChangelogFetchedSuccessfully(event: ChangelogFetchedSuccessfullyEvent) {
-        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Fetched ${event.libraryName}'s changelog.")
+        val message = "<html> Completed: ${event.totalProgress.toInt()}% <br> Fetched ${event.libraryName}'s changelog. </html>"
+        view.updateAndroidMessages(message)
     }
 
     @Subscribe
@@ -84,19 +86,27 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         if (model.includedLibraries.isNotEmpty()) {
             view.disableButtons()
             view.setAndroidMessagesVisibility(true)
-            view.updateAndroidMessages("Creating libraries release candidates...")
+            view.updateAndroidMessages("Creating libraries Release Candidates...")
             model.createLibrariesReleases()
         }
     }
 
     @Subscribe
     fun onCreatingReleaseCandidate(event: CreatingReleaseCandidateEvent) {
-        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Creating ${event.libraryName}'s RC...")
+        view.updateAndroidMessages(
+                MultilineStringLabel("Release Candidates | Completed: ${event.totalProgress.toInt()}%")
+                        .addLine("Creating ${event.libraryName}'s RC...")
+                        .build()
+        )
     }
 
     @Subscribe
     fun onReleaseCreatedSuccessfully(event: ReleaseCreatedSuccessfullyEvent) {
-        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Created ${event.libraryName}'s RC.")
+        view.updateAndroidMessages(
+                MultilineStringLabel("Release Candidates | Completed: ${event.totalProgress.toInt()}%")
+                        .addLine("Created ${event.libraryName}'s RC...")
+                        .build()
+        )
     }
 
     @Subscribe
@@ -123,19 +133,27 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         if (model.includedLibraries.isNotEmpty()) {
             view.disableButtons()
             view.setAndroidMessagesVisibility(true)
-            view.updateAndroidMessages("Creating libraries version bumps...")
+            view.updateAndroidMessages("Creating libraries Version Bumps...")
             model.createVersionBumps()
         }
     }
 
     @Subscribe
     fun onCreatingVersionBump(event: CreatingVersionBumpEvent) {
-        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Creating ${event.libraryName}'s version bump...")
+        view.updateAndroidMessages(
+                MultilineStringLabel("Version Bumps | Completed: ${event.totalProgress.toInt()}%")
+                        .addLine("Creating ${event.libraryName}'s version bump...")
+                        .build()
+        )
     }
 
     @Subscribe
     fun onVersionBumpCreatedSuccessfully(event: VersionBumpCreatedSuccessfullyEvent) {
-        view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Created ${event.libraryName}'s version bump.")
+        view.updateAndroidMessages(
+                MultilineStringLabel("Version Bumps | Completed: ${event.totalProgress.toInt()}%")
+                        .addLine("Created ${event.libraryName}'s version bump...")
+                        .build()
+        )
     }
 
     @Subscribe

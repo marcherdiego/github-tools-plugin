@@ -24,7 +24,6 @@ import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.V
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.NewClosedPullRequestsEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.NewOpenPullRequestsEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.ReleasesLoadedEvent
-import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.RepoCommentsUpdatedEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.UpdateRepositoryInfoTablesEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
@@ -87,11 +86,6 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
     }
 
     @Subscribe
-    fun onRepoCommentsUpdated(event: RepoCommentsUpdatedEvent) {
-        view.setRepoComments(event.comments)
-    }
-
-    @Subscribe
     fun onRepoClicked(event: RepoClickedEvent) {
         if (event.clickCount == 1) {
             if (model.selectedRepoRow == event.row || event.row == -1) {
@@ -100,7 +94,6 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
             model.currentRepository = view.getRepoAt(event.row, view.dataColumn) as GHRepositoryWrapper
             model.loadRepoReleasesAndBranches()
             view.clearTables()
-            view.setRepoComments(null)
         } else if (event.clickCount == 2) {
             BrowserUtils.openWebLink(model.getCurrentRepoUrl())
         }

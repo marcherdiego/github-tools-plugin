@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.nerdscorner.android.plugin.github.ui.windows.GitHubTool">
-  <grid id="27dc6" binding="content" layout-manager="GridLayoutManager" row-count="3" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="content" layout-manager="GridLayoutManager" row-count="2" column-count="5" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="766" height="815"/>
     </constraints>
     <properties/>
     <border type="empty">
-      <size top="0" left="10" bottom="10" right="10"/>
+      <size top="0" left="10" bottom="20" right="10"/>
     </border>
     <children>
       <grid id="bf7be" layout-manager="CardLayout" hgap="0" vgap="0">
@@ -72,7 +72,7 @@
                         <properties>
                           <columns value="30"/>
                           <horizontalAlignment value="2"/>
-                          <toolTipText value="OAuth token"/>
+                          <toolTipText value="Organization's name"/>
                         </properties>
                       </component>
                       <component id="eb7fd" class="javax.swing.JLabel">
@@ -136,7 +136,9 @@
                           <gridbag weightx="0.25" weighty="1.0"/>
                         </constraints>
                         <properties/>
-                        <border type="none" title="Repositories"/>
+                        <border type="none" title="Repositories">
+                          <size top="0" left="0" bottom="0" right="0"/>
+                        </border>
                         <children>
                           <component id="bf229" class="javax.swing.JTable" binding="allReposTable">
                             <constraints/>
@@ -330,7 +332,7 @@
                               </grid>
                             </constraints>
                             <properties>
-                              <text value="klasnflasnflasknf lkasnflkasfklasfnlksanf"/>
+                              <text value=""/>
                             </properties>
                           </component>
                           <grid id="15d04" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -617,27 +619,6 @@
             </constraints>
             <properties>
               <text value="Reload view"/>
-            </properties>
-          </component>
-        </children>
-      </grid>
-      <grid id="c82e5" binding="repoCommentsContainer" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <minimum-size width="-1" height="100"/>
-            <maximum-size width="-1" height="100"/>
-          </grid>
-        </constraints>
-        <properties/>
-        <border type="none" title="Messages"/>
-        <children>
-          <component id="1e1c" class="javax.swing.JLabel" binding="repoComments">
-            <constraints>
-              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value=""/>
             </properties>
           </component>
         </children>

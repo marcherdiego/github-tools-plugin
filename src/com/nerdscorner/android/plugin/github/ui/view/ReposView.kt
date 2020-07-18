@@ -30,7 +30,6 @@ class ReposView(
         private val branchesTable: JTable,
         private val openPullRequestsTable: JTable,
         private val closedPullRequestsTable: JTable,
-        private val repoComments: JLabel,
         val dataColumn: Int
 ) {
     lateinit var bus: EventBus
@@ -100,7 +99,6 @@ class ReposView(
             currentRepository = repoLocation.first
             bus.post(RepoClickedEvent(repoLocation.second, repoLocation.third, 1))
         }
-        repoComments.text = null
     }
 
     fun setReleasesTableModel(repoReleasesModel: GHReleaseTableModel) {
@@ -124,10 +122,6 @@ class ReposView(
         )
         JTableUtils.centerColumns(openPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
         JTableUtils.centerColumns(closedPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
-    }
-
-    fun setRepoComments(text: String?) {
-        repoComments.text = text
     }
 
     fun addOpenPullRequest(pullRequest: GHPullRequestWrapper) {

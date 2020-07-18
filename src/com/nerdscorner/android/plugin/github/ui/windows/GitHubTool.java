@@ -76,8 +76,6 @@ public class GitHubTool implements ToolWindowFactory {
     private JButton logoutButton;
     private JLabel loggedAsField;
     private JButton reloadViewButton;
-    private JLabel repoComments;
-    private JPanel repoCommentsContainer;
     private JTextField organizationField;
     private JLabel changelogProgress;
     private JButton createVersionBumpsButton;
@@ -97,7 +95,7 @@ public class GitHubTool implements ToolWindowFactory {
         if (StringUtils.isEmpty(oauthToken) || StringUtils.isEmpty(organization)) {
             organizationField.setText(organization);
             ViewUtils.INSTANCE.show(loginPanel);
-            ViewUtils.INSTANCE.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField, repoCommentsContainer);
+            ViewUtils.INSTANCE.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField);
             loginButton.addActionListener(new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -119,7 +117,7 @@ public class GitHubTool implements ToolWindowFactory {
                     } else {
                         boolean success = githubTokenLogin(oauthToken, organization);
                         if (success) {
-                            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
+                            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
                             ViewUtils.INSTANCE.hide(loginPanel);
                             propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
                             propertiesComponent.setValue(Strings.ORGANIZATION_NAME_PROPERTY, organization);
@@ -137,7 +135,7 @@ public class GitHubTool implements ToolWindowFactory {
                 }
             });
         } else {
-            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
+            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
             ViewUtils.INSTANCE.hide(loginPanel);
             githubTokenLogin(oauthToken, organization);
         }
@@ -146,7 +144,7 @@ public class GitHubTool implements ToolWindowFactory {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ViewUtils.INSTANCE.show(loginPanel);
-                ViewUtils.INSTANCE.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
+                ViewUtils.INSTANCE.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
                 propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
                 propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK);
                 propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK);
@@ -207,8 +205,6 @@ public class GitHubTool implements ToolWindowFactory {
     }
 
     private void loadTablesInfo() {
-        repoComments.setText(null);
-
         if (ghOrganization == null) {
             final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
             String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
@@ -224,7 +220,6 @@ public class GitHubTool implements ToolWindowFactory {
                             allRepoBranches,
                             allRepoOpenPullRequestsTable,
                             allRepoClosedPullRequestsTable,
-                            repoComments,
                             BaseModel.COLUMN_NAME
                     ),
                     new AllReposModel(ghOrganization, project.getName()),
@@ -242,7 +237,6 @@ public class GitHubTool implements ToolWindowFactory {
                             myReposBranchesTable,
                             myReposOpenPrTable,
                             myReposClosedPrTable,
-                            repoComments,
                             BaseModel.COLUMN_NAME
                     ),
                     new MyReposModel(ghOrganization, myselfGitHub, project.getName()),

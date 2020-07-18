@@ -93,11 +93,7 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
     }
 
     private fun loadPRs(latestReleaseDate: Date?) {
-        var commentsUpdated = false
-        if (latestReleaseDate == null) {
-            commentsUpdated = true
-            bus.post(RepoCommentsUpdatedEvent(getFormattedComment(Strings.REPO_NO_RELEASES_YET, getCurrentRepoName())))
-        }
+        val closedPrs = mutableListOf<GHPullRequestWrapper>()
         currentRepository
                 ?.ghRepository
                 ?.queryPullRequests()
@@ -113,20 +109,13 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
                     if (pullRequest.state == GHIssueState.OPEN) {
                         bus.post(NewOpenPullRequestsEvent(GHPullRequestWrapper(pullRequest)))
                     } else if (pullRequest.state == GHIssueState.CLOSED) {
-                        if (pullRequest.mergedAt?.after(latestReleaseDate ?: return@forEach) == true) {
-                            bus.post(NewClosedPullRequestsEvent(GHPullRequestWrapper(pullRequest)))
-                            if (!commentsUpdated) {
-                                commentsUpdated = true
-                                bus.post(RepoCommentsUpdatedEvent(getFormattedComment(Strings.REPO_NEEDS_RELEASE, getCurrentRepoName())))
-                            }
+                        if (latestReleaseDate == null || pullRequest.mergedAt?.after(latestReleaseDate) == true) {
+                            val pullRequestWrapper = GHPullRequestWrapper(pullRequest)
+                            closedPrs.add(pullRequestWrapper)
+                            bus.post(NewClosedPullRequestsEvent(pullRequestWrapper))
                         }
                     }
                 }
-        // If we haven't found any closed PR after the latest release, then this repo does not need to be released
-        if (!commentsUpdated) {
-            commentsUpdated = true
-            bus.post(RepoCommentsUpdatedEvent(getFormattedComment(Strings.REPO_DOES_NOT_NEED_RELEASE, getCurrentRepoName())))
-        }
     }
 
     fun loadRepoReleasesAndBranches() {
@@ -166,11 +155,6 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
             }
         }
         prsLoaderThread?.start()
-    }
-
-
-    fun getCurrentRepoName(): String? {
-        return currentRepository?.ghRepository?.name
     }
 
     fun getCurrentRepoUrl() = currentRepository?.fullUrl
@@ -220,12 +204,14 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
 
     fun saveTravisToken(token: String?) {
         propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, token)
-        EventBus.getDefault().post(ParameterUpdatedEvent())
+        EventBus.getDefault()
+                .post(ParameterUpdatedEvent())
     }
 
     fun saveCircleToken(token: String?) {
         propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, token)
-        EventBus.getDefault().post(ParameterUpdatedEvent())
+        EventBus.getDefault()
+                .post(ParameterUpdatedEvent())
     }
 
     fun openBuildInBrowser(branch: GHBranchWrapper? = null) {
@@ -241,15 +227,8 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
                 },
                 Strings.BLANK
         )
-        EventBus.getDefault().post(ParameterUpdatedEvent())
-    }
-
-    private fun getFormattedComment(comment: String, args: String?): String? {
-        return if (args == null) {
-            null
-        } else {
-            String.format(comment, args)
-        }
+        EventBus.getDefault()
+                .post(ParameterUpdatedEvent())
     }
 
     fun getGithubProfileUrl(pullRequest: GHPullRequest?): String? {
@@ -267,8 +246,6 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
     class ReleasesLoadedEvent(val repoReleasesModel: GHReleaseTableModel)
     class NewOpenPullRequestsEvent(val pullRequest: GHPullRequestWrapper)
     class NewClosedPullRequestsEvent(val pullRequest: GHPullRequestWrapper)
-
-    class RepoCommentsUpdatedEvent(val comments: String?)
 
     class BuildSucceededEventEvent
     class BuildFailedEventEvent(val message: String?)
