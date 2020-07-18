@@ -17,6 +17,7 @@ public class VersionBumpsResultDialog extends JDialog {
     private JTable reposTable;
     private JButton openAllPRsButton;
     private JButton closeButton;
+    private JButton openAllReposButton;
 
     public VersionBumpsResultDialog() {
         setContentPane(contentPane);
@@ -27,6 +28,21 @@ public class VersionBumpsResultDialog extends JDialog {
             public void mouseReleased(MouseEvent e) {
                 if (e.getClickCount() == 1) {
                     dispose();
+                }
+            }
+        });
+        openAllReposButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getClickCount() == 1) {
+                    int rows = reposTable.getRowCount();
+                    for (int i = 0; i < rows; i++) {
+                        GHRepositoryWrapper repo = ((VersionBumpsTableModel) reposTable.getModel()).getRow(i);
+                        if (repo == null) {
+                            continue;
+                        }
+                        BrowserUtils.INSTANCE.openWebLink(repo.getFullUrl());
+                    }
                 }
             }
         });
