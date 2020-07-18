@@ -1,7 +1,6 @@
 package com.nerdscorner.android.plugin.github.ui.tablemodels
 
 import com.nerdscorner.android.plugin.github.domain.gh.GHBranchWrapper
-import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import java.io.Serializable
 
 class GHBranchTableModel(branches: MutableList<GHBranchWrapper>, colNames: Array<String>)
