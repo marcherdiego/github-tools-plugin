@@ -6,32 +6,28 @@ import com.nerdscorner.android.plugin.utils.JTableUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.onClick
 import org.greenrobot.eventbus.EventBus
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
 
 class ExperimentalView(
-        createAppsChangelogButton: JButton,
+        private val createAppsChangelogButton: JButton,
         private val androidMessages: JLabel,
-        addLibraryButton: JButton,
-        removeLibraryButton: JButton,
+        private val addLibraryButton: JButton,
+        private val removeLibraryButton: JButton,
         private val excludedRepos: JTable,
         private val includedReposLabel: JLabel,
         private val includedRepos: JTable,
-        releaseLibrariesButton: JButton,
-        createVersionBumpsButton: JButton) {
+        private val releaseLibrariesButton: JButton,
+        private val createVersionBumpsButton: JButton) {
 
     lateinit var bus: EventBus
 
     init {
-        createAppsChangelogButton.addMouseListener(object : MouseAdapter() {
-            override fun mousePressed(e: MouseEvent?) {
-                bus.post(CreateAppsChangelogClickedEvent())
-            }
-        })
+        createAppsChangelogButton.onClick {
+            bus.post(CreateAppsChangelogClickedEvent())
+        }
         addLibraryButton.onClick {
             bus.post(AddLibraryClickedEvent())
         }
@@ -81,6 +77,22 @@ class ExperimentalView(
 
     fun updateIncludedLibrariesLabel(text: String) {
         includedReposLabel.text = text
+    }
+
+    fun disableButtons() {
+        createAppsChangelogButton.isEnabled = false
+        addLibraryButton.isEnabled = false
+        removeLibraryButton.isEnabled = false
+        releaseLibrariesButton.isEnabled = false
+        createVersionBumpsButton.isEnabled = false
+    }
+
+    fun enableButtons() {
+        createAppsChangelogButton.isEnabled = true
+        addLibraryButton.isEnabled = true
+        removeLibraryButton.isEnabled = true
+        releaseLibrariesButton.isEnabled = true
+        createVersionBumpsButton.isEnabled = true
     }
 
     class CreateAppsChangelogClickedEvent

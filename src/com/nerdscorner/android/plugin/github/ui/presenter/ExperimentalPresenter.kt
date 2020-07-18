@@ -3,8 +3,8 @@ package com.nerdscorner.android.plugin.github.ui.presenter
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.CreatingReleaseCandidateEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.CreatingVersionBumpEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibrariesFetchedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.LibraryFetchedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogsFetchedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReposLoadedEvent
@@ -37,6 +37,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     @Subscribe
     fun onCreateAppsChangelogButtonClicked(event: CreateAppsChangelogClickedEvent) {
         if (model.includedLibraries.isNotEmpty()) {
+            view.disableButtons()
             view.setAndroidMessagesVisibility(true)
             view.updateAndroidMessages("Fetching libraries changelog...")
             model.fetchAppsChangelog()
@@ -44,12 +45,13 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     }
 
     @Subscribe
-    fun onLibraryFetchedSuccessfully(event: LibraryFetchedSuccessfullyEvent) {
+    fun onChangelogFetchedSuccessfully(event: ChangelogFetchedSuccessfullyEvent) {
         view.updateAndroidMessages("Completed: ${event.totalProgress.toInt()}% | Fetched ${event.libraryName}'s changelog.")
     }
 
     @Subscribe
-    fun onLibrariesFetchedSuccessfully(event: LibrariesFetchedSuccessfullyEvent) {
+    fun onChangelogsFetchedSuccessfully(event: ChangelogsFetchedSuccessfullyEvent) {
+        view.enableButtons()
         view.setAndroidMessagesVisibility(false)
 
         val resultDialog = ChangelogResultDialog(model.getLibrariesChangelog())
@@ -80,6 +82,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     @Subscribe
     fun onReleaseLibrariesClicked(event: ReleaseLibrariesClickedEvent) {
         if (model.includedLibraries.isNotEmpty()) {
+            view.disableButtons()
             view.setAndroidMessagesVisibility(true)
             view.updateAndroidMessages("Creating libraries release candidates...")
             model.createLibrariesReleases()
@@ -98,6 +101,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onReleasesCreatedSuccessfully(event: ReleasesCreatedSuccessfullyEvent) {
+        view.enableButtons()
         view.setAndroidMessagesVisibility(false)
         val rcCreatedDialog = ReleaseCandidatesResultDialog()
                 .setReposTableModel(
@@ -117,6 +121,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     @Subscribe
     fun onCreateVersionBumpsClicked(event: CreateVersionBumpsClickedEvent) {
         if (model.includedLibraries.isNotEmpty()) {
+            view.disableButtons()
             view.setAndroidMessagesVisibility(true)
             view.updateAndroidMessages("Creating libraries version bumps...")
             model.createVersionBumps()
@@ -135,6 +140,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onVersionBumpsCreatedSuccessfully(event: VersionBumpsCreatedSuccessfullyEvent) {
+        view.enableButtons()
         view.setAndroidMessagesVisibility(false)
         val versionBumpsCreatedDialog = VersionBumpsResultDialog()
                 .setReposTableModel(

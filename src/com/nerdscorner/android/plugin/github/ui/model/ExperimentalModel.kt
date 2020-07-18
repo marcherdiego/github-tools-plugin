@@ -64,9 +64,9 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             includedLibraries.forEach { repository ->
                 totalProgress += progressStep
                 repository.ensureChangelog()
-                bus.post(LibraryFetchedSuccessfullyEvent(repository.alias, totalProgress))
+                bus.post(ChangelogFetchedSuccessfullyEvent(repository.alias, totalProgress))
             }
-            bus.post(LibrariesFetchedSuccessfullyEvent())
+            bus.post(ChangelogsFetchedSuccessfullyEvent())
         }
         librariesLoaderThread?.start()
     }
@@ -147,6 +147,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     releasedLibraries.add(library)
                     bus.post(ReleaseCreatedSuccessfullyEvent(library.alias, totalProgress))
                 } catch (e: Exception) {
+                    totalProgress += progressStep
                     library.rcCreationErrorMessage = e.message
                 }
             }
@@ -189,6 +190,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     bumpedLibraries.add(library)
                     bus.post(VersionBumpCreatedSuccessfullyEvent(library.alias, totalProgress))
                 } catch (e: Exception) {
+                    totalProgress += progressStep
                     library.bumpErrorMessage = e.message
                 }
             }
@@ -197,8 +199,8 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         versionBumpCreatorThread?.start()
     }
 
-    class LibraryFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
-    class LibrariesFetchedSuccessfullyEvent
+    class ChangelogFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
+    class ChangelogsFetchedSuccessfullyEvent
     class ReposLoadedEvent
 
     class CreatingReleaseCandidateEvent(val libraryName: String?, val totalProgress: Float)
