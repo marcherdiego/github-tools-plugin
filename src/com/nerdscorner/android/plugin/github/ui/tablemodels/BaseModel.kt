@@ -55,7 +55,7 @@ abstract class BaseModel<T : Wrapper> internal constructor(internal val items: M
     }
 
     override fun compare(one: T, other: T): Int {
-        return other.compare(one)
+        return one.compare(other)
     }
 
     companion object {
