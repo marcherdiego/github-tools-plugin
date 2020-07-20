@@ -138,6 +138,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     library.ensureChangelog()
                     val (emptyChangelog, changelogHasChanges, trimmedChangelog) = library.removeUnusedChangelogBlocks() ?: return@forEach
                     if (emptyChangelog) {
+                        library.rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
                         totalProgress += progressStep
                         return@forEach
                     }
@@ -216,6 +217,8 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         private val propertiesComponent = PropertiesComponent.getInstance()
         private val stringListTypeToken = object : TypeToken<List<String>>() {}.type
         private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
+
+        private const val EMPTY_CHANGELOG_MESSAGE = "Empty changelog"
 
         private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
         private val EXTERNAL_REVIEWERS = listOf("rtss00")
