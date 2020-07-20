@@ -101,7 +101,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         alias = repositoryAlias
     }
 
-    fun removeUnusedChangelogBlocks(changelog: String? = fullChangelog): Triple<Boolean, Boolean, String>? {
+    fun removeUnusedChangelogBlocks(changelog: String? = lastChangelogEntry): Triple<Boolean, Boolean, String>? {
         var resultChangelog = changelog ?: return null
         val newBlockMatch = newBlockRegex.find(resultChangelog)
         if (newBlockMatch != null) {
