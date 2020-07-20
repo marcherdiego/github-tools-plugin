@@ -74,14 +74,14 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     fun getLibrariesChangelog(): String {
         val result = StringBuilder()
         includedLibraries.forEach { library ->
-            val changelog = library.lastChangelogEntry
-            if (changelog.isNullOrEmpty()) {
+            val (emptyChangelog, _, trimmedChangelog) = library.removeUnusedChangelogBlocks() ?: return@forEach
+            if (emptyChangelog) {
                 return@forEach
             }
             result
                     .append("## ${library.alias} [v${library.version}](${library.fullUrl}/releases/tag/v${library.version})")
                     .append(System.lineSeparator())
-                    .append(addChangelogIndent(changelog))
+                    .append(addChangelogIndent(trimmedChangelog))
         }
         return result.toString()
     }
@@ -182,6 +182,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 try {
                     library.bumpErrorMessage = null
                     library.ensureChangelog()
+                    val (emptyChangelog, _, _) = library.removeUnusedChangelogBlocks() ?: return@forEach
+                    if (emptyChangelog) {
+                        totalProgress += progressStep
+                        library.bumpErrorMessage = NO_CHANGES_NEEDED
+                        return@forEach
+                    }
                     bus.post(CreatingVersionBumpEvent(library.alias, totalProgress))
                     val libraryBumped = library.createVersionBump(androidReviewersTeam, externalReviewers)
                     totalProgress += progressStep
@@ -219,6 +225,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
 
         private const val EMPTY_CHANGELOG_MESSAGE = "Empty changelog"
+        private const val NO_CHANGES_NEEDED = "No changes needed"
 
         private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
         private val EXTERNAL_REVIEWERS = listOf("rtss00")
