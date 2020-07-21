@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.nerdscorner.android.plugin.github</id>
     <name>Github Tools</name>
-    <version>1.9.2</version>
+    <version>1.10.0</version>
     <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
@@ -26,10 +26,11 @@
 
     <change-notes><![CDATA[
         <ul>
-            <li>Added parameters panel to handle tokens</li>
+            <li>Added Parameters panel to handle tokens</li>
             <li>Added Apps changelog creation!</li>
             <li>Added libraries release candidates creation!</li>
             <li>Added libraries version bump creation!</li>
+            <li>Added co-routines to handle parallel jobs!</li>
         </ul>
     ]]>
     </change-notes>

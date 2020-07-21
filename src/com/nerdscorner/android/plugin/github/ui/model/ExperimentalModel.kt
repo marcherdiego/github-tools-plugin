@@ -176,11 +176,16 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             try {
                 rcCreationErrorMessage = null
                 ensureChangelog()
-                removeUnusedChangelogBlocks()?.let { changelogResult ->
-                    if (changelogResult.first) {
+                val changelogResult = removeUnusedChangelogBlocks()
+                when {
+                    changelogResult == null -> {
+                        bumpErrorMessage = CHANGELOG_NOT_FOUND
+                    }
+                    changelogResult.first -> {
                         rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
                         bus.post(ReleaseSkippedSuccessfullyEvent(alias, loadProgress.get()))
-                    } else {
+                    }
+                    else -> {
                         createRelease(reviewersTeam, externalReviewers, changelogResult.second, changelogResult.third)
                         result = this
                         bus.post(ReleaseCreatedSuccessfullyEvent(alias, loadProgress.get()))
@@ -246,11 +251,16 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             try {
                 bumpErrorMessage = null
                 ensureChangelog()
-                removeUnusedChangelogBlocks()?.let { changelogResult ->
-                    if (changelogResult.first) {
+                val changelogResult = removeUnusedChangelogBlocks()
+                when {
+                    changelogResult == null -> {
+                        bumpErrorMessage = CHANGELOG_NOT_FOUND
+                    }
+                    changelogResult.first -> {
                         bumpErrorMessage = NO_CHANGES_NEEDED
                         bus.post(VersionBumpSkippedSuccessfullyEvent(alias, loadProgress.get()))
-                    } else {
+                    }
+                    else -> {
                         val libraryBumped = createVersionBump(reviewersTeam, externalReviewers)
                         if (libraryBumped) {
                             result = this
@@ -285,6 +295,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
 
         private const val EMPTY_CHANGELOG_MESSAGE = "Empty changelog"
         private const val NO_CHANGES_NEEDED = "No changes needed"
+        private const val CHANGELOG_NOT_FOUND = "CHANGELOG.MD not found"
 
         private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
         private val externalReviewersUserNames = listOf("rtss00")

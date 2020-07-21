@@ -3,7 +3,6 @@ package com.nerdscorner.android.plugin.github.domain.gh
 import org.apache.commons.io.IOUtils
 import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHPullRequest
-import org.kohsuke.github.GHRef
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
@@ -26,7 +25,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
 
     var fullChangelog: String? = null
 
-    val lastChangelogEntry: String?
+    private val lastChangelogEntry: String?
         get() {
             val fullChangelog = fullChangelog ?: return null
             var match = changelogStartRegex.find(fullChangelog)
@@ -58,24 +57,16 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     var versionBumpPullRequestUrl: String? = null
     var bumpErrorMessage: String? = null
 
-    val changelogFile: GHContent?
+    private val changelogFile: GHContent?
         get() = try {
-            ghRepository.getFileContent("CHANGELOG.md")
+            ghRepository.getFileContent(CHANGELOG_FILE_PATH)
         } catch (e: Exception) {
-            try {
-                ghRepository.getFileContent("CHANGELOG.MD")
-            } catch (e: Exception) {
-                try {
-                    ghRepository.getFileContent("changelog.md")
-                } catch (e: Exception) {
-                    null
-                }
-            }
+            null
         }
 
-    val versionsFile: GHContent?
+    private val versionsFile: GHContent?
         get() = try {
-            ghRepository.getFileContent("buildSrc/src/main/kotlin/Versions.kt")
+            ghRepository.getFileContent(VERSIONS_FILE_PATH)
         } catch (e: Exception) {
             null
         }
@@ -132,7 +123,8 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
 
     fun createRelease(reviewersTeam: GHTeam?, externalReviewers: List<GHUser>, changelogHasChanges: Boolean, changelog: String) {
         // Create rc branch
-        val rcBranch = createBranchOut(DEVELOP_REF, RC_REF_PREFIX + version)
+        val fromSha = ghRepository.getRef(DEVELOP_REF).`object`.sha
+        val rcBranch = ghRepository.createRef(RC_REF_PREFIX + version, fromSha)
 
         if (changelogHasChanges) {
             // If changelog has been trimmed, then create a commit with the new changelog
@@ -156,50 +148,53 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
             bumpErrorMessage = "Unable to determine next version"
             return false
         }
-        val versionBumpBranch = createBranchOut(DEVELOP_REF, VERSION_BUMP_REF_PREFIX + nextVersion)
 
         // Update changelog file
-        changelogFile?.let {
-            it.update(getNextVersionChangelog(), CHANGELOG_CLEANUP_COMMIT_MESSAGE, versionBumpBranch?.ref)
-
+        if (changelogFile == null) {
+            bumpErrorMessage = "Unable to find $CHANGELOG_FILE_PATH file"
+        } else {
             // Update Versions.kt file
-            versionsFile
-                    ?.read()
-                    ?.let { fileContents ->
-                        val versionsFileContent = getFileContent(fileContents)
-                        val updatedVersionsFile = versionsFileContent.replace(
-                                "const val libraryVersion = \"$version\"",
-                                "const val libraryVersion = \"$nextVersion\""
-                        )
-                        versionsFile?.update(updatedVersionsFile, VERSION_BUMP_COMMIT_MESSAGE, versionBumpBranch?.ref)
-                    }
-            ?: run {
-                // Versions file not found
-                bumpErrorMessage = "Unable to find Versions.kt file"
-                versionBumpBranch?.delete()
-                return false
+            val versionsFile = versionsFile
+            if (versionsFile == null) {
+                bumpErrorMessage = "Unable to find $VERSIONS_FILE_PATH file"
+            } else {
+                val fileContents = versionsFile.read()
+                val versionsFileContent = getFileContent(fileContents)
+                val updatedVersionsFile = versionsFileContent.replace(
+                        "const val libraryVersion = \"$version\"",
+                        "const val libraryVersion = \"$nextVersion\""
+                )
+                val developSha = ghRepository.getRef(DEVELOP_REF).`object`.sha
+                val newChangelogContent = getNextVersionChangelog()
+                val versionBumpTree = ghRepository
+                        .createTree()
+                        .baseTree(developSha)
+                        .add(CHANGELOG_FILE_PATH, newChangelogContent, false)
+                        .add(VERSIONS_FILE_PATH, updatedVersionsFile, false)
+                        .create()
+
+                val versionBumpCommit = ghRepository
+                        .createCommit()
+                        .tree(versionBumpTree.sha)
+                        .parent(developSha)
+                        .message(VERSION_BUMP_COMMIT_MESSAGE)
+                        .create()
+
+                val versionBumpBranch = ghRepository.createRef(VERSION_BUMP_REF_PREFIX + nextVersion, versionBumpCommit.shA1)
+
+                // Create Pull Request
+                val versionBumpPullRequest = ghRepository.createPullRequest(
+                        "Version bump $nextVersion -> develop",
+                        versionBumpBranch?.ref,
+                        DEVELOP_REF,
+                        "Library version bump"
+                )
+                versionBumpPullRequestUrl = versionBumpPullRequest.htmlUrl.toString()
+                assignReviewers(versionBumpPullRequest, reviewersTeam, externalReviewers)
+                return true
             }
-        } ?: run {
-            bumpErrorMessage = "Unable to find CHANGELOG.MD file"
-            versionBumpBranch?.delete()
-            return false
         }
-
-        // Create Pull Request
-        val versionBumpPullRequest = ghRepository.createPullRequest(
-                "Version bump $nextVersion -> develop",
-                versionBumpBranch?.ref,
-                DEVELOP_REF,
-                "Library version bump"
-        )
-        versionBumpPullRequestUrl = versionBumpPullRequest.htmlUrl.toString()
-        assignReviewers(versionBumpPullRequest, reviewersTeam, externalReviewers)
-        return true
-    }
-
-    private fun createBranchOut(from: String, to: String): GHRef? {
-        val fromSha = ghRepository.getRef(from).`object`.sha
-        return ghRepository.createRef(to, fromSha)
+        return false
     }
 
     private fun assignReviewers(pullRequest: GHPullRequest, reviewersTeam: GHTeam?, externalReviewers: List<GHUser>) {
@@ -236,6 +231,9 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         private const val MASTER_REF = "refs/heads/master"
         private const val VERSION_BUMP_COMMIT_MESSAGE = "Version bump"
         private const val CHANGELOG_CLEANUP_COMMIT_MESSAGE = "Changelog cleanup"
+
+        private const val CHANGELOG_FILE_PATH = "CHANGELOG.MD"
+        private const val VERSIONS_FILE_PATH = "buildSrc/src/main/kotlin/Versions.kt"
 
         private val libsAlias = HashMap<String, String>().apply {
             put("details-view-android", "Details View")
