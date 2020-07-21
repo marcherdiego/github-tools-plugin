@@ -7,12 +7,16 @@ import com.intellij.ide.util.PropertiesComponent
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.cancel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHOrganization
 import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
 import org.kohsuke.github.GitHub
-import java.lang.Exception
 import java.util.concurrent.atomic.AtomicInteger
 
 class ExperimentalModel(private val ghOrganization: GHOrganization, private val github: GitHub) {
@@ -147,8 +151,18 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             loadCompletedItems = AtomicInteger()
             val releasedLibraries = mutableListOf<GHRepositoryWrapper>()
             val progressStep = 100.0 / includedLibraries.size.toDouble()
+            val deferredReleases = mutableListOf<Deferred<Unit>>()
             includedLibraries.forEach { library ->
-                releaseLibrary(library, androidReviewersTeam, externalReviewers, progressStep, releasedLibraries)
+                val deferredRelease = GlobalScope.async(Dispatchers.IO) {
+                    releaseLibrary(library, androidReviewersTeam, externalReviewers, progressStep, releasedLibraries)
+                }
+                deferredReleases.add(deferredRelease)
+            }
+            runBlocking {
+                deferredReleases.forEach {
+                    // Wait for tasks to be completed
+                    it.await()
+                }
             }
             bus.post(ReleasesCreatedSuccessfullyEvent(releasedLibraries))
         }
@@ -168,7 +182,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 removeUnusedChangelogBlocks()?.let { changelogResult ->
                     //TODO remove this, fake work
                     Thread.sleep(2000L)
-                    if (changelogResult.first) {
+                    if (changelogResult.first && false) {
                         rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
                         bus.post(ReleaseSkippedSuccessfullyEvent(alias, loadProgress.get()))
                     } else {
@@ -211,8 +225,18 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             loadCompletedItems = AtomicInteger()
             val progressStep = 100.0 / loadTotalItems.toDouble()
             val bumpedLibraries = mutableListOf<GHRepositoryWrapper>()
+            val deferredBumps = mutableListOf<Deferred<Unit>>()
             includedLibraries.forEach { library ->
-                bumpLibrary(library, androidReviewersTeam, externalReviewers, progressStep, bumpedLibraries)
+                val deferredBump = GlobalScope.async(Dispatchers.IO) {
+                    bumpLibrary(library, androidReviewersTeam, externalReviewers, progressStep, bumpedLibraries)
+                }
+                deferredBumps.add(deferredBump)
+            }
+            runBlocking {
+                deferredBumps.forEach {
+                    // Wait for tasks to be completed
+                    it.await()
+                }
             }
             bus.post(VersionBumpsCreatedSuccessfullyEvent(bumpedLibraries))
         }
@@ -236,7 +260,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                         bumpErrorMessage = NO_CHANGES_NEEDED
                         bus.post(VersionBumpSkippedSuccessfullyEvent(alias, loadProgress.get()))
                     } else {
-                        val libraryBumped = true//createVersionBump(reviewersTeam, externalReviewers)
+                        val libraryBumped = true //createVersionBump(reviewersTeam, externalReviewers)
                         if (libraryBumped) {
                             bumpedLibraries.add(this)
                             bus.post(VersionBumpCreatedSuccessfullyEvent(alias, loadProgress.get()))
