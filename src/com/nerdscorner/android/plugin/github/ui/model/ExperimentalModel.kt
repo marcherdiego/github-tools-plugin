@@ -129,6 +129,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     }
 
     fun createLibrariesReleases() {
+        //TODO remove this, fake heavy load
+        includedLibraries.addAll(includedLibraries)
+        includedLibraries.addAll(includedLibraries)
+        includedLibraries.addAll(includedLibraries)
+        includedLibraries.addAll(includedLibraries)
+        includedLibraries.addAll(includedLibraries)
         releasesCreatorThread.cancel()
         releasesCreatorThread = Thread {
             val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
@@ -160,10 +166,13 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 rcCreationErrorMessage = null
                 ensureChangelog()
                 removeUnusedChangelogBlocks()?.let { changelogResult ->
+                    //TODO remove this, fake work
+                    Thread.sleep(2000L)
                     if (changelogResult.first) {
                         rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
+                        bus.post(ReleaseSkippedSuccessfullyEvent(alias, loadProgress.get()))
                     } else {
-                        createRelease(reviewersTeam, externalReviewers, changelogResult.second, changelogResult.third)
+                        //createRelease(reviewersTeam, externalReviewers, changelogResult.second, changelogResult.third)
                         releasedLibraries.add(this)
                         bus.post(ReleaseCreatedSuccessfullyEvent(alias, loadProgress.get()))
                     }
@@ -185,6 +194,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     }
 
     fun createVersionBumps() {
+        //TODO remove this, fake heavy load
+        includedLibraries.addAll(includedLibraries)
+        includedLibraries.addAll(includedLibraries)
+        includedLibraries.addAll(includedLibraries)
+        includedLibraries.addAll(includedLibraries)
+        includedLibraries.addAll(includedLibraries)
         versionBumpCreatorThread.cancel()
         versionBumpCreatorThread = Thread {
             val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
@@ -215,10 +230,13 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 bumpErrorMessage = null
                 ensureChangelog()
                 removeUnusedChangelogBlocks()?.let { changelogResult ->
+                    //TODO remove this, fake work
+                    Thread.sleep(2000L)
                     if (changelogResult.first) {
                         bumpErrorMessage = NO_CHANGES_NEEDED
+                        bus.post(VersionBumpSkippedSuccessfullyEvent(alias, loadProgress.get()))
                     } else {
-                        val libraryBumped = createVersionBump(reviewersTeam, externalReviewers)
+                        val libraryBumped = true//createVersionBump(reviewersTeam, externalReviewers)
                         if (libraryBumped) {
                             bumpedLibraries.add(this)
                             bus.post(VersionBumpCreatedSuccessfullyEvent(alias, loadProgress.get()))
@@ -236,9 +254,11 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     class ReposLoadedEvent
 
     class ReleaseCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Double)
+    class ReleaseSkippedSuccessfullyEvent(val libraryName: String?, val totalProgress: Double)
     class ReleasesCreatedSuccessfullyEvent(val releasedLibraries: MutableList<GHRepositoryWrapper>)
 
     class VersionBumpCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Double)
+    class VersionBumpSkippedSuccessfullyEvent(val libraryName: String?, val totalProgress: Double)
     class VersionBumpsCreatedSuccessfullyEvent(val bumpedLibraries: MutableList<GHRepositoryWrapper>)
 
     companion object {

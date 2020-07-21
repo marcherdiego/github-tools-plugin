@@ -1,6 +1,8 @@
 package com.nerdscorner.android.plugin.github.ui.presenter
 
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseSkippedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpSkippedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogsFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseCreatedSuccessfullyEvent
@@ -90,6 +92,15 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     }
 
     @Subscribe
+    fun onReleaseSkippedSuccessfully(event: ReleaseSkippedSuccessfullyEvent) {
+        view.updateAndroidMessages(
+                MultilineStringLabel("Release Candidates | Completed: ${event.totalProgress.toInt()}%")
+                        .addLine("Skipped ${event.libraryName}'s RC...")
+                        .build()
+        )
+    }
+
+    @Subscribe
     fun onReleaseCreatedSuccessfully(event: ReleaseCreatedSuccessfullyEvent) {
         view.updateAndroidMessages(
                 MultilineStringLabel("Release Candidates | Completed: ${event.totalProgress.toInt()}%")
@@ -125,6 +136,15 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
             view.updateAndroidMessages("Creating libraries Version Bumps...")
             model.createVersionBumps()
         }
+    }
+
+    @Subscribe
+    fun onVersionBumpSkippedSuccessfully(event: VersionBumpSkippedSuccessfullyEvent) {
+        view.updateAndroidMessages(
+                MultilineStringLabel("Version Bumps | Completed: ${event.totalProgress.toInt()}%")
+                        .addLine("Skipped ${event.libraryName}'s version bump...")
+                        .build()
+        )
     }
 
     @Subscribe
