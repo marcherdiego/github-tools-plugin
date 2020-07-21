@@ -133,12 +133,6 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     }
 
     fun createLibrariesReleases() {
-        //TODO remove this, fake heavy load
-        includedLibraries.addAll(includedLibraries)
-        includedLibraries.addAll(includedLibraries)
-        includedLibraries.addAll(includedLibraries)
-        includedLibraries.addAll(includedLibraries)
-        includedLibraries.addAll(includedLibraries)
         releasesCreatorThread.cancel()
         releasesCreatorThread = Thread {
             val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
@@ -149,45 +143,46 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             loadProgress = AtomicDouble()
             loadTotalItems = AtomicInteger(includedLibraries.size)
             loadCompletedItems = AtomicInteger()
-            val releasedLibraries = mutableListOf<GHRepositoryWrapper>()
             val progressStep = 100.0 / includedLibraries.size.toDouble()
-            val deferredReleases = mutableListOf<Deferred<Unit>>()
+            val deferredReleases = mutableListOf<Deferred<GHRepositoryWrapper?>>()
             includedLibraries.forEach { library ->
                 val deferredRelease = GlobalScope.async(Dispatchers.IO) {
-                    releaseLibrary(library, androidReviewersTeam, externalReviewers, progressStep, releasedLibraries)
+                    loadProgress.addAndGet(progressStep)
+                    releaseLibrary(library, androidReviewersTeam, externalReviewers)
                 }
                 deferredReleases.add(deferredRelease)
             }
             runBlocking {
+                val releasedLibraries = mutableListOf<GHRepositoryWrapper>()
                 deferredReleases.forEach {
                     // Wait for tasks to be completed
-                    it.await()
+                    val library = it.await()
+                    if (library != null) {
+                        // It was bumped
+                        releasedLibraries.add(library)
+                    }
                 }
+                bus.post(ReleasesCreatedSuccessfullyEvent(releasedLibraries))
             }
-            bus.post(ReleasesCreatedSuccessfullyEvent(releasedLibraries))
         }
         releasesCreatorThread?.start()
     }
 
     private fun releaseLibrary(library: GHRepositoryWrapper,
                                reviewersTeam: GHTeam?,
-                               externalReviewers: List<GHUser>,
-                               progressStep: Double,
-                               releasedLibraries: MutableList<GHRepositoryWrapper>) {
+                               externalReviewers: List<GHUser>): GHRepositoryWrapper? {
+        var result: GHRepositoryWrapper? = null
         with(library) {
             try {
-                loadProgress.addAndGet(progressStep)
                 rcCreationErrorMessage = null
                 ensureChangelog()
                 removeUnusedChangelogBlocks()?.let { changelogResult ->
-                    //TODO remove this, fake work
-                    Thread.sleep(2000L)
-                    if (changelogResult.first && false) {
+                    if (changelogResult.first) {
                         rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
                         bus.post(ReleaseSkippedSuccessfullyEvent(alias, loadProgress.get()))
                     } else {
-                        //createRelease(reviewersTeam, externalReviewers, changelogResult.second, changelogResult.third)
-                        releasedLibraries.add(this)
+                        createRelease(reviewersTeam, externalReviewers, changelogResult.second, changelogResult.third)
+                        result = this
                         bus.post(ReleaseCreatedSuccessfullyEvent(alias, loadProgress.get()))
                     }
                 }
@@ -195,6 +190,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 rcCreationErrorMessage = e.message
             }
         }
+        return result
     }
 
     private fun getReviewersTeam(teamName: String): GHTeam? {
@@ -208,12 +204,6 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     }
 
     fun createVersionBumps() {
-        //TODO remove this, fake heavy load
-        includedLibraries.addAll(includedLibraries)
-        includedLibraries.addAll(includedLibraries)
-        includedLibraries.addAll(includedLibraries)
-        includedLibraries.addAll(includedLibraries)
-        includedLibraries.addAll(includedLibraries)
         versionBumpCreatorThread.cancel()
         versionBumpCreatorThread = Thread {
             val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
@@ -224,45 +214,46 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             loadTotalItems = AtomicInteger(includedLibraries.size)
             loadCompletedItems = AtomicInteger()
             val progressStep = 100.0 / loadTotalItems.toDouble()
-            val bumpedLibraries = mutableListOf<GHRepositoryWrapper>()
-            val deferredBumps = mutableListOf<Deferred<Unit>>()
+            val deferredBumps = mutableListOf<Deferred<GHRepositoryWrapper?>>()
             includedLibraries.forEach { library ->
                 val deferredBump = GlobalScope.async(Dispatchers.IO) {
-                    bumpLibrary(library, androidReviewersTeam, externalReviewers, progressStep, bumpedLibraries)
+                    loadProgress.addAndGet(progressStep)
+                    bumpLibrary(library, androidReviewersTeam, externalReviewers)
                 }
                 deferredBumps.add(deferredBump)
             }
             runBlocking {
+                val bumpedLibraries = mutableListOf<GHRepositoryWrapper>()
                 deferredBumps.forEach {
                     // Wait for tasks to be completed
-                    it.await()
+                    val library = it.await()
+                    if (library != null) {
+                        // It was bumped
+                        bumpedLibraries.add(library)
+                    }
                 }
+                bus.post(VersionBumpsCreatedSuccessfullyEvent(bumpedLibraries))
             }
-            bus.post(VersionBumpsCreatedSuccessfullyEvent(bumpedLibraries))
         }
         versionBumpCreatorThread?.start()
     }
 
     private fun bumpLibrary(library: GHRepositoryWrapper,
                             reviewersTeam: GHTeam?,
-                            externalReviewers: List<GHUser>,
-                            progressStep: Double,
-                            bumpedLibraries: MutableList<GHRepositoryWrapper>) {
+                            externalReviewers: List<GHUser>): GHRepositoryWrapper? {
+        var result: GHRepositoryWrapper? = null
         with(library) {
             try {
-                loadProgress.addAndGet(progressStep)
                 bumpErrorMessage = null
                 ensureChangelog()
                 removeUnusedChangelogBlocks()?.let { changelogResult ->
-                    //TODO remove this, fake work
-                    Thread.sleep(2000L)
                     if (changelogResult.first) {
                         bumpErrorMessage = NO_CHANGES_NEEDED
                         bus.post(VersionBumpSkippedSuccessfullyEvent(alias, loadProgress.get()))
                     } else {
-                        val libraryBumped = true //createVersionBump(reviewersTeam, externalReviewers)
+                        val libraryBumped = createVersionBump(reviewersTeam, externalReviewers)
                         if (libraryBumped) {
-                            bumpedLibraries.add(this)
+                            result = this
                             bus.post(VersionBumpCreatedSuccessfullyEvent(alias, loadProgress.get()))
                         }
                     }
@@ -271,6 +262,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 bumpErrorMessage = e.message
             }
         }
+        return result
     }
 
     class ChangelogFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)

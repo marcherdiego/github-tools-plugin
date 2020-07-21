@@ -10,6 +10,9 @@ fun JButton.onClick(listener: () -> Unit) {
     }
     addMouseListener(object : MouseAdapter() {
         override fun mouseReleased(e: MouseEvent?) {
+            if (isEnabled.not()) {
+                return
+            }
             if (e?.clickCount == 1) {
                 listener()
             }
