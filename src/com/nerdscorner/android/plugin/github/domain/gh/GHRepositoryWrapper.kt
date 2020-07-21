@@ -130,7 +130,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
                 .toString()
     }
 
-    fun createRelease(reviewersTeam: GHTeam?, externalReviewers: MutableList<GHUser>, changelogHasChanges: Boolean, changelog: String) {
+    fun createRelease(reviewersTeam: GHTeam?, externalReviewers: List<GHUser>, changelogHasChanges: Boolean, changelog: String) {
         // Create rc branch
         val rcBranch = createBranchOut(DEVELOP_REF, RC_REF_PREFIX + version)
 
@@ -150,7 +150,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         assignReviewers(rcPullRequest, reviewersTeam, externalReviewers)
     }
 
-    fun createVersionBump(reviewersTeam: GHTeam?, externalReviewers: MutableList<GHUser>): Boolean {
+    fun createVersionBump(reviewersTeam: GHTeam?, externalReviewers: List<GHUser>): Boolean {
         // Create version bump branch
         val nextVersion = nextVersion ?: run {
             bumpErrorMessage = "Unable to determine next version"
@@ -202,7 +202,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         return ghRepository.createRef(to, fromSha)
     }
 
-    private fun assignReviewers(pullRequest: GHPullRequest, reviewersTeam: GHTeam?, externalReviewers: MutableList<GHUser>) {
+    private fun assignReviewers(pullRequest: GHPullRequest, reviewersTeam: GHTeam?, externalReviewers: List<GHUser>) {
         pullRequest.requestTeamReviewers(listOf(reviewersTeam))
         try {
             pullRequest.requestReviewers(externalReviewers)

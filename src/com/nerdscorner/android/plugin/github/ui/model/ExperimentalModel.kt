@@ -1,5 +1,6 @@
 package com.nerdscorner.android.plugin.github.ui.model
 
+import com.google.common.util.concurrent.AtomicDouble
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.ide.util.PropertiesComponent
@@ -12,6 +13,7 @@ import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
 import org.kohsuke.github.GitHub
 import java.lang.Exception
+import java.util.concurrent.atomic.AtomicInteger
 
 class ExperimentalModel(private val ghOrganization: GHOrganization, private val github: GitHub) {
     lateinit var bus: EventBus
@@ -20,10 +22,15 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     val excludedLibraries = mutableListOf<GHRepositoryWrapper>()
     val includedLibraries = mutableListOf<GHRepositoryWrapper>()
     val includedLibrariesNames = mutableListOf<String>()
+
     private var librariesLoaderThread: Thread? = null
     private var reposLoaderThread: Thread? = null
     private var releasesCreatorThread: Thread? = null
     private var versionBumpCreatorThread: Thread? = null
+
+    private var loadTotalItems = AtomicInteger()
+    private var loadCompletedItems = AtomicInteger()
+    private var loadProgress = AtomicDouble()
 
     init {
         // Restore Included Libraries
@@ -125,36 +132,46 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         releasesCreatorThread.cancel()
         releasesCreatorThread = Thread {
             val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
-            val externalReviewers = mutableListOf<GHUser>()
-            EXTERNAL_REVIEWERS.forEach { userName ->
-                externalReviewers.add(github.getUser(userName))
+            val externalReviewers = externalReviewersUserNames.map {
+                github.getUser(it)
             }
+
+            loadProgress = AtomicDouble()
+            loadTotalItems = AtomicInteger(includedLibraries.size)
+            loadCompletedItems = AtomicInteger()
             val releasedLibraries = mutableListOf<GHRepositoryWrapper>()
-            var totalProgress = 0f
-            val progressStep = 100f / includedLibraries.size.toFloat()
+            val progressStep = 100.0 / includedLibraries.size.toDouble()
             includedLibraries.forEach { library ->
-                try {
-                    library.rcCreationErrorMessage = null
-                    library.ensureChangelog()
-                    val (emptyChangelog, changelogHasChanges, trimmedChangelog) = library.removeUnusedChangelogBlocks() ?: return@forEach
-                    if (emptyChangelog) {
-                        library.rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
-                        totalProgress += progressStep
-                        return@forEach
-                    }
-                    bus.post(CreatingReleaseCandidateEvent(library.alias, totalProgress))
-                    library.createRelease(androidReviewersTeam, externalReviewers, changelogHasChanges, trimmedChangelog)
-                    totalProgress += progressStep
-                    releasedLibraries.add(library)
-                    bus.post(ReleaseCreatedSuccessfullyEvent(library.alias, totalProgress))
-                } catch (e: Exception) {
-                    totalProgress += progressStep
-                    library.rcCreationErrorMessage = e.message
-                }
+                releaseLibrary(library, androidReviewersTeam, externalReviewers, progressStep, releasedLibraries)
             }
             bus.post(ReleasesCreatedSuccessfullyEvent(releasedLibraries))
         }
         releasesCreatorThread?.start()
+    }
+
+    private fun releaseLibrary(library: GHRepositoryWrapper,
+                               reviewersTeam: GHTeam?,
+                               externalReviewers: List<GHUser>,
+                               progressStep: Double,
+                               releasedLibraries: MutableList<GHRepositoryWrapper>) {
+        with(library) {
+            try {
+                loadProgress.addAndGet(progressStep)
+                rcCreationErrorMessage = null
+                ensureChangelog()
+                removeUnusedChangelogBlocks()?.let { changelogResult ->
+                    if (changelogResult.first) {
+                        rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
+                    } else {
+                        createRelease(reviewersTeam, externalReviewers, changelogResult.second, changelogResult.third)
+                        releasedLibraries.add(this)
+                        bus.post(ReleaseCreatedSuccessfullyEvent(alias, loadProgress.get()))
+                    }
+                }
+            } catch (e: Exception) {
+                rcCreationErrorMessage = e.message
+            }
+        }
     }
 
     private fun getReviewersTeam(teamName: String): GHTeam? {
@@ -171,51 +188,57 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         versionBumpCreatorThread.cancel()
         versionBumpCreatorThread = Thread {
             val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
-            val externalReviewers = mutableListOf<GHUser>()
-            EXTERNAL_REVIEWERS.forEach { userName ->
-                externalReviewers.add(github.getUser(userName))
+            val externalReviewers = externalReviewersUserNames.map {
+                github.getUser(it)
             }
-            var totalProgress = 0f
-            val progressStep = 100f / includedLibraries.size.toFloat()
+            loadProgress = AtomicDouble()
+            loadTotalItems = AtomicInteger(includedLibraries.size)
+            loadCompletedItems = AtomicInteger()
+            val progressStep = 100.0 / loadTotalItems.toDouble()
             val bumpedLibraries = mutableListOf<GHRepositoryWrapper>()
             includedLibraries.forEach { library ->
-                try {
-                    library.bumpErrorMessage = null
-                    library.ensureChangelog()
-                    val (emptyChangelog, _, _) = library.removeUnusedChangelogBlocks() ?: return@forEach
-                    if (emptyChangelog) {
-                        totalProgress += progressStep
-                        library.bumpErrorMessage = NO_CHANGES_NEEDED
-                        return@forEach
-                    }
-                    bus.post(CreatingVersionBumpEvent(library.alias, totalProgress))
-                    val libraryBumped = library.createVersionBump(androidReviewersTeam, externalReviewers)
-                    totalProgress += progressStep
-                    if (libraryBumped.not()) {
-                        return@forEach
-                    }
-                    bumpedLibraries.add(library)
-                    bus.post(VersionBumpCreatedSuccessfullyEvent(library.alias, totalProgress))
-                } catch (e: Exception) {
-                    totalProgress += progressStep
-                    library.bumpErrorMessage = e.message
-                }
+                bumpLibrary(library, androidReviewersTeam, externalReviewers, progressStep, bumpedLibraries)
             }
             bus.post(VersionBumpsCreatedSuccessfullyEvent(bumpedLibraries))
         }
         versionBumpCreatorThread?.start()
     }
 
+    private fun bumpLibrary(library: GHRepositoryWrapper,
+                            reviewersTeam: GHTeam?,
+                            externalReviewers: List<GHUser>,
+                            progressStep: Double,
+                            bumpedLibraries: MutableList<GHRepositoryWrapper>) {
+        with(library) {
+            try {
+                loadProgress.addAndGet(progressStep)
+                bumpErrorMessage = null
+                ensureChangelog()
+                removeUnusedChangelogBlocks()?.let { changelogResult ->
+                    if (changelogResult.first) {
+                        bumpErrorMessage = NO_CHANGES_NEEDED
+                    } else {
+                        val libraryBumped = createVersionBump(reviewersTeam, externalReviewers)
+                        if (libraryBumped) {
+                            bumpedLibraries.add(this)
+                            bus.post(VersionBumpCreatedSuccessfullyEvent(alias, loadProgress.get()))
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                bumpErrorMessage = e.message
+            }
+        }
+    }
+
     class ChangelogFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
     class ChangelogsFetchedSuccessfullyEvent
     class ReposLoadedEvent
 
-    class CreatingReleaseCandidateEvent(val libraryName: String?, val totalProgress: Float)
-    class ReleaseCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
+    class ReleaseCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Double)
     class ReleasesCreatedSuccessfullyEvent(val releasedLibraries: MutableList<GHRepositoryWrapper>)
 
-    class CreatingVersionBumpEvent(val libraryName: String?, val totalProgress: Float)
-    class VersionBumpCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
+    class VersionBumpCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Double)
     class VersionBumpsCreatedSuccessfullyEvent(val bumpedLibraries: MutableList<GHRepositoryWrapper>)
 
     companion object {
@@ -228,6 +251,6 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         private const val NO_CHANGES_NEEDED = "No changes needed"
 
         private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
-        private val EXTERNAL_REVIEWERS = listOf("rtss00")
+        private val externalReviewersUserNames = listOf("rtss00")
     }
 }
