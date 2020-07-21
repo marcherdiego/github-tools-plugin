@@ -1,8 +1,8 @@
 package com.nerdscorner.android.plugin.github.ui.presenter
 
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.CreatingReleaseCandidateEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.CreatingVersionBumpEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseSkippedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpSkippedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogsFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseCreatedSuccessfullyEvent
@@ -92,10 +92,10 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     }
 
     @Subscribe
-    fun onCreatingReleaseCandidate(event: CreatingReleaseCandidateEvent) {
+    fun onReleaseSkippedSuccessfully(event: ReleaseSkippedSuccessfullyEvent) {
         view.updateAndroidMessages(
                 MultilineStringLabel("Release Candidates | Completed: ${event.totalProgress.toInt()}%")
-                        .addLine("Creating ${event.libraryName}'s RC...")
+                        .addLine("Skipped ${event.libraryName}'s RC...")
                         .build()
         )
     }
@@ -139,10 +139,10 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     }
 
     @Subscribe
-    fun onCreatingVersionBump(event: CreatingVersionBumpEvent) {
+    fun onVersionBumpSkippedSuccessfully(event: VersionBumpSkippedSuccessfullyEvent) {
         view.updateAndroidMessages(
                 MultilineStringLabel("Version Bumps | Completed: ${event.totalProgress.toInt()}%")
-                        .addLine("Creating ${event.libraryName}'s version bump...")
+                        .addLine("Skipped ${event.libraryName}'s version bump...")
                         .build()
         )
     }
