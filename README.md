@@ -1,6 +1,9 @@
 # Github Tools Plugin for Intellij
 Plugin: https://plugins.jetbrains.com/plugin/13366-github-tools
 
+## Elemental features diagram
+![Elemental Diagram](https://user-images.githubusercontent.com/4492972/88056345-c6ab2980-cb36-11ea-834e-3b0352a452ed.png)
+
 ## Github Login
 To use this plugin's basic features you should authenticate with Github using a Github Personal Access Token and your organization's name.
 
