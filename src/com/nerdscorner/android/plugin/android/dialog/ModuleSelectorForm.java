@@ -84,10 +84,6 @@ public class ModuleSelectorForm extends JDialog {
                         .split(Constants.NEW_LINE)[0]
                         .split(Constants.SPACE)[2]; //format is: `On branch <branch_name>`
 
-                // Stash changes
-                progressThread.setMessage("Stashing your local changes");
-                commandExecutor.execute("git stash");
-
                 // Switch to source branch
                 progressThread.setMessage("Switching to source branch");
                 String sourceBranch = sourceBranchList.getSelectedValue();
@@ -111,10 +107,6 @@ public class ModuleSelectorForm extends JDialog {
                 // Switch to original branch
                 progressThread.setMessage("Returning original branch");
                 commandExecutor.execute("git checkout " + originalBranch);
-
-                // Restore stashed changes
-                progressThread.setMessage("Restoring your local changes");
-                commandExecutor.execute("git stash pop");
 
                 onCancel();
             } catch (IOException e) {

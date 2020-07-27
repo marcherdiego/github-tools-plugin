@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.extras.OkHttpConnector;
 
 import java.awt.event.ActionEvent;
 
@@ -31,6 +33,10 @@ import com.nerdscorner.android.plugin.github.ui.view.ParametersView;
 import com.nerdscorner.android.plugin.github.ui.view.ReposView;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.OkUrlFactory;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor.Level;
 
 public class GitHubTool implements ToolWindowFactory {
 
@@ -152,6 +158,10 @@ public class GitHubTool implements ToolWindowFactory {
                 github = null;
                 ghOrganization = null;
                 myselfGitHub = null;
+                allAllReposPresenter = null;
+                myReposPresenter = null;
+                parametersPresenter = null;
+                experimentalPresenter = null;
             }
         });
 
@@ -175,7 +185,13 @@ public class GitHubTool implements ToolWindowFactory {
     private boolean githubTokenLogin(String oauthKey, String organization) {
         try {
             // Github personal token (https://github.com/settings/tokens)
-            github = GitHub.connectUsingOAuth(oauthKey);
+            OkHttpClient httpClient = new OkHttpClient();
+            httpClient.interceptors().add(new HttpLoggingInterceptor().setLevel(Level.HEADERS));
+            github = GitHubBuilder
+                    .fromEnvironment()
+                    .withOAuthToken(oauthKey)
+                    .withConnector(new OkHttpConnector(new OkUrlFactory(httpClient)))
+                    .build();
             ghOrganization = github.getOrganization(organization);
             myselfGitHub = github.getMyself();
             loggedAsField.setVisible(true);
