@@ -12,6 +12,17 @@ object ThreadUtils {
             thread.cancel()
         }
     }
+
+    fun executeDelayed(delay: Long, block: () -> Unit) {
+        Thread {
+            try {
+                Thread.sleep(delay)
+            } catch (e: InterruptedException) {
+                // Nothing to do here
+            }
+            block()
+        }.start()
+    }
 }
 
 fun Thread?.cancel() {

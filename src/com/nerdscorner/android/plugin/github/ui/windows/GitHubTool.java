@@ -65,6 +65,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JTextField travisToken;
     private JTextField organizationName;
     private JButton saveButton;
+    private JLabel parametersMessageLabel;
     private ParametersPresenter parametersPresenter;
 
     private JButton createAppsChangelogButton;
@@ -212,7 +213,8 @@ public class GitHubTool implements ToolWindowFactory {
                             circleCiToken,
                             travisToken,
                             organizationName,
-                            saveButton
+                            saveButton,
+                            parametersMessageLabel
                     ),
                     new ParametersModel(),
                     new EventBus()
