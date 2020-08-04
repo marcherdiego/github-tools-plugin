@@ -11,11 +11,11 @@ To get your Personal Access Token simply go to your `Settings` -> `Developer set
 
 Check the following permissions needed to read and list repos
 
-![sd](https://i.ibb.co/309vkDw/Screenshot-2020-06-25-at-11-46-42.png)
+![sd](https://i.ibb.co/DRJQ0dr/Screenshot-2020-07-27-at-14-26-27.png)
 
-![sd](https://i.ibb.co/FDrGgps/Screenshot-2020-06-25-at-11-46-46.png)
+![sd](https://i.ibb.co/MBpMd6g/Screenshot-2020-07-27-at-14-26-32.png)
 
-![sd](https://i.ibb.co/kBHSnzk/Screenshot-2020-06-25-at-11-46-52.png)
+![sd](https://i.ibb.co/WG22nV3/Screenshot-2020-07-27-at-14-26-38.png)
 
 ## Travis CI Login
 To be able to trigger Travis builds from the IDE you need to authenticate with your Travis Personal Access Token
