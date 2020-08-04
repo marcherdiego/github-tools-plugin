@@ -181,12 +181,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     changelogResult == null -> {
                         bumpErrorMessage = CHANGELOG_NOT_FOUND
                     }
-                    changelogResult.first -> {
+                    changelogResult.emptyChangelog -> {
                         rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
                         bus.post(ReleaseSkippedSuccessfullyEvent(alias, loadProgress.get()))
                     }
                     else -> {
-                        createRelease(reviewersTeam, externalReviewers, changelogResult.second, changelogResult.third)
+                        createRelease(reviewersTeam, externalReviewers, changelogResult.hasChanges, changelogResult.resultChangelog)
                         result = this
                         bus.post(ReleaseCreatedSuccessfullyEvent(alias, loadProgress.get()))
                     }
@@ -256,7 +256,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     changelogResult == null -> {
                         bumpErrorMessage = CHANGELOG_NOT_FOUND
                     }
-                    changelogResult.first -> {
+                    changelogResult.emptyChangelog -> {
                         bumpErrorMessage = NO_CHANGES_NEEDED
                         bus.post(VersionBumpSkippedSuccessfullyEvent(alias, loadProgress.get()))
                     }

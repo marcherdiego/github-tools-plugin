@@ -1,5 +1,6 @@
 package com.nerdscorner.android.plugin.github.domain.gh
 
+import com.nerdscorner.android.plugin.github.domain.ChangelogResult
 import org.apache.commons.io.IOUtils
 import org.kohsuke.github.GHContent
 import org.kohsuke.github.GHPullRequest
@@ -92,7 +93,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         alias = repositoryAlias
     }
 
-    fun removeUnusedChangelogBlocks(changelog: String? = lastChangelogEntry): Triple<Boolean, Boolean, String>? {
+    fun removeUnusedChangelogBlocks(changelog: String? = lastChangelogEntry): ChangelogResult? {
         var resultChangelog = changelog ?: return null
         val newBlockMatch = newBlockRegex.find(resultChangelog)
         if (newBlockMatch != null) {
@@ -105,7 +106,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         }
         val emptyChangelog = newBlockMatch != null && fixedBlockMatch != null
         val hasChanges = newBlockMatch != null || fixedBlockMatch != null
-        return Triple(emptyChangelog, hasChanges, resultChangelog)
+        return ChangelogResult(emptyChangelog, hasChanges, resultChangelog)
     }
 
     private fun getNextVersionChangelog(): String {
@@ -136,7 +137,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
                 "rc-$version -> master",
                 rcBranch?.ref,
                 MASTER_REF,
-                removeUnusedChangelogBlocks(lastChangelogEntry)?.third
+                removeUnusedChangelogBlocks(lastChangelogEntry)?.resultChangelog
         )
         rcPullRequestUrl = rcPullRequest.htmlUrl.toString()
         assignReviewers(rcPullRequest, reviewersTeam, externalReviewers)
