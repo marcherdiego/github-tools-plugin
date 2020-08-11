@@ -176,7 +176,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             try {
                 rcCreationErrorMessage = null
                 ensureChangelog()
-                val changelogResult = removeUnusedChangelogBlocks()
+                val changelogResult = removeUnusedChangelogBlocks(fullChangelog)
                 when {
                     changelogResult == null -> {
                         bumpErrorMessage = CHANGELOG_NOT_FOUND
