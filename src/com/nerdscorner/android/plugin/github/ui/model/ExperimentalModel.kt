@@ -23,9 +23,9 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     lateinit var bus: EventBus
 
     val allLibraries = mutableListOf<GHRepositoryWrapper>()
-    val excludedLibraries = mutableListOf<GHRepositoryWrapper>()
+    private val excludedLibraries = mutableListOf<GHRepositoryWrapper>()
     val includedLibraries = mutableListOf<GHRepositoryWrapper>()
-    val includedLibrariesNames = mutableListOf<String>()
+    private val includedLibrariesNames = mutableListOf<String>()
 
     private var librariesLoaderThread: Thread? = null
     private var reposLoaderThread: Thread? = null
@@ -77,7 +77,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 repository.ensureChangelog()
                 bus.post(ChangelogFetchedSuccessfullyEvent(repository.alias, totalProgress))
             }
-            bus.post(ChangelogsFetchedSuccessfullyEvent())
+            bus.post(AllChangelogFetchedSuccessfullyEvent())
         }
         librariesLoaderThread?.start()
     }
@@ -132,10 +132,10 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         propertiesComponent.setValue(INCLUDED_LIBRARIES_PROPERTY, gson.toJson(includedLibrariesNames))
     }
 
-    fun createLibrariesReleases() {
+    fun createLibrariesReleases(reviewersTeamName: String?) {
         releasesCreatorThread.cancel()
         releasesCreatorThread = Thread {
-            val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
+            val androidReviewersTeam = getReviewersTeam(reviewersTeamName)
             val externalReviewers = externalReviewersUserNames.map {
                 github.getUser(it)
             }
@@ -147,8 +147,9 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             val deferredReleases = mutableListOf<Deferred<GHRepositoryWrapper?>>()
             includedLibraries.forEach { library ->
                 val deferredRelease = GlobalScope.async(Dispatchers.IO) {
+                    val result = releaseLibrary(library, androidReviewersTeam, externalReviewers)
                     loadProgress.addAndGet(progressStep)
-                    releaseLibrary(library, androidReviewersTeam, externalReviewers)
+                    result
                 }
                 deferredReleases.add(deferredRelease)
             }
@@ -198,7 +199,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         return result
     }
 
-    private fun getReviewersTeam(teamName: String): GHTeam? {
+    private fun getReviewersTeam(teamName: String?): GHTeam? {
         return ghOrganization
                 .teams
                 .entries
@@ -208,10 +209,10 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 ?.value
     }
 
-    fun createVersionBumps() {
+    fun createVersionBumps(reviewersTeamName: String?) {
         versionBumpCreatorThread.cancel()
         versionBumpCreatorThread = Thread {
-            val androidReviewersTeam = getReviewersTeam(ANDROID_REVIEWERS_TEAM_NAME)
+            val androidReviewersTeam = getReviewersTeam(reviewersTeamName)
             val externalReviewers = externalReviewersUserNames.map {
                 github.getUser(it)
             }
@@ -222,8 +223,9 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             val deferredBumps = mutableListOf<Deferred<GHRepositoryWrapper?>>()
             includedLibraries.forEach { library ->
                 val deferredBump = GlobalScope.async(Dispatchers.IO) {
+                    val result = bumpLibrary(library, androidReviewersTeam, externalReviewers)
                     loadProgress.addAndGet(progressStep)
-                    bumpLibrary(library, androidReviewersTeam, externalReviewers)
+                    result
                 }
                 deferredBumps.add(deferredBump)
             }
@@ -275,8 +277,14 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         return result
     }
 
+    fun saveReviewerTeamName(reviewerTeam: String?) {
+        propertiesComponent.setValue(REVIEWER_TEAM_NAME_PROPERTY, reviewerTeam)
+    }
+
+    fun getReviewerTeamName() = propertiesComponent.getValue(REVIEWER_TEAM_NAME_PROPERTY) ?: DEFAULT_REVIEWER_TEAM_NAME
+
     class ChangelogFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
-    class ChangelogsFetchedSuccessfullyEvent
+    class AllChangelogFetchedSuccessfullyEvent
     class ReposLoadedEvent
 
     class ReleaseCreatedSuccessfullyEvent(val libraryName: String?, val totalProgress: Double)
@@ -292,12 +300,13 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         private val propertiesComponent = PropertiesComponent.getInstance()
         private val stringListTypeToken = object : TypeToken<List<String>>() {}.type
         private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
+        private const val REVIEWER_TEAM_NAME_PROPERTY = "reviewer_team_name"
 
         private const val EMPTY_CHANGELOG_MESSAGE = "Empty changelog"
         private const val NO_CHANGES_NEEDED = "No changes needed"
         private const val CHANGELOG_NOT_FOUND = "CHANGELOG.MD not found"
 
-        private const val ANDROID_REVIEWERS_TEAM_NAME = "AndroidReviewers"
+        private const val DEFAULT_REVIEWER_TEAM_NAME = "AndroidReviewers"
         private val externalReviewersUserNames = listOf("rtss00")
     }
 }

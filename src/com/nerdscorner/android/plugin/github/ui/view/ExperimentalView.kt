@@ -9,6 +9,7 @@ import org.greenrobot.eventbus.EventBus
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JTable
+import javax.swing.JTextField
 import javax.swing.ListSelectionModel
 
 class ExperimentalView(
@@ -20,7 +21,8 @@ class ExperimentalView(
         private val includedReposLabel: JLabel,
         private val includedRepos: JTable,
         private val releaseLibrariesButton: JButton,
-        private val createVersionBumpsButton: JButton) {
+        private val createVersionBumpsButton: JButton,
+        private val reviewerTeam: JTextField) {
 
     lateinit var bus: EventBus
 
@@ -54,6 +56,12 @@ class ExperimentalView(
         includedRepos.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         setAndroidMessagesVisibility(false)
     }
+
+    fun setReviewerTeam(teamName: String?) {
+        reviewerTeam.text = teamName
+    }
+
+    fun getReviewerTeam(): String? = reviewerTeam.text
 
     fun setAndroidMessagesVisibility(visible: Boolean) {
         androidMessages.isVisible = visible

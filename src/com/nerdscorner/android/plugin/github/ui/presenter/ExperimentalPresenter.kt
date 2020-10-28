@@ -3,7 +3,7 @@ package com.nerdscorner.android.plugin.github.ui.presenter
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseSkippedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpSkippedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogsFetchedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.AllChangelogFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogFetchedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreatedSuccessfullyEvent
@@ -33,10 +33,12 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         model.bus = bus
         bus.register(this)
         model.loadRepositories()
+        view.setReviewerTeam(model.getReviewerTeamName())
     }
 
     @Subscribe
     fun onCreateAppsChangelogButtonClicked(event: CreateAppsChangelogClickedEvent) {
+        model.saveReviewerTeamName(view.getReviewerTeam())
         if (model.includedLibraries.isNotEmpty()) {
             view.disableButtons()
             view.setAndroidMessagesVisibility(true)
@@ -52,7 +54,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
     }
 
     @Subscribe
-    fun onChangelogsFetchedSuccessfully(event: ChangelogsFetchedSuccessfullyEvent) {
+    fun onAllChangelogFetchedSuccessfully(event: AllChangelogFetchedSuccessfullyEvent) {
         view.enableButtons()
         view.setAndroidMessagesVisibility(false)
 
@@ -83,11 +85,12 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onReleaseLibrariesClicked(event: ReleaseLibrariesClickedEvent) {
+        model.saveReviewerTeamName(view.getReviewerTeam())
         if (model.includedLibraries.isNotEmpty()) {
             view.disableButtons()
             view.setAndroidMessagesVisibility(true)
             view.updateAndroidMessages("Creating libraries Release Candidates...")
-            model.createLibrariesReleases()
+            model.createLibrariesReleases(view.getReviewerTeam())
         }
     }
 
@@ -134,7 +137,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
             view.disableButtons()
             view.setAndroidMessagesVisibility(true)
             view.updateAndroidMessages("Creating libraries Version Bumps...")
-            model.createVersionBumps()
+            model.createVersionBumps(view.getReviewerTeam())
         }
     }
 

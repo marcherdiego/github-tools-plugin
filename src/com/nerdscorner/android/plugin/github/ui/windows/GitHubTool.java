@@ -87,6 +87,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JLabel changelogProgress;
     private JButton createVersionBumpsButton;
     private JLabel includedReposLabel;
+    private JTextField reviewerTeam;
 
     private Project project;
 
@@ -275,7 +276,8 @@ public class GitHubTool implements ToolWindowFactory {
                             includedReposLabel,
                             includedRepos,
                             releaseLibrariesButton,
-                            createVersionBumpsButton
+                            createVersionBumpsButton,
+                            reviewerTeam
                     ),
                     new ExperimentalModel(ghOrganization, github),
                     new EventBus()
