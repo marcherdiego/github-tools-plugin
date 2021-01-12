@@ -3,9 +3,6 @@ package com.nerdscorner.android.plugin.github.ui.windows;
 import org.apache.commons.lang.StringUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
-import org.kohsuke.github.GHMyself;
-import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.kohsuke.github.extras.OkHttpConnector;
 
@@ -20,6 +17,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent;
+import com.nerdscorner.android.plugin.github.managers.GitHubManager;
 import com.nerdscorner.android.plugin.github.ui.model.AllReposModel;
 import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel;
 import com.nerdscorner.android.plugin.github.ui.model.MyReposModel;
@@ -39,10 +37,6 @@ import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor.Level;
 
 public class GitHubTool implements ToolWindowFactory {
-
-    private GHMyself myselfGitHub;
-    private GHOrganization ghOrganization;
-    private GitHub github;
 
     private JPanel content;
 
@@ -66,6 +60,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JTextField organizationName;
     private JButton saveButton;
     private JLabel parametersMessageLabel;
+    private JCheckBox showReposOutsideOrganization;
     private ParametersPresenter parametersPresenter;
 
     private JButton createAppsChangelogButton;
@@ -100,54 +95,53 @@ public class GitHubTool implements ToolWindowFactory {
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
         String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
-        if (StringUtils.isEmpty(oauthToken) || StringUtils.isEmpty(organization)) {
-            organizationField.setText(organization);
+        organizationField.setText(organization);
+        if (StringUtils.isEmpty(oauthToken)) {
             ViewUtils.INSTANCE.show(loginPanel);
             ViewUtils.INSTANCE.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField);
-            loginButton.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String oauthToken = oauthTokenField.getText();
-                    String organization = organizationField.getText();
-                    if (StringUtils.isEmpty(oauthToken) || StringUtils.isEmpty(organization)) {
-                        String message;
-                        if (StringUtils.isEmpty(oauthToken)) {
-                            message = Strings.EMPTY_OAUTH_TOKEN;
-                        } else {
-                            message = Strings.EMPTY_ORGANIZATION_NAME;
-                        }
-                        ResultDialog resultDialog = new ResultDialog(message);
-                        resultDialog.pack();
-                        resultDialog.setLocationRelativeTo(null);
-                        resultDialog.setTitle(Strings.LOGIN_ERROR);
-                        resultDialog.setResizable(false);
-                        resultDialog.setVisible(true);
-                    } else {
-                        boolean success = githubTokenLogin(oauthToken, organization);
-                        if (success) {
-                            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
-                            ViewUtils.INSTANCE.hide(loginPanel);
-                            propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
-                            propertiesComponent.setValue(Strings.ORGANIZATION_NAME_PROPERTY, organization);
-                            EventBus.getDefault().post(new ParameterUpdatedEvent());
-                            oauthTokenField.setText(null);
-                        } else {
-                            ResultDialog resultDialog = new ResultDialog(Strings.VERIFY_OAUTH_TOKEN);
-                            resultDialog.pack();
-                            resultDialog.setLocationRelativeTo(null);
-                            resultDialog.setTitle(Strings.LOGIN_ERROR);
-                            resultDialog.setResizable(false);
-                            resultDialog.setVisible(true);
-                        }
-                    }
-                }
-            });
         } else {
             ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
             ViewUtils.INSTANCE.hide(loginPanel);
             githubTokenLogin(oauthToken, organization);
         }
-
+        loginButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String oauthToken = oauthTokenField.getText();
+                if (StringUtils.isEmpty(oauthToken)) {
+                    String message;
+                    if (StringUtils.isEmpty(oauthToken)) {
+                        message = Strings.EMPTY_OAUTH_TOKEN;
+                    } else {
+                        message = Strings.EMPTY_ORGANIZATION_NAME;
+                    }
+                    ResultDialog resultDialog = new ResultDialog(message);
+                    resultDialog.pack();
+                    resultDialog.setLocationRelativeTo(null);
+                    resultDialog.setTitle(Strings.LOGIN_ERROR);
+                    resultDialog.setResizable(false);
+                    resultDialog.setVisible(true);
+                } else {
+                    String organization = organizationField.getText();
+                    boolean success = githubTokenLogin(oauthToken, organization);
+                    if (success) {
+                        ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
+                        ViewUtils.INSTANCE.hide(loginPanel);
+                        propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
+                        propertiesComponent.setValue(Strings.ORGANIZATION_NAME_PROPERTY, organization);
+                        EventBus.getDefault().post(new ParameterUpdatedEvent());
+                        oauthTokenField.setText(null);
+                    } else {
+                        ResultDialog resultDialog = new ResultDialog(Strings.VERIFY_OAUTH_TOKEN);
+                        resultDialog.pack();
+                        resultDialog.setLocationRelativeTo(null);
+                        resultDialog.setTitle(Strings.LOGIN_ERROR);
+                        resultDialog.setResizable(false);
+                        resultDialog.setVisible(true);
+                    }
+                }
+            }
+        });
         logoutButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -157,9 +151,7 @@ public class GitHubTool implements ToolWindowFactory {
                 propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK);
                 propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK);
                 EventBus.getDefault().post(new ParameterUpdatedEvent());
-                github = null;
-                ghOrganization = null;
-                myselfGitHub = null;
+                GitHubManager.clear();
                 allAllReposPresenter = null;
                 myReposPresenter = null;
                 parametersPresenter = null;
@@ -173,11 +165,8 @@ public class GitHubTool implements ToolWindowFactory {
                 final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
                 String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
                 String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
-                github = null;
-                ghOrganization = null;
-                myselfGitHub = null;
+                GitHubManager.clear();
                 githubTokenLogin(oauthToken, organization);
-                loadTablesInfo();
             }
         });
 
@@ -186,18 +175,9 @@ public class GitHubTool implements ToolWindowFactory {
 
     private boolean githubTokenLogin(String oauthKey, String organization) {
         try {
-            // Github personal token (https://github.com/settings/tokens)
-            OkHttpClient httpClient = new OkHttpClient();
-            httpClient.interceptors().add(new HttpLoggingInterceptor().setLevel(Level.HEADERS));
-            github = GitHubBuilder
-                    .fromEnvironment()
-                    .withOAuthToken(oauthKey)
-                    .withConnector(new OkHttpConnector(new OkUrlFactory(httpClient)))
-                    .build();
-            ghOrganization = github.getOrganization(organization);
-            myselfGitHub = github.getMyself();
+            GitHubManager.setup(oauthKey, organization);
             loggedAsField.setVisible(true);
-            loggedAsField.setText(String.format(Strings.LOGGED_AS, myselfGitHub.getLogin(), myselfGitHub.getName()));
+            loggedAsField.setText(String.format(Strings.LOGGED_AS, GitHubManager.getMyLogin(), GitHubManager.getMyName()));
             loadTablesInfo();
             return true;
         } catch (Exception e) {
@@ -214,6 +194,7 @@ public class GitHubTool implements ToolWindowFactory {
                             circleCiToken,
                             travisToken,
                             organizationName,
+                            showReposOutsideOrganization,
                             saveButton,
                             parametersMessageLabel
                     ),
@@ -224,11 +205,14 @@ public class GitHubTool implements ToolWindowFactory {
     }
 
     private void loadTablesInfo() {
-        if (ghOrganization == null) {
+        String organizationName = organizationField.getText();
+        if (!GitHubManager.hasOrganization() && !StringUtils.isEmpty(organizationName)) {
             final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
             String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
             String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
-            githubTokenLogin(oauthToken, organization);
+            if (githubTokenLogin(oauthToken, organization)) {
+                return;
+            }
         }
 
         if (allAllReposPresenter == null) {
@@ -241,7 +225,7 @@ public class GitHubTool implements ToolWindowFactory {
                             allRepoClosedPullRequestsTable,
                             BaseModel.COLUMN_NAME
                     ),
-                    new AllReposModel(ghOrganization, project.getName()),
+                    new AllReposModel(project.getName()),
                     new EventBus()
             );
         }
@@ -258,7 +242,7 @@ public class GitHubTool implements ToolWindowFactory {
                             myReposClosedPrTable,
                             BaseModel.COLUMN_NAME
                     ),
-                    new MyReposModel(ghOrganization, myselfGitHub, project.getName()),
+                    new MyReposModel(project.getName()),
                     new EventBus()
             );
         }
@@ -279,9 +263,10 @@ public class GitHubTool implements ToolWindowFactory {
                             createVersionBumpsButton,
                             reviewerTeam
                     ),
-                    new ExperimentalModel(ghOrganization, github),
+                    new ExperimentalModel(),
                     new EventBus()
             );
         }
+        experimentalPresenter.loadRepositories();
     }
 }

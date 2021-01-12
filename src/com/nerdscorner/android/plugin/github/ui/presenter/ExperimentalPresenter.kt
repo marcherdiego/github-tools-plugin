@@ -32,8 +32,11 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         view.bus = bus
         model.bus = bus
         bus.register(this)
-        model.loadRepositories()
         view.setReviewerTeam(model.getReviewerTeamName())
+    }
+
+    fun loadRepositories() {
+        model.loadRepositories()
     }
 
     @Subscribe

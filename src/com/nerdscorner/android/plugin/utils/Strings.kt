@@ -6,6 +6,7 @@ object Strings {
     const val ORGANIZATION_NAME_PROPERTY = "organization_name_property"
     const val TRAVIS_CI_TOKEN_PROPERTY = "travis_ci_property"
     const val CIRCLE_CI_TOKEN_PROPERTY = "circle_ci_property"
+    const val SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION = "show_repos_from_outside_organization"
 
     const val HASH_POUND = "#"
     const val BLANK = ""

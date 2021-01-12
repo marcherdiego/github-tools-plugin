@@ -16,10 +16,14 @@ class ParametersModel {
 
     fun getTravisCiToken() = propertiesComponent.getValue(Strings.TRAVIS_CI_TOKEN_PROPERTY)
 
-    fun saveParameters(organizationName: String?, githubToken: String?, circleCiToken: String?, travisToken: String?) {
+    fun getShowReposFromOutsideOrganization() = propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION)
+
+    fun saveParameters(organizationName: String?, githubToken: String?, circleCiToken: String?, travisToken: String?,
+                       showReposOutsideOrganization: Boolean) {
         propertiesComponent.setValue(Strings.ORGANIZATION_NAME_PROPERTY, organizationName)
         propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, githubToken)
         propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, circleCiToken)
         propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, travisToken)
+        propertiesComponent.setValue(Strings.SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION, showReposOutsideOrganization)
     }
 }

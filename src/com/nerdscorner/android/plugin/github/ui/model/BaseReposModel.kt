@@ -17,19 +17,22 @@ import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
 import com.nerdscorner.android.plugin.ci.TravisCi
 import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent
+import com.nerdscorner.android.plugin.github.managers.GitHubManager
 import com.nerdscorner.android.plugin.utils.cancel
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
+import org.kohsuke.github.GHMyself
 import org.kohsuke.github.GHOrganization
 import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort
+import org.kohsuke.github.GHRepository
 import java.io.IOException
 import java.util.ArrayList
 import java.util.Date
 import java.util.HashMap
 
-abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOrganization) {
+abstract class BaseReposModel(val selectedRepo: String) {
     lateinit var bus: EventBus
 
     //Loader threads
@@ -38,8 +41,8 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
     private var prsLoaderThread: Thread? = null
     private var branchesLoaderThread: Thread? = null
 
-    val organizationName: String
-        get() = ghOrganization.login
+    val organizationName: String?
+        get() = GitHubManager.ghOrganization?.login
 
     var commentsUpdated: Boolean = false
     var currentRepository: GHRepositoryWrapper? = null
@@ -49,6 +52,35 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
     private var currentCiEnvironment: CiEnvironment? = null
 
     abstract fun loadRepositories()
+
+    fun loadMyRepos(myselfGitHub: GHMyself?, tableModel: GHRepoTableModel) {
+        myselfGitHub
+                ?.listSubscriptions()
+                ?.withPageSize(LARGE_PAGE_SIZE)
+                ?.forEach { repository ->
+                    if (shouldAddRepository(repository)) {
+                        tableModel.addRow(GHRepositoryWrapper(repository))
+                    }
+                }
+    }
+
+    fun loadOrganizationRepos(ghOrganization: GHOrganization?, tableModel: GHRepoTableModel) {
+        ghOrganization
+                ?.listRepositories()
+                ?.withPageSize(LARGE_PAGE_SIZE)
+                ?.forEach { repository ->
+                    if (shouldAddRepository(repository)) {
+                        tableModel.addRow(GHRepositoryWrapper(repository))
+                    }
+                }
+    }
+
+    fun allowNonOrganizationRepos() = propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION)
+
+    private fun shouldAddRepository(repository: GHRepository): Boolean {
+        val validSource = allowNonOrganizationRepos() || repository.fullName.startsWith(organizationName ?: Strings.BLANK)
+        return validSource && repository.isFork.not()
+    }
 
     fun init() {
         commentsUpdated = false
@@ -240,7 +272,7 @@ abstract class BaseReposModel(val selectedRepo: String, val ghOrganization: GHOr
     }
 
     //Posted events
-    class UpdateRepositoryInfoTablesEvent(val tableModel: GHRepoTableModel, val tooltips: HashMap<String, String>)
+    class UpdateRepositoryInfoTablesEvent(val tableModel: GHRepoTableModel)
 
     class BranchesLoadedEvent(val repoBranchesModel: GHBranchTableModel)
     class ReleasesLoadedEvent(val repoReleasesModel: GHReleaseTableModel)

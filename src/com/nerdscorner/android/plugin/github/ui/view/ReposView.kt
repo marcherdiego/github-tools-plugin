@@ -9,7 +9,6 @@ import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
-import com.nerdscorner.android.plugin.github.ui.tables.ColumnRenderer
 import com.nerdscorner.android.plugin.github.ui.windows.ResultDialog
 import com.nerdscorner.android.plugin.github.ui.windows.SimpleInputDialog
 import com.nerdscorner.android.plugin.utils.JTableUtils
@@ -19,8 +18,6 @@ import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import java.util.ArrayList
 import java.util.Date
-import java.util.HashMap
-import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
 
@@ -53,19 +50,19 @@ class ReposView(
         })
         releasesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val release = (releasesTable.model as GHReleaseTableModel).getRow(row)
+                val release = (releasesTable.model as? GHReleaseTableModel)?.getRow(row)
                 bus.post(ReleaseClickedEvent(release))
             }
         })
         openPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val pullRequest = (openPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
+                val pullRequest = (openPullRequestsTable.model as? GHPullRequestTableModel)?.getRow(row)
                 bus.post(PullRequestClickedEvent(column, pullRequest))
             }
         })
         closedPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val pullRequest = (closedPullRequestsTable.model as GHPullRequestTableModel).getRow(row)
+                val pullRequest = (closedPullRequestsTable.model as? GHPullRequestTableModel)?.getRow(row)
                 bus.post(PullRequestClickedEvent(column, pullRequest))
             }
         })
@@ -84,18 +81,13 @@ class ReposView(
 
     fun init() {
         currentRepository = null
-        if (reposTable.model is BaseModel<*>) {
-            (reposTable.model as BaseModel<*>).removeAllRows()
-        }
+        (reposTable.model as? BaseModel<*>)?.removeAllRows()
         clearTables()
     }
 
-    fun updateRepositoryInfoTables(selectedRepo: String, tableModel: GHRepoTableModel, tooltips: HashMap<String, String>) {
+    fun updateRepositoryInfoTables(selectedRepo: String, tableModel: GHRepoTableModel) {
         reposTable.model = tableModel
-        val column = reposTable.getColumn(Strings.NAME)
-        column.cellRenderer = ColumnRenderer(tooltips)
-        val repoLocation = JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable)
-        if (repoLocation != null) {
+        JTableUtils.findAndSelectDefaultRepo(selectedRepo, reposTable)?.let { repoLocation ->
             currentRepository = repoLocation.first
             bus.post(RepoClickedEvent(repoLocation.second, repoLocation.third, 1))
         }
@@ -125,26 +117,18 @@ class ReposView(
     }
 
     fun addOpenPullRequest(pullRequest: GHPullRequestWrapper) {
-        (openPullRequestsTable.model as GHPullRequestTableModel).addRow(pullRequest)
+        (openPullRequestsTable.model as? GHPullRequestTableModel)?.addRow(pullRequest)
     }
 
     fun addClosedPullRequest(pullRequest: GHPullRequestWrapper) {
-        (closedPullRequestsTable.model as GHPullRequestTableModel).addRow(pullRequest)
+        (closedPullRequestsTable.model as? GHPullRequestTableModel)?.addRow(pullRequest)
     }
 
     fun clearTables() {
-        if (branchesTable.model is BaseModel<*>) {
-            (branchesTable.model as BaseModel<*>).removeAllRows()
-        }
-        if (releasesTable.model is BaseModel<*>) {
-            (releasesTable.model as BaseModel<*>).removeAllRows()
-        }
-        if (openPullRequestsTable.model is BaseModel<*>) {
-            (openPullRequestsTable.model as BaseModel<*>).removeAllRows()
-        }
-        if (closedPullRequestsTable.model is BaseModel<*>) {
-            (closedPullRequestsTable.model as BaseModel<*>).removeAllRows()
-        }
+        (branchesTable.model as? BaseModel<*>)?.removeAllRows()
+        (releasesTable.model as? BaseModel<*>)?.removeAllRows()
+        (openPullRequestsTable.model as? BaseModel<*>)?.removeAllRows()
+        (closedPullRequestsTable.model as? BaseModel<*>)?.removeAllRows()
     }
 
     fun getRepoAt(row: Int, column: Int): Any = reposTable.getValueAt(row, column)

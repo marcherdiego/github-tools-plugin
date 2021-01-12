@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.ide.util.PropertiesComponent
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
+import com.nerdscorner.android.plugin.github.managers.GitHubManager
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.cancel
 import kotlinx.coroutines.Deferred
@@ -13,13 +14,12 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.greenrobot.eventbus.EventBus
-import org.kohsuke.github.GHOrganization
+import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
-import org.kohsuke.github.GitHub
 import java.util.concurrent.atomic.AtomicInteger
 
-class ExperimentalModel(private val ghOrganization: GHOrganization, private val github: GitHub) {
+class ExperimentalModel {
     lateinit var bus: EventBus
 
     val allLibraries = mutableListOf<GHRepositoryWrapper>()
@@ -46,15 +46,33 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 }
     }
 
+    private fun shouldAddRepository(repository: GHRepository): Boolean {
+        val allowNonOrganizationRepos = propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION)
+        val validSource = allowNonOrganizationRepos || repository.fullName.startsWith(GitHubManager.getOrganizationLogin() ?: Strings.BLANK)
+        return validSource && repository.isFork.not()
+    }
+
     fun loadRepositories() {
         reposLoaderThread.cancel()
         allLibraries.clear()
         reposLoaderThread = Thread {
-            ghOrganization
-                    .listRepositories()
-                    .withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
-                    .forEach { repository ->
-                        if (repository.isFork.not() && repository.fullName.startsWith(ghOrganization.login)) {
+            GitHubManager.ghOrganization
+                    ?.listRepositories()
+                    ?.withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
+                    ?.forEach { repository ->
+                        if (shouldAddRepository(repository)) {
+                            val repo = GHRepositoryWrapper(repository)
+                            allLibraries.add(repo)
+                            if (repository.name in includedLibrariesNames) {
+                                includedLibraries.add(repo)
+                            }
+                        }
+                    }
+            GitHubManager.myselfGitHub
+                    ?.listSubscriptions()
+                    ?.withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
+                    ?.forEach { repository ->
+                        if (shouldAddRepository(repository)) {
                             val repo = GHRepositoryWrapper(repository)
                             allLibraries.add(repo)
                             if (repository.name in includedLibrariesNames) {
@@ -75,7 +93,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
             includedLibraries.forEach { repository ->
                 totalProgress += progressStep
                 repository.ensureChangelog()
-                bus.post(ChangelogFetchedSuccessfullyEvent(repository.alias, totalProgress))
+                bus.post(ChangelogFetchedSuccessfullyEvent(repository.name, totalProgress))
             }
             bus.post(AllChangelogFetchedSuccessfullyEvent())
         }
@@ -90,7 +108,7 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                 return@forEach
             }
             result
-                    .append("## ${library.alias} [v${library.version}](${library.fullUrl}/releases/tag/v${library.version})")
+                    .append("## ${library.name} [v${library.version}](${library.fullUrl}/releases/tag/v${library.version})")
                     .append(System.lineSeparator())
                     .append(addChangelogIndent(trimmedChangelog))
         }
@@ -136,8 +154,8 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         releasesCreatorThread.cancel()
         releasesCreatorThread = Thread {
             val androidReviewersTeam = getReviewersTeam(reviewersTeamName)
-            val externalReviewers = externalReviewersUserNames.map {
-                github.getUser(it)
+            val externalReviewers = externalReviewersUserNames.mapNotNull {
+                GitHubManager.github?.getUser(it)
             }
 
             loadProgress = AtomicDouble()
@@ -184,12 +202,12 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     }
                     changelogResult.emptyChangelog -> {
                         rcCreationErrorMessage = EMPTY_CHANGELOG_MESSAGE
-                        bus.post(ReleaseSkippedSuccessfullyEvent(alias, loadProgress.get()))
+                        bus.post(ReleaseSkippedSuccessfullyEvent(name, loadProgress.get()))
                     }
                     else -> {
                         createRelease(reviewersTeam, externalReviewers, changelogResult.hasChanges, changelogResult.resultChangelog)
                         result = this
-                        bus.post(ReleaseCreatedSuccessfullyEvent(alias, loadProgress.get()))
+                        bus.post(ReleaseCreatedSuccessfullyEvent(name, loadProgress.get()))
                     }
                 }
             } catch (e: Exception) {
@@ -200,10 +218,10 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
     }
 
     private fun getReviewersTeam(teamName: String?): GHTeam? {
-        return ghOrganization
-                .teams
-                .entries
-                .firstOrNull {
+        return GitHubManager.ghOrganization
+                ?.teams
+                ?.entries
+                ?.firstOrNull {
                     it.key == teamName
                 }
                 ?.value
@@ -213,8 +231,8 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
         versionBumpCreatorThread.cancel()
         versionBumpCreatorThread = Thread {
             val androidReviewersTeam = getReviewersTeam(reviewersTeamName)
-            val externalReviewers = externalReviewersUserNames.map {
-                github.getUser(it)
+            val externalReviewers = externalReviewersUserNames.mapNotNull {
+                GitHubManager.github?.getUser(it)
             }
             loadProgress = AtomicDouble()
             loadTotalItems = AtomicInteger(includedLibraries.size)
@@ -260,13 +278,13 @@ class ExperimentalModel(private val ghOrganization: GHOrganization, private val 
                     }
                     changelogResult.emptyChangelog -> {
                         bumpErrorMessage = NO_CHANGES_NEEDED
-                        bus.post(VersionBumpSkippedSuccessfullyEvent(alias, loadProgress.get()))
+                        bus.post(VersionBumpSkippedSuccessfullyEvent(name, loadProgress.get()))
                     }
                     else -> {
                         val libraryBumped = createVersionBump(reviewersTeam, externalReviewers)
                         if (libraryBumped) {
                             result = this
-                            bus.post(VersionBumpCreatedSuccessfullyEvent(alias, loadProgress.get()))
+                            bus.post(VersionBumpCreatedSuccessfullyEvent(name, loadProgress.get()))
                         }
                     }
                 }

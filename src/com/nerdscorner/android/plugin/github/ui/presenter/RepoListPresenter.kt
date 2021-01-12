@@ -60,7 +60,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
     @Subscribe(threadMode = MAIN)
     fun onUpdateRepositoryInfoTables(event: UpdateRepositoryInfoTablesEvent) {
         view.setPullRequestTableModels()
-        view.updateRepositoryInfoTables(model.selectedRepo, event.tableModel, event.tooltips)
+        view.updateRepositoryInfoTables(model.selectedRepo, event.tableModel)
         model.loadRepoReleasesAndBranches()
     }
 
@@ -181,16 +181,11 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
     @Subscribe
     fun onInputEntered(event: InputEnteredEvent) {
         when (event.requestCode) {
-            REQUEST_CODE_MISSING_TRAVIS_TOKEN -> {
-                model.saveTravisToken(event.text)
-                model.triggerPendingRebuild()
-                view.showTriggeringBuildLoadingDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
-            }
-            REQUEST_CODE_MISSING_CIRCLE_TOKEN -> {
-                model.saveCircleToken(event.text)
-                model.triggerPendingRebuild()
-                view.showTriggeringBuildLoadingDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
-            }
+            REQUEST_CODE_MISSING_TRAVIS_TOKEN -> model.saveTravisToken(event.text)
+            REQUEST_CODE_MISSING_CIRCLE_TOKEN -> model.saveCircleToken(event.text)
+            else -> return
         }
+        model.triggerPendingRebuild()
+        view.showTriggeringBuildLoadingDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
     }
 }

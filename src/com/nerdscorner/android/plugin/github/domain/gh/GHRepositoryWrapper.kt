@@ -36,8 +36,6 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
             return fullChangelog.substring(firstIndex, lastIndex)
         }
 
-    var alias: String? = null
-
     val version: String?
         get() {
             return libraryVersionRegex.find(fullChangelog ?: return null)?.value
@@ -89,8 +87,6 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
 
     fun ensureChangelog() {
         fullChangelog = getFileContent(changelogFile?.read() ?: return)
-        val repositoryAlias = libsAlias.getOrDefault(name, name)
-        alias = repositoryAlias
     }
 
     fun removeUnusedChangelogBlocks(changelog: String? = lastChangelogEntry): ChangelogResult? {
@@ -235,22 +231,5 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
 
         private const val CHANGELOG_FILE_PATH = "CHANGELOG.MD"
         private const val VERSIONS_FILE_PATH = "buildSrc/src/main/kotlin/Versions.kt"
-
-        private val libsAlias = HashMap<String, String>().apply {
-            put("details-view-android", "Details View")
-            put("android-chat", "Chat")
-            put("dcp-android", "DCP")
-            put("notifications-android", "Notifications")
-            put("camera-android", "Camera")
-            put("ui-android", "UI")
-            put("android-upload-service", "Upload Service")
-            put("sockets-android", "Sockets")
-            put("networking-android", "Networking")
-            put("configurators-android", "Configurator")
-            put("testing-sdk-android", "Testing SDK")
-            put("commons-android", "Commons")
-            put("androidThumborUtils", "Thumbor Utils")
-            put("tal-android-oauth", "OAuth")
-        }
     }
 }
