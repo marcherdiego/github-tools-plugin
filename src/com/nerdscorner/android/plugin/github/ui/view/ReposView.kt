@@ -20,6 +20,7 @@ import java.util.ArrayList
 import java.util.Date
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
+import javax.swing.SwingUtilities
 
 class ReposView(
         private val reposTable: JTable,
@@ -68,7 +69,7 @@ class ReposView(
         })
         branchesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val branch = (branchesTable.model as GHBranchTableModel).getRow(row) ?: return
+                val branch = (branchesTable.model as? GHBranchTableModel)?.getRow(row) ?: return
                 bus.post(BranchClickedEvent(column, branch))
             }
         })
@@ -133,7 +134,7 @@ class ReposView(
 
     fun getRepoAt(row: Int, column: Int): Any = reposTable.getValueAt(row, column)
 
-    fun showTriggeringBuildLoadingDialog(title: String, message: String, primaryActionText: String, requestCode: Int) {
+    fun showResultDialog(title: String, message: String, primaryActionText: String, requestCode: Int) {
         loadingDialog?.dispose()
         loadingDialog = ResultDialog(message, primaryActionText, bus)
         loadingDialog?.requestCode = requestCode
@@ -150,8 +151,8 @@ class ReposView(
         inputDialog.isVisible = true
     }
 
-    fun updateLoadingDialog(title: String? = null, message: String? = null, primaryActionText: String,
-                            secondaryActionText: String? = null, requestCode: Int) {
+    fun updateResultDialog(title: String? = null, message: String? = null, primaryActionText: String,
+                           secondaryActionText: String? = null, requestCode: Int) {
         loadingDialog?.updateLoadingDialog(title, message, primaryActionText, secondaryActionText, requestCode)
         show(loadingDialog)
     }

@@ -3,6 +3,7 @@ package com.nerdscorner.android.plugin.github.ui.presenter
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.github.exceptions.MissingCircleCiTokenException
 import com.nerdscorner.android.plugin.github.exceptions.MissingTravisCiTokenException
+import com.nerdscorner.android.plugin.github.exceptions.UndefinedCiEnvironmentException
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.BranchesLoadedEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.BuildFailedEventEvent
@@ -13,7 +14,9 @@ import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.B
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.CANCEL
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.CLEAR_TOKEN
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.INPUT_REQUIRED
+import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.OK
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.REQUEST_CODE_BUILD_FAILED
+import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.REQUEST_CODE_BUILD_FAILED_UNDEFINED_CI_ENVIRONMENT
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.REQUEST_CODE_BUILD_SUCCEEDED
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.REQUEST_CODE_LAUNCH_BUILD
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.Companion.REQUEST_CODE_MISSING_CIRCLE_TOKEN
@@ -122,11 +125,18 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
             GHBranchTableModel.COLUMN_TRIGGER_BUILD -> {
                 try {
                     model.requestRebuild(event.branch)
-                    view.showTriggeringBuildLoadingDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
+                    view.showResultDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
                 } catch (e: MissingCircleCiTokenException) {
                     view.requestTravisToken(INPUT_REQUIRED, Strings.ENTER_CIRCLE_CI_TOKEN, REQUEST_CODE_MISSING_CIRCLE_TOKEN)
                 } catch (e: MissingTravisCiTokenException) {
                     view.requestTravisToken(INPUT_REQUIRED, Strings.ENTER_TRAVIS_CI_TOKEN, REQUEST_CODE_MISSING_TRAVIS_TOKEN)
+                } catch (e: UndefinedCiEnvironmentException) {
+                    view.showResultDialog(
+                            title = BRANCH_BUILD,
+                            message = "$BUILD_TRIGGER_FAILED_MESSAGE Undefined CI Environment",
+                            primaryActionText = OK,
+                            requestCode = REQUEST_CODE_BUILD_FAILED_UNDEFINED_CI_ENVIRONMENT
+                    )
                 }
             }
         }
@@ -141,7 +151,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
                 model.clearCurrentBranchBuild()
             }
             REQUEST_CODE_BUILD_FAILED -> {
-                view.updateLoadingDialog(
+                view.updateResultDialog(
                         message = RE_RUNNING_BUILD,
                         primaryActionText = CANCEL,
                         requestCode = REQUEST_CODE_LAUNCH_BUILD
@@ -160,7 +170,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
 
     @Subscribe
     fun onBuildSucceededEvent(event: BuildSucceededEventEvent) {
-        view.updateLoadingDialog(
+        view.updateResultDialog(
                 title = BUILD_TRIGGERED,
                 message = BUILD_TRIGGERED,
                 primaryActionText = VIEW_BUILD,
@@ -170,7 +180,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
 
     @Subscribe
     fun onBuildFailedEvent(event: BuildFailedEventEvent) {
-        view.updateLoadingDialog(
+        view.updateResultDialog(
                 message = "$BUILD_TRIGGER_FAILED_MESSAGE${event.message}",
                 primaryActionText = RETRY,
                 secondaryActionText = CLEAR_TOKEN,
@@ -185,7 +195,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
             REQUEST_CODE_MISSING_CIRCLE_TOKEN -> model.saveCircleToken(event.text)
             else -> return
         }
+        view.showResultDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
         model.triggerPendingRebuild()
-        view.showTriggeringBuildLoadingDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
     }
 }

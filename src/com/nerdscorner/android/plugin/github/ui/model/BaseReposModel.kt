@@ -17,6 +17,7 @@ import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.ThreadUtils
 import com.nerdscorner.android.plugin.ci.TravisCi
 import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent
+import com.nerdscorner.android.plugin.github.exceptions.UndefinedCiEnvironmentException
 import com.nerdscorner.android.plugin.github.managers.GitHubManager
 import com.nerdscorner.android.plugin.utils.cancel
 import org.greenrobot.eventbus.EventBus
@@ -30,7 +31,6 @@ import org.kohsuke.github.GHRepository
 import java.io.IOException
 import java.util.ArrayList
 import java.util.Date
-import java.util.HashMap
 
 abstract class BaseReposModel(val selectedRepo: String) {
     lateinit var bus: EventBus
@@ -191,7 +191,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
 
     fun getCurrentRepoUrl() = currentRepository?.fullUrl
 
-    @Throws(MissingTravisCiTokenException::class, MissingCircleCiTokenException::class)
+    @Throws(MissingTravisCiTokenException::class, MissingCircleCiTokenException::class, UndefinedCiEnvironmentException::class)
     fun requestRebuild(branch: GHBranchWrapper) {
         currentBranchBuild = branch
         val ciEnvironment = when {
@@ -209,7 +209,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
                 }
                 CircleCi
             }
-            else -> return
+            else -> throw UndefinedCiEnvironmentException()
         }
         currentCiEnvironment = ciEnvironment.triggerRebuild(
                 externalId = branch.externalBuildId,
@@ -294,6 +294,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
 
         const val CANCEL = "Cancel"
         const val RETRY = "Retry"
+        const val OK = "OK"
         const val VIEW_BUILD = "View build"
         const val CLEAR_TOKEN = "Clear token"
         const val BRANCH_BUILD = "Branch build"
@@ -306,6 +307,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
         const val REQUEST_CODE_MISSING_TRAVIS_TOKEN = 2
         const val REQUEST_CODE_MISSING_CIRCLE_TOKEN = 3
         const val REQUEST_CODE_BUILD_SUCCEEDED = 4
-        const val REQUEST_CODE_BUILD_FAILED = 5
+        const val REQUEST_CODE_BUILD_FAILED_UNDEFINED_CI_ENVIRONMENT = 5
+        const val REQUEST_CODE_BUILD_FAILED = 6
     }
 }
