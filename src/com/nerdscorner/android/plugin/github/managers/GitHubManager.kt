@@ -21,14 +21,24 @@ object GitHubManager {
 
     @JvmStatic
     fun setup(oauthKey: String, organizations: String?) {
+        initGithub(oauthKey)
+        initOrganizations(organizations)
+    }
+
+    fun initGithub(oauthKey: String?) {
         // Github personal token (https://github.com/settings/tokens)
-        val httpClient = OkHttpClient()
-        httpClient.interceptors().add(HttpLoggingInterceptor().setLevel(HEADERS))
+        val httpClient = OkHttpClient().apply {
+            interceptors().add(HttpLoggingInterceptor().setLevel(HEADERS))
+        }
         github = GitHubBuilder
                 .fromEnvironment()
-                .withOAuthToken(oauthKey)
+                .withOAuthToken(oauthKey ?: return)
                 .withConnector(OkHttpConnector(OkUrlFactory(httpClient)))
                 .build()
+        myselfGitHub = github?.myself
+    }
+
+    fun initOrganizations(organizations: String?) {
         ghOrganizations.clear()
         if (!StringUtils.isEmpty(organizations)) {
             organizations
@@ -38,7 +48,6 @@ object GitHubManager {
                     }
 
         }
-        myselfGitHub = github?.myself
     }
 
     @JvmStatic

@@ -1,6 +1,7 @@
 package com.nerdscorner.android.plugin.github.ui.model
 
 import com.intellij.ide.util.PropertiesComponent
+import com.nerdscorner.android.plugin.github.managers.GitHubManager
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 
@@ -25,5 +26,8 @@ class ParametersModel {
         propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, circleCiToken)
         propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, travisToken)
         propertiesComponent.setValue(Strings.SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION, showReposOutsideOrganization)
+
+        GitHubManager.initGithub(githubToken)
+        GitHubManager.initOrganizations(organizationName)
     }
 }
