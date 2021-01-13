@@ -7,7 +7,9 @@ import com.intellij.ide.util.PropertiesComponent
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.github.managers.GitHubManager
 import com.nerdscorner.android.plugin.utils.Strings
+import com.nerdscorner.android.plugin.utils.addIfNotPresent
 import com.nerdscorner.android.plugin.utils.cancel
+import com.nerdscorner.android.plugin.utils.startThread
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -55,14 +57,15 @@ class ExperimentalModel {
     fun loadRepositories() {
         reposLoaderThread.cancel()
         allLibraries.clear()
-        reposLoaderThread = Thread {
+        includedLibraries.clear()
+        reposLoaderThread = startThread {
             GitHubManager.ghOrganization
                     ?.listRepositories()
                     ?.withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
                     ?.forEach { repository ->
                         if (shouldAddRepository(repository)) {
                             val repo = GHRepositoryWrapper(repository)
-                            allLibraries.add(repo)
+                            allLibraries.addIfNotPresent(repo)
                             if (repository.name in includedLibrariesNames) {
                                 includedLibraries.add(repo)
                             }
@@ -74,7 +77,7 @@ class ExperimentalModel {
                     ?.forEach { repository ->
                         if (shouldAddRepository(repository)) {
                             val repo = GHRepositoryWrapper(repository)
-                            allLibraries.add(repo)
+                            allLibraries.addIfNotPresent(repo)
                             if (repository.name in includedLibrariesNames) {
                                 includedLibraries.add(repo)
                             }
@@ -82,14 +85,13 @@ class ExperimentalModel {
                     }
             bus.post(ReposLoadedEvent())
         }
-        reposLoaderThread?.start()
     }
 
     fun fetchAppsChangelog() {
         librariesLoaderThread.cancel()
         var totalProgress = 0f
         val progressStep = 100f / includedLibraries.size.toFloat()
-        librariesLoaderThread = Thread {
+        librariesLoaderThread = startThread {
             includedLibraries.forEach { repository ->
                 totalProgress += progressStep
                 repository.ensureChangelog()
@@ -97,7 +99,6 @@ class ExperimentalModel {
             }
             bus.post(AllChangelogFetchedSuccessfullyEvent())
         }
-        librariesLoaderThread?.start()
     }
 
     fun getLibrariesChangelog(): String {
@@ -152,7 +153,7 @@ class ExperimentalModel {
 
     fun createLibrariesReleases(reviewersTeamName: String?) {
         releasesCreatorThread.cancel()
-        releasesCreatorThread = Thread {
+        releasesCreatorThread = startThread {
             val androidReviewersTeam = getReviewersTeam(reviewersTeamName)
             val externalReviewers = externalReviewersUserNames.mapNotNull {
                 GitHubManager.github?.getUser(it)
@@ -184,7 +185,6 @@ class ExperimentalModel {
                 bus.post(ReleasesCreatedSuccessfullyEvent(releasedLibraries))
             }
         }
-        releasesCreatorThread?.start()
     }
 
     private fun releaseLibrary(library: GHRepositoryWrapper,
@@ -229,7 +229,7 @@ class ExperimentalModel {
 
     fun createVersionBumps(reviewersTeamName: String?) {
         versionBumpCreatorThread.cancel()
-        versionBumpCreatorThread = Thread {
+        versionBumpCreatorThread = startThread {
             val androidReviewersTeam = getReviewersTeam(reviewersTeamName)
             val externalReviewers = externalReviewersUserNames.mapNotNull {
                 GitHubManager.github?.getUser(it)
@@ -260,7 +260,6 @@ class ExperimentalModel {
                 bus.post(VersionBumpsCreatedSuccessfullyEvent(bumpedLibraries))
             }
         }
-        versionBumpCreatorThread?.start()
     }
 
     private fun bumpLibrary(library: GHRepositoryWrapper,

@@ -4,15 +4,14 @@ import com.nerdscorner.android.plugin.github.managers.GitHubManager
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.cancel
-import org.kohsuke.github.GHMyself
-import org.kohsuke.github.GHOrganization
+import com.nerdscorner.android.plugin.utils.startThread
 import java.util.ArrayList
 
 class AllReposModel(selectedRepo: String)
     : BaseReposModel(selectedRepo) {
     override fun loadRepositories() {
         loaderThread.cancel()
-        loaderThread = Thread {
+        loaderThread = startThread {
             val reposTableModel = GHRepoTableModel(ArrayList(), arrayOf(Strings.NAME))
             loadOrganizationRepos(GitHubManager.ghOrganization, reposTableModel)
             if (allowNonOrganizationRepos()) {
@@ -20,6 +19,5 @@ class AllReposModel(selectedRepo: String)
             }
             bus.post(UpdateRepositoryInfoTablesEvent(reposTableModel))
         }
-        loaderThread?.start()
     }
 }

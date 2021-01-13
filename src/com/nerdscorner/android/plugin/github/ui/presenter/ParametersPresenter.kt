@@ -4,7 +4,7 @@ import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent
 import com.nerdscorner.android.plugin.github.ui.model.ParametersModel
 import com.nerdscorner.android.plugin.github.ui.view.ParametersView
 import com.nerdscorner.android.plugin.github.ui.view.ParametersView.SaveButtonClickedEvent
-import com.nerdscorner.android.plugin.utils.ThreadUtils
+import com.nerdscorner.android.plugin.utils.executeDelayed
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
@@ -29,7 +29,7 @@ class ParametersPresenter(private val view: ParametersView, private val model: P
         model.saveParameters(event.organizationName, event.githubToken, event.circleCiToken, event.travisToken, event.showReposOutsideOrganization)
         view.updateMessageLabel(SAVED_MESSAGE)
         view.showMessageLabel()
-        ThreadUtils.executeDelayed(SAVED_MESSAGE_DELAY) {
+        executeDelayed(SAVED_MESSAGE_DELAY) {
             view.hideMessageLabel()
         }
     }

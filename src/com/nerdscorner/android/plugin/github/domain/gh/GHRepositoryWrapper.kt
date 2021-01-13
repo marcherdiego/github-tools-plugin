@@ -216,6 +216,21 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (javaClass != other?.javaClass) {
+            return false
+        }
+        if (name != (other as GHRepositoryWrapper).name) {
+            return false
+        }
+        return true
+    }
+
+    override fun hashCode() = name.hashCode()
+
     companion object {
         private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
         private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()

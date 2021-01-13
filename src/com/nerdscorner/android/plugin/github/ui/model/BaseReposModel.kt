@@ -14,12 +14,13 @@ import com.nerdscorner.android.plugin.ci.CiEnvironment
 import com.nerdscorner.android.plugin.ci.CircleCi
 import com.nerdscorner.android.plugin.utils.BrowserUtils
 import com.nerdscorner.android.plugin.utils.Strings
-import com.nerdscorner.android.plugin.utils.ThreadUtils
 import com.nerdscorner.android.plugin.ci.TravisCi
 import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent
 import com.nerdscorner.android.plugin.github.exceptions.UndefinedCiEnvironmentException
 import com.nerdscorner.android.plugin.github.managers.GitHubManager
 import com.nerdscorner.android.plugin.utils.cancel
+import com.nerdscorner.android.plugin.utils.cancelThreads
+import com.nerdscorner.android.plugin.utils.startThread
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
@@ -88,7 +89,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
         selectedRepoRow = -1
         currentBranchBuild = null
         currentCiEnvironment = null
-        ThreadUtils.cancelThreads(loaderThread, releasesLoaderThread, prsLoaderThread, branchesLoaderThread)
+        cancelThreads(loaderThread, releasesLoaderThread, prsLoaderThread, branchesLoaderThread)
     }
 
     @Throws(IOException::class)
@@ -153,25 +154,22 @@ abstract class BaseReposModel(val selectedRepo: String) {
     fun loadRepoReleasesAndBranches() {
         try {
             commentsUpdated = false
-            ThreadUtils.cancelThreads(releasesLoaderThread, branchesLoaderThread, prsLoaderThread)
+            cancelThreads(releasesLoaderThread, branchesLoaderThread, prsLoaderThread)
 
-            branchesLoaderThread = Thread {
+            branchesLoaderThread = startThread {
                 try {
                     loadBranches()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-            releasesLoaderThread = Thread {
+            releasesLoaderThread = startThread {
                 try {
                     loadReleases()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-
-            branchesLoaderThread?.start()
-            releasesLoaderThread?.start()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -179,14 +177,13 @@ abstract class BaseReposModel(val selectedRepo: String) {
 
     fun loadPullRequests(latestReleaseDate: Date?) {
         prsLoaderThread.cancel()
-        prsLoaderThread = Thread {
+        prsLoaderThread = startThread {
             try {
                 loadPRs(latestReleaseDate)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        prsLoaderThread?.start()
     }
 
     fun getCurrentRepoUrl() = currentRepository?.fullUrl
