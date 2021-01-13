@@ -25,7 +25,6 @@ import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
 import org.kohsuke.github.GHMyself
-import org.kohsuke.github.GHOrganization
 import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort
 import org.kohsuke.github.GHRepository
@@ -41,9 +40,6 @@ abstract class BaseReposModel(val selectedRepo: String) {
     private var releasesLoaderThread: Thread? = null
     private var prsLoaderThread: Thread? = null
     private var branchesLoaderThread: Thread? = null
-
-    val organizationName: String?
-        get() = GitHubManager.ghOrganization?.login
 
     var commentsUpdated: Boolean = false
     var currentRepository: GHRepositoryWrapper? = null
@@ -65,21 +61,18 @@ abstract class BaseReposModel(val selectedRepo: String) {
                 }
     }
 
-    fun loadOrganizationRepos(ghOrganization: GHOrganization?, tableModel: GHRepoTableModel) {
-        ghOrganization
-                ?.listRepositories()
-                ?.withPageSize(LARGE_PAGE_SIZE)
-                ?.forEach { repository ->
-                    if (shouldAddRepository(repository)) {
-                        tableModel.addRow(GHRepositoryWrapper(repository))
-                    }
-                }
+    fun loadOrganizationRepos(tableModel: GHRepoTableModel) {
+        GitHubManager.forEachOrganizationsRepo { repository ->
+            if (shouldAddRepository(repository)) {
+                tableModel.addRow(GHRepositoryWrapper(repository))
+            }
+        }
     }
 
     fun allowNonOrganizationRepos() = propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION)
 
     private fun shouldAddRepository(repository: GHRepository): Boolean {
-        val validSource = allowNonOrganizationRepos() || repository.fullName.startsWith(organizationName ?: Strings.BLANK)
+        val validSource = allowNonOrganizationRepos() || GitHubManager.repoBelongsToAnyOrganization(repository)
         return validSource && repository.isFork.not()
     }
 

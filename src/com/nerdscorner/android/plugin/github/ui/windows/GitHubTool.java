@@ -3,8 +3,6 @@ package com.nerdscorner.android.plugin.github.ui.windows;
 import org.apache.commons.lang.StringUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
-import org.kohsuke.github.GitHubBuilder;
-import org.kohsuke.github.extras.OkHttpConnector;
 
 import java.awt.event.ActionEvent;
 
@@ -31,10 +29,6 @@ import com.nerdscorner.android.plugin.github.ui.view.ParametersView;
 import com.nerdscorner.android.plugin.github.ui.view.ReposView;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.OkUrlFactory;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor.Level;
 
 public class GitHubTool implements ToolWindowFactory {
 
@@ -94,15 +88,15 @@ public class GitHubTool implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(content);
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-        String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
-        organizationField.setText(organization);
+        String organizations = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);
+        organizationField.setText(organizations);
         if (StringUtils.isEmpty(oauthToken)) {
             ViewUtils.INSTANCE.show(loginPanel);
             ViewUtils.INSTANCE.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField);
         } else {
             ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
             ViewUtils.INSTANCE.hide(loginPanel);
-            githubTokenLogin(oauthToken, organization);
+            githubTokenLogin(oauthToken, organizations);
         }
         loginButton.addActionListener(new AbstractAction() {
             @Override
@@ -128,7 +122,7 @@ public class GitHubTool implements ToolWindowFactory {
                         ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
                         ViewUtils.INSTANCE.hide(loginPanel);
                         propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
-                        propertiesComponent.setValue(Strings.ORGANIZATION_NAME_PROPERTY, organization);
+                        propertiesComponent.setValue(Strings.ORGANIZATION_NAMES_PROPERTY, organization);
                         EventBus.getDefault().post(new ParameterUpdatedEvent());
                         oauthTokenField.setText(null);
                     } else {
@@ -164,18 +158,18 @@ public class GitHubTool implements ToolWindowFactory {
             public void actionPerformed(ActionEvent e) {
                 final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
                 String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-                String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
+                String organizations = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);
                 GitHubManager.clear();
-                githubTokenLogin(oauthToken, organization);
+                githubTokenLogin(oauthToken, organizations);
             }
         });
 
         loadParametersPanel();
     }
 
-    private boolean githubTokenLogin(String oauthKey, String organization) {
+    private boolean githubTokenLogin(String oauthKey, String organizations) {
         try {
-            GitHubManager.setup(oauthKey, organization);
+            GitHubManager.setup(oauthKey, organizations);
             loggedAsField.setVisible(true);
             loggedAsField.setText(String.format(Strings.LOGGED_AS, GitHubManager.getMyLogin(), GitHubManager.getMyName()));
             loadTablesInfo();
@@ -206,11 +200,11 @@ public class GitHubTool implements ToolWindowFactory {
 
     private void loadTablesInfo() {
         String organizationName = organizationField.getText();
-        if (!GitHubManager.hasOrganization() && !StringUtils.isEmpty(organizationName)) {
+        if (!GitHubManager.hasOrganizations() && !StringUtils.isEmpty(organizationName)) {
             final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
             String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-            String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
-            if (githubTokenLogin(oauthToken, organization)) {
+            String organizations = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);
+            if (githubTokenLogin(oauthToken, organizations)) {
                 return;
             }
         }

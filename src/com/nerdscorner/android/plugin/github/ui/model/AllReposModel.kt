@@ -13,7 +13,7 @@ class AllReposModel(selectedRepo: String)
         loaderThread.cancel()
         loaderThread = startThread {
             val reposTableModel = GHRepoTableModel(ArrayList(), arrayOf(Strings.NAME))
-            loadOrganizationRepos(GitHubManager.ghOrganization, reposTableModel)
+            loadOrganizationRepos(reposTableModel)
             if (allowNonOrganizationRepos()) {
                 loadMyRepos(GitHubManager.myselfGitHub, reposTableModel)
             }

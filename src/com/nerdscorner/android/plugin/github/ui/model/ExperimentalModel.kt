@@ -50,7 +50,7 @@ class ExperimentalModel {
 
     private fun shouldAddRepository(repository: GHRepository): Boolean {
         val allowNonOrganizationRepos = propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION)
-        val validSource = allowNonOrganizationRepos || repository.fullName.startsWith(GitHubManager.getOrganizationLogin() ?: Strings.BLANK)
+        val validSource = allowNonOrganizationRepos || GitHubManager.repoBelongsToAnyOrganization(repository)
         return validSource && repository.isFork.not()
     }
 
@@ -59,18 +59,15 @@ class ExperimentalModel {
         allLibraries.clear()
         includedLibraries.clear()
         reposLoaderThread = startThread {
-            GitHubManager.ghOrganization
-                    ?.listRepositories()
-                    ?.withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
-                    ?.forEach { repository ->
-                        if (shouldAddRepository(repository)) {
-                            val repo = GHRepositoryWrapper(repository)
-                            allLibraries.addIfNotPresent(repo)
-                            if (repository.name in includedLibrariesNames) {
-                                includedLibraries.add(repo)
-                            }
-                        }
+            GitHubManager.forEachOrganizationsRepo { repository ->
+                if (shouldAddRepository(repository)) {
+                    val repo = GHRepositoryWrapper(repository)
+                    allLibraries.addIfNotPresent(repo)
+                    if (repository.name in includedLibrariesNames) {
+                        includedLibraries.add(repo)
                     }
+                }
+            }
             GitHubManager.myselfGitHub
                     ?.listSubscriptions()
                     ?.withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
@@ -154,7 +151,7 @@ class ExperimentalModel {
     fun createLibrariesReleases(reviewersTeamName: String?) {
         releasesCreatorThread.cancel()
         releasesCreatorThread = startThread {
-            val androidReviewersTeam = getReviewersTeam(reviewersTeamName)
+            val androidReviewersTeam = GitHubManager.getReviewersTeam(reviewersTeamName)
             val externalReviewers = externalReviewersUserNames.mapNotNull {
                 GitHubManager.github?.getUser(it)
             }
@@ -217,20 +214,10 @@ class ExperimentalModel {
         return result
     }
 
-    private fun getReviewersTeam(teamName: String?): GHTeam? {
-        return GitHubManager.ghOrganization
-                ?.teams
-                ?.entries
-                ?.firstOrNull {
-                    it.key == teamName
-                }
-                ?.value
-    }
-
     fun createVersionBumps(reviewersTeamName: String?) {
         versionBumpCreatorThread.cancel()
         versionBumpCreatorThread = startThread {
-            val androidReviewersTeam = getReviewersTeam(reviewersTeamName)
+            val androidReviewersTeam = GitHubManager.getReviewersTeam(reviewersTeamName)
             val externalReviewers = externalReviewersUserNames.mapNotNull {
                 GitHubManager.github?.getUser(it)
             }

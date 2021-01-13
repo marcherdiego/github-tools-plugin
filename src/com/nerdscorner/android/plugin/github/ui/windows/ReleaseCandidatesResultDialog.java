@@ -14,7 +14,7 @@ import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.Strings;
 
 public class ReleaseCandidatesResultDialog extends JDialog {
-    private String organizationName = PropertiesComponent.getInstance().getValue(Strings.ORGANIZATION_NAME_PROPERTY);
+    private String organizationName = PropertiesComponent.getInstance().getValue(Strings.ORGANIZATION_NAMES_PROPERTY);
     private JPanel rootPanel;
     private JTable reposTable;
     private JButton openAllPRsButton;
