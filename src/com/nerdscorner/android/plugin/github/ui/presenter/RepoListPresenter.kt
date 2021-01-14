@@ -195,7 +195,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
             REQUEST_CODE_MISSING_CIRCLE_TOKEN -> model.saveCircleToken(event.text)
             else -> return
         }
-        view.showResultDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
         model.triggerPendingRebuild()
+        view.showResultDialog(BRANCH_BUILD, RE_RUNNING_BUILD, CANCEL, REQUEST_CODE_LAUNCH_BUILD)
     }
 }

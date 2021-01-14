@@ -2,6 +2,7 @@ package com.nerdscorner.android.plugin.github.domain.gh
 
 import com.nerdscorner.android.plugin.utils.Strings
 import org.kohsuke.github.GHBranch
+import org.kohsuke.github.GHCheckRun
 
 class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
 
@@ -23,24 +24,23 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
                 .owner
                 ?.getCheckRuns(ghBranch.shA1)
                 ?.forEach {
-                    travisBuild = it
-                            .detailsUrl
-                            .toString()
-                            .contains(TRAVIS_CI)
-                    circleBuild = it
-                            .detailsUrl
-                            .toString()
-                            .contains(CIRCLE_CI)
-                    if (travisBuild || circleBuild) {
-                        buildStatus = it.status.capitalize()
-                        it.conclusion?.let { conclusion ->
-                            buildStatus += ": ${conclusion.capitalize()}"
-                        }
-                        buildStatusUrl = it.detailsUrl.toString()
-                        externalBuildId = it.externalId
-                        return@forEach
+                    if (it.detailsUrl.toString().contains(TRAVIS_CI)) {
+                        travisBuild = true
+                        extractBranchStatus(it)
+                    } else if (it.detailsUrl.toString().contains(CIRCLE_CI)) {
+                        circleBuild = true
+                        extractBranchStatus(it)
                     }
                 }
+    }
+
+    private fun extractBranchStatus(ghCheckRun: GHCheckRun) {
+        buildStatus = ghCheckRun.status.capitalize()
+        ghCheckRun.conclusion?.let { conclusion ->
+            buildStatus += ": ${conclusion.capitalize()}"
+        }
+        buildStatusUrl = ghCheckRun.detailsUrl.toString()
+        externalBuildId = ghCheckRun.externalId
     }
 
     override fun toString(): String {
