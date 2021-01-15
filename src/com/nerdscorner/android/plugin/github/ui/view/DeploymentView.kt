@@ -6,13 +6,14 @@ import com.nerdscorner.android.plugin.utils.JTableUtils
 import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleDoubleClickAdapter
 import com.nerdscorner.android.plugin.utils.onClick
 import org.greenrobot.eventbus.EventBus
+import java.awt.font.TextAttribute
 import javax.swing.JButton
 import javax.swing.JLabel
 import javax.swing.JTable
 import javax.swing.JTextField
 import javax.swing.ListSelectionModel
 
-class ExperimentalView(
+class DeploymentView(
         private val createAppsChangelogButton: JButton,
         private val androidMessages: JLabel,
         private val addLibraryButton: JButton,
@@ -54,6 +55,10 @@ class ExperimentalView(
                 bus.post(RemoveLibraryClickedEvent())
             }
         })
+        val font = releaseProcessLink.font
+        val attributes = font.attributes.toMutableMap()
+        attributes[TextAttribute.UNDERLINE] = TextAttribute.UNDERLINE_ON
+        releaseProcessLink.font = font.deriveFont(attributes)
         releaseProcessLink.onClick {
             bus.post(OpenReleaseProcessWikiClickedEvent())
         }

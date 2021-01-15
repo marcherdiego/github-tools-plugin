@@ -20,7 +20,6 @@ import java.util.ArrayList
 import java.util.Date
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
-import javax.swing.SwingUtilities
 
 class ReposView(
         private val reposTable: JTable,

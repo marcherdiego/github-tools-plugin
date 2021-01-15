@@ -5,7 +5,7 @@ import java.net.URI
 import java.net.URL
 
 object BrowserUtils {
-    fun openWebLink(uri: URI?) {
+    private fun openWebLink(uri: URI?) {
         try {
             with(Desktop.getDesktop()) {
                 if (isSupported(Desktop.Action.BROWSE)) {

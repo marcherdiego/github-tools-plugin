@@ -21,7 +21,7 @@ import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
 import java.util.concurrent.atomic.AtomicInteger
 
-class ExperimentalModel {
+class DeploymentModel {
     lateinit var bus: EventBus
 
     val allLibraries = mutableListOf<GHRepositoryWrapper>()

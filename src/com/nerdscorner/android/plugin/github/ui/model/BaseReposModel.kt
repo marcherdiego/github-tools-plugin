@@ -41,7 +41,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
     private var prsLoaderThread: Thread? = null
     private var branchesLoaderThread: Thread? = null
 
-    var commentsUpdated: Boolean = false
+    private var commentsUpdated: Boolean = false
     var currentRepository: GHRepositoryWrapper? = null
     var selectedRepoRow = -1
 

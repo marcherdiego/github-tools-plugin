@@ -1,8 +1,6 @@
 package com.nerdscorner.android.plugin.utils
 
 object Constants {
-    const val GITHUB_IGNORED_USER = "TheAppraisalLaneAdmin"
-
     const val DOT = "."
     const val BLANK = ""
     const val SPACE = " "

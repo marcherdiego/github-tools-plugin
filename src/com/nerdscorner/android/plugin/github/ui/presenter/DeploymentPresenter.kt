@@ -1,25 +1,25 @@
 package com.nerdscorner.android.plugin.github.ui.presenter
 
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseSkippedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpSkippedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.AllChangelogFetchedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ChangelogFetchedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleaseCreatedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReleasesCreatedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.ReposLoadedEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpCreatedSuccessfullyEvent
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel.VersionBumpsCreatedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.ReleaseSkippedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.VersionBumpSkippedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.AllChangelogFetchedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.ChangelogFetchedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.ReleaseCreatedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.ReleasesCreatedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.ReposLoadedEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.VersionBumpCreatedSuccessfullyEvent
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel.VersionBumpsCreatedSuccessfullyEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.ReleaseCandidateTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.VersionBumpsTableModel
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.AddLibraryClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateAppsChangelogClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateVersionBumpsClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.OpenReleaseProcessWikiClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.ReleaseLibrariesClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.RemoveLibraryClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView.AddLibraryClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView.CreateAppsChangelogClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView.CreateVersionBumpsClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView.OpenReleaseProcessWikiClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView.ReleaseLibrariesClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView.RemoveLibraryClickedEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ChangelogResultDialog
 import com.nerdscorner.android.plugin.github.ui.windows.ReleaseCandidatesResultDialog
 import com.nerdscorner.android.plugin.github.ui.windows.VersionBumpsResultDialog
@@ -29,7 +29,7 @@ import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 
-class ExperimentalPresenter(private val view: ExperimentalView, private val model: ExperimentalModel, bus: EventBus) {
+class DeploymentPresenter(private val view: DeploymentView, private val model: DeploymentModel, bus: EventBus) {
     init {
         view.bus = bus
         model.bus = bus

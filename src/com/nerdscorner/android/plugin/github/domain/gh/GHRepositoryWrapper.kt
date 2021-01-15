@@ -15,7 +15,7 @@ import java.net.URL
 import java.nio.charset.Charset
 
 class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wrapper(), Serializable {
-    val description: String
+    private val description: String
     val name: String = ghRepository.name
 
     val url: String

@@ -17,14 +17,14 @@ import com.intellij.ui.content.ContentFactory;
 import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent;
 import com.nerdscorner.android.plugin.github.managers.GitHubManager;
 import com.nerdscorner.android.plugin.github.ui.model.AllReposModel;
-import com.nerdscorner.android.plugin.github.ui.model.ExperimentalModel;
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel;
 import com.nerdscorner.android.plugin.github.ui.model.MyReposModel;
 import com.nerdscorner.android.plugin.github.ui.model.ParametersModel;
-import com.nerdscorner.android.plugin.github.ui.presenter.ExperimentalPresenter;
+import com.nerdscorner.android.plugin.github.ui.presenter.DeploymentPresenter;
 import com.nerdscorner.android.plugin.github.ui.presenter.ParametersPresenter;
 import com.nerdscorner.android.plugin.github.ui.presenter.RepoListPresenter;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
-import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView;
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView;
 import com.nerdscorner.android.plugin.github.ui.view.ParametersView;
 import com.nerdscorner.android.plugin.github.ui.view.ReposView;
 import com.nerdscorner.android.plugin.utils.Strings;
@@ -48,6 +48,20 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable myReposClosedPrTable;
     private RepoListPresenter myReposPresenter;
 
+    private JButton createAppsChangelogButton;
+    private JButton addLibraryButton;
+    private JButton removeLibraryButton;
+    private JTable excludedRepos;
+    private JTable includedRepos;
+    private JButton releaseLibrariesButton;
+    private JLabel changelogProgress;
+    private JButton createVersionBumpsButton;
+    private JLabel includedReposLabel;
+    private JTextField reviewersTeam;
+    private JTextField individualReviewers;
+    private JLabel releaseProcessLink;
+    private DeploymentPresenter deploymentPresenter;
+
     private JTextField githubToken;
     private JTextField circleCiToken;
     private JTextField travisToken;
@@ -57,23 +71,9 @@ public class GitHubTool implements ToolWindowFactory {
     private JCheckBox showReposOutsideOrganization;
     private ParametersPresenter parametersPresenter;
 
-    private JButton createAppsChangelogButton;
-    private JButton addLibraryButton;
-    private JButton removeLibraryButton;
-    private JTable excludedRepos;
-    private JTable includedRepos;
-    private JButton releaseLibrariesButton;
-    private JTextField organizationField;
-    private JLabel changelogProgress;
-    private JButton createVersionBumpsButton;
-    private JLabel includedReposLabel;
-    private JTextField reviewersTeam;
-    private JTextField individualReviewers;
-    private JLabel releaseProcessLink;
-    private ExperimentalPresenter experimentalPresenter;
-
     private JPanel loginPanel;
     private JPanel pluginPanel;
+    private JTextField organizationField;
     private JTextField oauthTokenField;
     private JButton loginButton;
     private JButton logoutButton;
@@ -151,7 +151,7 @@ public class GitHubTool implements ToolWindowFactory {
                 allAllReposPresenter = null;
                 myReposPresenter = null;
                 parametersPresenter = null;
-                experimentalPresenter = null;
+                deploymentPresenter = null;
             }
         });
 
@@ -228,6 +228,28 @@ public class GitHubTool implements ToolWindowFactory {
         allAllReposPresenter.init();
         allAllReposPresenter.loadRepositories();
 
+        if (deploymentPresenter == null) {
+            deploymentPresenter = new DeploymentPresenter(
+                    new DeploymentView(
+                            createAppsChangelogButton,
+                            changelogProgress,
+                            addLibraryButton,
+                            removeLibraryButton,
+                            excludedRepos,
+                            includedReposLabel,
+                            includedRepos,
+                            releaseLibrariesButton,
+                            createVersionBumpsButton,
+                            reviewersTeam,
+                            individualReviewers,
+                            releaseProcessLink
+                    ),
+                    new DeploymentModel(),
+                    new EventBus()
+            );
+        }
+        deploymentPresenter.loadRepositories();
+
         if (myReposPresenter == null) {
             myReposPresenter = new RepoListPresenter(
                     new ReposView(
@@ -244,27 +266,5 @@ public class GitHubTool implements ToolWindowFactory {
         }
         myReposPresenter.init();
         myReposPresenter.loadRepositories();
-
-        if (experimentalPresenter == null) {
-            experimentalPresenter = new ExperimentalPresenter(
-                    new ExperimentalView(
-                            createAppsChangelogButton,
-                            changelogProgress,
-                            addLibraryButton,
-                            removeLibraryButton,
-                            excludedRepos,
-                            includedReposLabel,
-                            includedRepos,
-                            releaseLibrariesButton,
-                            createVersionBumpsButton,
-                            reviewersTeam,
-                            individualReviewers,
-                            releaseProcessLink
-                    ),
-                    new ExperimentalModel(),
-                    new EventBus()
-            );
-        }
-        experimentalPresenter.loadRepositories();
     }
 }

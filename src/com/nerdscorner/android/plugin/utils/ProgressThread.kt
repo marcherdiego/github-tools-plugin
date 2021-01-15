@@ -12,14 +12,8 @@ class ProgressThread {
             field = value
             step = 0
         }
-    var step: Int = 0
-    var timer: Timer? = null
-
-    fun setup(target: JLabel, message: String) {
-        this.target = target
-        this.message = message
-        step = 0
-    }
+    private var step: Int = 0
+    private var timer: Timer? = null
 
     fun start() {
         timer = timer(

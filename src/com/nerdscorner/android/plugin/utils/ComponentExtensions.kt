@@ -3,7 +3,6 @@ package com.nerdscorner.android.plugin.utils
 import java.awt.Component
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
-import javax.swing.JButton
 
 fun Component.onClick(listener: () -> Unit) {
     onClick(listener, 1)
