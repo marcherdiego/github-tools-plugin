@@ -22,7 +22,9 @@ class ExperimentalView(
         private val includedRepos: JTable,
         private val releaseLibrariesButton: JButton,
         private val createVersionBumpsButton: JButton,
-        private val reviewerTeam: JTextField) {
+        private val reviewerTeam: JTextField,
+        private val individualReviewers: JTextField,
+        releaseProcessLink: JLabel) {
 
     lateinit var bus: EventBus
 
@@ -52,16 +54,25 @@ class ExperimentalView(
                 bus.post(RemoveLibraryClickedEvent())
             }
         })
+        releaseProcessLink.onClick {
+            bus.post(OpenReleaseProcessWikiClickedEvent())
+        }
         excludedRepos.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         includedRepos.selectionModel.selectionMode = ListSelectionModel.SINGLE_SELECTION
         setAndroidMessagesVisibility(false)
     }
 
-    fun setReviewerTeam(teamName: String?) {
+    fun setReviewerTeams(teamName: String?) {
         reviewerTeam.text = teamName
     }
 
-    fun getReviewerTeam(): String? = reviewerTeam.text
+    fun getReviewerTeams(): String? = reviewerTeam.text
+
+    fun setIndividualReviewers(individuals: String?) {
+        individualReviewers.text = individuals
+    }
+
+    fun getIndividualReviewers(): String? = individualReviewers.text
 
     fun setAndroidMessagesVisibility(visible: Boolean) {
         androidMessages.isVisible = visible
@@ -108,4 +119,5 @@ class ExperimentalView(
     class RemoveLibraryClickedEvent
     class ReleaseLibrariesClickedEvent
     class CreateVersionBumpsClickedEvent
+    class OpenReleaseProcessWikiClickedEvent
 }

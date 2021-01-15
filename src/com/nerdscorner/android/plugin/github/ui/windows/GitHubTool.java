@@ -63,6 +63,13 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable excludedRepos;
     private JTable includedRepos;
     private JButton releaseLibrariesButton;
+    private JTextField organizationField;
+    private JLabel changelogProgress;
+    private JButton createVersionBumpsButton;
+    private JLabel includedReposLabel;
+    private JTextField reviewersTeam;
+    private JTextField individualReviewers;
+    private JLabel releaseProcessLink;
     private ExperimentalPresenter experimentalPresenter;
 
     private JPanel loginPanel;
@@ -72,11 +79,6 @@ public class GitHubTool implements ToolWindowFactory {
     private JButton logoutButton;
     private JLabel loggedAsField;
     private JButton reloadViewButton;
-    private JTextField organizationField;
-    private JLabel changelogProgress;
-    private JButton createVersionBumpsButton;
-    private JLabel includedReposLabel;
-    private JTextField reviewerTeam;
 
     private Project project;
 
@@ -255,7 +257,9 @@ public class GitHubTool implements ToolWindowFactory {
                             includedRepos,
                             releaseLibrariesButton,
                             createVersionBumpsButton,
-                            reviewerTeam
+                            reviewersTeam,
+                            individualReviewers,
+                            releaseProcessLink
                     ),
                     new ExperimentalModel(),
                     new EventBus()

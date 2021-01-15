@@ -1,10 +1,15 @@
 package com.nerdscorner.android.plugin.utils
 
+import java.awt.Component
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JButton
 
-fun JButton.onClick(listener: () -> Unit) {
+fun Component.onClick(listener: () -> Unit) {
+    onClick(listener, 1)
+}
+
+private fun Component.onClick(listener: () -> Unit, clickCount: Int) {
     mouseListeners.forEach {
         removeMouseListener(it)
     }
@@ -13,7 +18,7 @@ fun JButton.onClick(listener: () -> Unit) {
             if (isEnabled.not()) {
                 return
             }
-            if (e?.clickCount == 1) {
+            if (e?.clickCount == clickCount) {
                 listener()
             }
         }

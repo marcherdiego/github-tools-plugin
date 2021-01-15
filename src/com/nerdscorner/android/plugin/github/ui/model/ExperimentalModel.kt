@@ -148,14 +148,11 @@ class ExperimentalModel {
         propertiesComponent.setValue(INCLUDED_LIBRARIES_PROPERTY, gson.toJson(includedLibrariesNames))
     }
 
-    fun createLibrariesReleases(reviewersTeamName: String?) {
+    fun createLibrariesReleases(reviewersTeamName: String?, individualReviewers: String?) {
         releasesCreatorThread.cancel()
         releasesCreatorThread = startThread {
             val androidReviewersTeam = GitHubManager.getReviewersTeam(reviewersTeamName)
-            val externalReviewers = externalReviewersUserNames.mapNotNull {
-                GitHubManager.github?.getUser(it)
-            }
-
+            val individualReviewerUsers = extractIndividualReviewers(individualReviewers)
             loadProgress = AtomicDouble()
             loadTotalItems = AtomicInteger(includedLibraries.size)
             loadCompletedItems = AtomicInteger()
@@ -163,7 +160,7 @@ class ExperimentalModel {
             val deferredReleases = mutableListOf<Deferred<GHRepositoryWrapper?>>()
             includedLibraries.forEach { library ->
                 val deferredRelease = GlobalScope.async(Dispatchers.IO) {
-                    val result = releaseLibrary(library, androidReviewersTeam, externalReviewers)
+                    val result = releaseLibrary(library, androidReviewersTeam, individualReviewerUsers)
                     loadProgress.addAndGet(progressStep)
                     result
                 }
@@ -186,7 +183,7 @@ class ExperimentalModel {
 
     private fun releaseLibrary(library: GHRepositoryWrapper,
                                reviewersTeam: GHTeam?,
-                               externalReviewers: List<GHUser>): GHRepositoryWrapper? {
+                               externalReviewers: List<GHUser>?): GHRepositoryWrapper? {
         var result: GHRepositoryWrapper? = null
         with(library) {
             try {
@@ -214,13 +211,11 @@ class ExperimentalModel {
         return result
     }
 
-    fun createVersionBumps(reviewersTeamName: String?) {
+    fun createVersionBumps(reviewersTeamName: String?, individualReviewers: String?) {
         versionBumpCreatorThread.cancel()
         versionBumpCreatorThread = startThread {
             val androidReviewersTeam = GitHubManager.getReviewersTeam(reviewersTeamName)
-            val externalReviewers = externalReviewersUserNames.mapNotNull {
-                GitHubManager.github?.getUser(it)
-            }
+            val individualReviewerUsers = extractIndividualReviewers(individualReviewers)
             loadProgress = AtomicDouble()
             loadTotalItems = AtomicInteger(includedLibraries.size)
             loadCompletedItems = AtomicInteger()
@@ -228,7 +223,7 @@ class ExperimentalModel {
             val deferredBumps = mutableListOf<Deferred<GHRepositoryWrapper?>>()
             includedLibraries.forEach { library ->
                 val deferredBump = GlobalScope.async(Dispatchers.IO) {
-                    val result = bumpLibrary(library, androidReviewersTeam, externalReviewers)
+                    val result = bumpLibrary(library, androidReviewersTeam, individualReviewerUsers)
                     loadProgress.addAndGet(progressStep)
                     result
                 }
@@ -251,7 +246,7 @@ class ExperimentalModel {
 
     private fun bumpLibrary(library: GHRepositoryWrapper,
                             reviewersTeam: GHTeam?,
-                            externalReviewers: List<GHUser>): GHRepositoryWrapper? {
+                            externalReviewers: List<GHUser>?): GHRepositoryWrapper? {
         var result: GHRepositoryWrapper? = null
         with(library) {
             try {
@@ -281,11 +276,27 @@ class ExperimentalModel {
         return result
     }
 
-    fun saveReviewerTeamName(reviewerTeam: String?) {
-        propertiesComponent.setValue(REVIEWER_TEAM_NAME_PROPERTY, reviewerTeam)
+    fun saveReviewers(reviewerTeams: String?, individualReviewers: String?) {
+        propertiesComponent.setValue(REVIEWER_TEAMS_NAME_PROPERTY, reviewerTeams)
+        propertiesComponent.setValue(INDIVIDUAL_REVIEWERS_NAMES_PROPERTY, individualReviewers)
     }
 
-    fun getReviewerTeamName() = propertiesComponent.getValue(REVIEWER_TEAM_NAME_PROPERTY) ?: DEFAULT_REVIEWER_TEAM_NAME
+    fun getReviewerTeamsName() = propertiesComponent.getValue(REVIEWER_TEAMS_NAME_PROPERTY)
+
+    fun getIndividualReviewers() = propertiesComponent.getValue(INDIVIDUAL_REVIEWERS_NAMES_PROPERTY)
+
+    fun getReleaseProcessWikiPage() = RELEASE_PROCESS_GUIDE_URL
+
+    private fun extractIndividualReviewers(individualReviewers: String?): List<GHUser>? {
+        return individualReviewers
+                ?.split(",")
+                ?.filter {
+                    it.isNotBlank()
+                }
+                ?.mapNotNull {
+                    GitHubManager.github?.getUser(it)
+                }
+    }
 
     class ChangelogFetchedSuccessfullyEvent(val libraryName: String?, val totalProgress: Float)
     class AllChangelogFetchedSuccessfullyEvent
@@ -304,13 +315,13 @@ class ExperimentalModel {
         private val propertiesComponent = PropertiesComponent.getInstance()
         private val stringListTypeToken = object : TypeToken<List<String>>() {}.type
         private const val INCLUDED_LIBRARIES_PROPERTY = "included_libraries"
-        private const val REVIEWER_TEAM_NAME_PROPERTY = "reviewer_team_name"
+        private const val REVIEWER_TEAMS_NAME_PROPERTY = "reviewer_team_name"
+        private const val INDIVIDUAL_REVIEWERS_NAMES_PROPERTY = "individual_reviewers_names"
 
         private const val EMPTY_CHANGELOG_MESSAGE = "Empty changelog"
         private const val NO_CHANGES_NEEDED = "No changes needed"
         private const val CHANGELOG_NOT_FOUND = "CHANGELOG.MD not found"
 
-        private const val DEFAULT_REVIEWER_TEAM_NAME = "AndroidReviewers"
-        private val externalReviewersUserNames = listOf("rtss00")
+        private const val RELEASE_PROCESS_GUIDE_URL = "https://github.com/marcherdiego/android_mvp/wiki/Release-process-guide"
     }
 }

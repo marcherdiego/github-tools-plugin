@@ -17,11 +17,13 @@ import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.AddLibraryClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateAppsChangelogClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.CreateVersionBumpsClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.OpenReleaseProcessWikiClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.ReleaseLibrariesClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ExperimentalView.RemoveLibraryClickedEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ChangelogResultDialog
 import com.nerdscorner.android.plugin.github.ui.windows.ReleaseCandidatesResultDialog
 import com.nerdscorner.android.plugin.github.ui.windows.VersionBumpsResultDialog
+import com.nerdscorner.android.plugin.utils.BrowserUtils
 import com.nerdscorner.android.plugin.utils.MultilineStringLabel
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
@@ -32,7 +34,8 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         view.bus = bus
         model.bus = bus
         bus.register(this)
-        view.setReviewerTeam(model.getReviewerTeamName())
+        view.setReviewerTeams(model.getReviewerTeamsName())
+        view.setIndividualReviewers(model.getIndividualReviewers())
     }
 
     fun loadRepositories() {
@@ -41,7 +44,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onCreateAppsChangelogButtonClicked(event: CreateAppsChangelogClickedEvent) {
-        model.saveReviewerTeamName(view.getReviewerTeam())
+        model.saveReviewers(view.getReviewerTeams(), view.getIndividualReviewers())
         if (model.includedLibraries.isNotEmpty()) {
             view.disableButtons()
             view.setAndroidMessagesVisibility(true)
@@ -88,12 +91,12 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
 
     @Subscribe
     fun onReleaseLibrariesClicked(event: ReleaseLibrariesClickedEvent) {
-        model.saveReviewerTeamName(view.getReviewerTeam())
+        model.saveReviewers(view.getReviewerTeams(), view.getIndividualReviewers())
         if (model.includedLibraries.isNotEmpty()) {
             view.disableButtons()
             view.setAndroidMessagesVisibility(true)
             view.updateAndroidMessages("Creating libraries Release Candidates...")
-            model.createLibrariesReleases(view.getReviewerTeam())
+            model.createLibrariesReleases(view.getReviewerTeams(), view.getIndividualReviewers())
         }
     }
 
@@ -140,7 +143,7 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
             view.disableButtons()
             view.setAndroidMessagesVisibility(true)
             view.updateAndroidMessages("Creating libraries Version Bumps...")
-            model.createVersionBumps(view.getReviewerTeam())
+            model.createVersionBumps(view.getReviewerTeams(), view.getIndividualReviewers())
         }
     }
 
@@ -179,6 +182,11 @@ class ExperimentalPresenter(private val view: ExperimentalView, private val mode
         versionBumpsCreatedDialog.title = Strings.VERSION_BUMPS
         versionBumpsCreatedDialog.isResizable = true
         versionBumpsCreatedDialog.isVisible = true
+    }
+
+    @Subscribe
+    fun onOpenReleaseProcessWikiClicked(event: OpenReleaseProcessWikiClickedEvent) {
+        BrowserUtils.openWebLink(model.getReleaseProcessWikiPage())
     }
 
     private fun refreshLists() {
