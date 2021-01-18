@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.ide.util.PropertiesComponent
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
+import com.nerdscorner.android.plugin.github.managers.DeploymentManager
 import com.nerdscorner.android.plugin.github.managers.GitHubManager
 import com.nerdscorner.android.plugin.utils.Strings
 import com.nerdscorner.android.plugin.utils.addIfNotPresent
@@ -101,14 +102,14 @@ class DeploymentModel {
     fun getLibrariesChangelog(): String {
         val result = StringBuilder()
         includedLibraries.forEach { library ->
-            val (emptyChangelog, _, trimmedChangelog) = library.removeUnusedChangelogBlocks() ?: return@forEach
-            if (emptyChangelog) {
+            val changelogResult = DeploymentManager.removeUnusedChangelogBlocks(library) ?: return@forEach
+            if (changelogResult.emptyChangelog) {
                 return@forEach
             }
             result
                     .append("## ${library.name} [v${library.version}](${library.fullUrl}/releases/tag/v${library.version})")
                     .append(System.lineSeparator())
-                    .append(addChangelogIndent(trimmedChangelog))
+                    .append(addChangelogIndent(changelogResult.resultChangelog))
         }
         return result.toString()
     }
@@ -189,7 +190,7 @@ class DeploymentModel {
             try {
                 rcCreationErrorMessage = null
                 ensureChangelog()
-                val changelogResult = removeUnusedChangelogBlocks(fullChangelog)
+                val changelogResult = DeploymentManager.removeUnusedChangelogBlocks(this, fullChangelog)
                 when {
                     changelogResult == null -> {
                         bumpErrorMessage = CHANGELOG_NOT_FOUND
@@ -199,7 +200,13 @@ class DeploymentModel {
                         bus.post(ReleaseSkippedSuccessfullyEvent(name, loadProgress.get()))
                     }
                     else -> {
-                        createRelease(reviewersTeam, externalReviewers, changelogResult.hasChanges, changelogResult.resultChangelog)
+                        DeploymentManager.createRelease(
+                                this,
+                                reviewersTeam,
+                                externalReviewers,
+                                changelogResult.hasChanges,
+                                changelogResult.resultChangelog
+                        )
                         result = this
                         bus.post(ReleaseCreatedSuccessfullyEvent(name, loadProgress.get()))
                     }
@@ -252,7 +259,7 @@ class DeploymentModel {
             try {
                 bumpErrorMessage = null
                 ensureChangelog()
-                val changelogResult = removeUnusedChangelogBlocks()
+                val changelogResult = DeploymentManager.removeUnusedChangelogBlocks(this)
                 when {
                     changelogResult == null -> {
                         bumpErrorMessage = CHANGELOG_NOT_FOUND
@@ -262,7 +269,7 @@ class DeploymentModel {
                         bus.post(VersionBumpSkippedSuccessfullyEvent(name, loadProgress.get()))
                     }
                     else -> {
-                        val libraryBumped = createVersionBump(reviewersTeam, externalReviewers)
+                        val libraryBumped = DeploymentManager.createVersionBump(this, reviewersTeam, externalReviewers)
                         if (libraryBumped) {
                             result = this
                             bus.post(VersionBumpCreatedSuccessfullyEvent(name, loadProgress.get()))
