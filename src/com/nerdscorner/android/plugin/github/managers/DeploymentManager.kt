@@ -2,18 +2,16 @@ package com.nerdscorner.android.plugin.github.managers
 
 import com.nerdscorner.android.plugin.github.domain.ChangelogResult
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
-import com.nerdscorner.android.plugin.utils.getFileContent
-import org.kohsuke.github.GHContent
+import com.nerdscorner.android.plugin.github.versions.GradleVersionInfo
+import com.nerdscorner.android.plugin.github.versions.KtsVersionInfo
+import com.nerdscorner.android.plugin.github.versions.VersionInfo
 import org.kohsuke.github.GHPullRequest
-import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
 
 object DeploymentManager {
     private const val VERSION_BUMP_REF_PREFIX = "refs/heads/version_bump-"
     private const val VERSION_BUMP_COMMIT_MESSAGE = "Version bump"
-
-    private const val VERSIONS_FILE_PATH = "buildSrc/src/main/kotlin/Versions.kt"
 
     private const val RC_REF_PREFIX = "refs/heads/rc-"
     private const val DEVELOP_REF = "refs/heads/develop"
@@ -61,25 +59,22 @@ object DeploymentManager {
 
         // Update changelog file
         if (repositoryWrapper.changelogFile == null) {
-            repositoryWrapper.bumpErrorMessage = "Unable to find ${CHANGELOG_FILE_PATH} file"
+            repositoryWrapper.bumpErrorMessage = "Unable to find $CHANGELOG_FILE_PATH file"
         } else {
-            val ghRepository = repositoryWrapper.ghRepository
             // Update Versions.kt file
-            val versionsFile = getVersionsFile(ghRepository)
+            val versionsFile = getVersionsFile(repositoryWrapper)
             if (versionsFile == null) {
-                repositoryWrapper.bumpErrorMessage = "Unable to find ${VERSIONS_FILE_PATH} file"
+                repositoryWrapper.bumpErrorMessage = "Unable to find version file (Versions.kt or build.gradle)"
             } else {
-                val updatedVersionsFile = versionsFile.read()?.getFileContent()?.replace(
-                        "const val libraryVersion = \"${repositoryWrapper.version}\"",
-                        "const val libraryVersion = \"$nextVersion\""
-                )
+                val ghRepository = repositoryWrapper.ghRepository
+                val updatedVersionsFile = versionsFile.getUpdatedFile(nextVersion)
                 val developSha = ghRepository.getRef(DEVELOP_REF).`object`.sha
                 val newChangelogContent = getNextVersionChangelog(nextVersion, repositoryWrapper.fullChangelog)
                 val versionBumpTree = ghRepository
                         .createTree()
                         .baseTree(developSha)
                         .add(CHANGELOG_FILE_PATH, newChangelogContent, false)
-                        .add(VERSIONS_FILE_PATH, updatedVersionsFile, false)
+                        .add(versionsFile.versionFilePath, updatedVersionsFile, false)
                         .create()
 
                 val versionBumpCommit = ghRepository
@@ -133,11 +128,15 @@ object DeploymentManager {
         }
     }
 
-    private fun getVersionsFile(ghRepository: GHRepository): GHContent? {
+    private fun getVersionsFile(ghRepositoryWrapper: GHRepositoryWrapper): VersionInfo? {
         return try {
-            ghRepository.getFileContent(VERSIONS_FILE_PATH)
+            KtsVersionInfo(ghRepositoryWrapper)
         } catch (e: Exception) {
-            null
+            try {
+                GradleVersionInfo(ghRepositoryWrapper)
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 
