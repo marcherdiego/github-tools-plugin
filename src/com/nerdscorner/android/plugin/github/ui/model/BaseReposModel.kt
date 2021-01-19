@@ -18,8 +18,10 @@ import com.nerdscorner.android.plugin.ci.TravisCi
 import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent
 import com.nerdscorner.android.plugin.github.exceptions.UndefinedCiEnvironmentException
 import com.nerdscorner.android.plugin.github.managers.GitHubManager
+import com.nerdscorner.android.plugin.utils.asyncFetch
 import com.nerdscorner.android.plugin.utils.cancel
 import com.nerdscorner.android.plugin.utils.cancelThreads
+import com.nerdscorner.android.plugin.utils.shouldAddRepository
 import com.nerdscorner.android.plugin.utils.startThread
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
@@ -51,32 +53,23 @@ abstract class BaseReposModel(val selectedRepo: String) {
     abstract fun loadRepositories()
 
     fun loadMyRepos(myselfGitHub: GHMyself?, tableModel: GHRepoTableModel) {
-        myselfGitHub
-                ?.listSubscriptions()
-                ?.withPageSize(LARGE_PAGE_SIZE)
-                ?.forEach { repository ->
-                    if (shouldAddRepository(repository)) {
-                        tableModel.addRow(GHRepositoryWrapper(repository))
-                    }
+        asyncFetch<GHRepository>(
+                fetchFunc = {
+                    myselfGitHub?.listSubscriptions()?.withPageSize(LARGE_PAGE_SIZE)
+                },
+                filterFunc = {
+                    it.shouldAddRepository()
+                },
+                resultFunc = {
+                    tableModel.addRow(GHRepositoryWrapper(it))
                 }
+        )
     }
 
     fun loadOrganizationRepos(tableModel: GHRepoTableModel) {
         GitHubManager.forEachOrganizationsRepo { repository ->
-            if (shouldAddRepository(repository)) {
-                tableModel.addRow(GHRepositoryWrapper(repository))
-            }
+            tableModel.addRow(GHRepositoryWrapper(repository))
         }
-    }
-
-    fun canShowReposFromOutsideOrganization(): Boolean {
-        // Either che checkbox is unchecked or the user didn't set any organization
-        return propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_ORGANIZATION_ONLY).not() || GitHubManager.hasOrganizations().not()
-    }
-
-    private fun shouldAddRepository(repository: GHRepository): Boolean {
-        val validSource = canShowReposFromOutsideOrganization() || GitHubManager.repoBelongsToAnyOrganization(repository)
-        return validSource && repository.isFork.not()
     }
 
     fun init() {

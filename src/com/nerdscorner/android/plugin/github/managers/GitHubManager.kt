@@ -1,6 +1,10 @@
 package com.nerdscorner.android.plugin.github.managers
 
+import com.intellij.ide.util.PropertiesComponent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel
+import com.nerdscorner.android.plugin.utils.Strings
+import com.nerdscorner.android.plugin.utils.asyncFetch
+import com.nerdscorner.android.plugin.utils.shouldAddRepository
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.OkUrlFactory
 import com.squareup.okhttp.logging.HttpLoggingInterceptor
@@ -15,8 +19,11 @@ import org.kohsuke.github.GitHubBuilder
 import org.kohsuke.github.extras.OkHttpConnector
 
 object GitHubManager {
+
+    private val propertiesComponent = PropertiesComponent.getInstance()
+
     var github: GitHub? = null
-    var ghOrganizations = mutableListOf<GHOrganization>()
+    private var ghOrganizations = mutableListOf<GHOrganization>()
     var myselfGitHub: GHMyself? = null
 
     @JvmStatic
@@ -66,16 +73,24 @@ object GitHubManager {
     @JvmStatic
     fun hasOrganizations() = ghOrganizations.isNotEmpty()
 
+    fun canShowReposFromOutsideOrganization(): Boolean {
+        // Either che checkbox is unchecked or the user didn't set any organization
+        return propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_ORGANIZATION_ONLY).not() || ghOrganizations.isEmpty()
+    }
+
     fun repoBelongsToAnyOrganization(repository: GHRepository) = ghOrganizations.any { repository.fullName.startsWith(it.login) }
 
     fun forEachOrganizationsRepo(block: (repository: GHRepository) -> Unit) {
         ghOrganizations.forEach { ghOrganization ->
-            ghOrganization
-                    .listRepositories()
-                    ?.withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
-                    ?.forEach { repository ->
-                        block(repository)
-                    }
+            asyncFetch<GHRepository>(
+                    fetchFunc = {
+                        ghOrganization.listRepositories()?.withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
+                    },
+                    filterFunc = {
+                        it.shouldAddRepository()
+                    },
+                    resultFunc = block
+            )
         }
     }
 
