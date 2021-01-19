@@ -14,7 +14,7 @@ class AllReposModel(selectedRepo: String)
         loaderThread = startThread {
             val reposTableModel = GHRepoTableModel(ArrayList(), arrayOf(Strings.NAME))
             loadOrganizationRepos(reposTableModel)
-            if (allowNonOrganizationRepos()) {
+            if (canShowReposFromOutsideOrganization()) {
                 loadMyRepos(GitHubManager.myselfGitHub, reposTableModel)
             }
             bus.post(UpdateRepositoryInfoTablesEvent(reposTableModel))

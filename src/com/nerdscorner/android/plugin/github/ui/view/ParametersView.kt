@@ -12,7 +12,7 @@ class ParametersView(private val githubToken: JTextField,
                      private val circleCiToken: JTextField,
                      private val travisToken: JTextField,
                      private val organizationName: JTextField,
-                     private val showReposOutsideOrganization: JCheckBox,
+                     private val showOrganizationReposOnly: JCheckBox,
                      saveButton: JButton,
                      private val parametersMessageLabel: JLabel) {
 
@@ -27,7 +27,7 @@ class ParametersView(private val githubToken: JTextField,
                                 circleCiToken.text,
                                 travisToken.text,
                                 organizationName.text,
-                                showReposOutsideOrganization.isSelected
+                                showOrganizationReposOnly.isSelected
                         )
                 )
             }
@@ -35,12 +35,12 @@ class ParametersView(private val githubToken: JTextField,
     }
 
     fun setParameters(organizationName: String?, githubToken: String?, circleCiToken: String?, travisCiToken: String?,
-                      showReposOutsideOrganization: Boolean) {
+                      showOrganizationReposOnly: Boolean) {
         this.organizationName.text = organizationName
         this.githubToken.text = githubToken
         this.circleCiToken.text = circleCiToken
         this.travisToken.text = travisCiToken
-        this.showReposOutsideOrganization.isSelected = showReposOutsideOrganization
+        this.showOrganizationReposOnly.isSelected = showOrganizationReposOnly
     }
 
     fun updateMessageLabel(message: String) {
@@ -60,6 +60,6 @@ class ParametersView(private val githubToken: JTextField,
             val circleCiToken: String?,
             val travisToken: String?,
             val organizationName: String?,
-            val showReposOutsideOrganization: Boolean
+            val showOrganizationReposOnly: Boolean
     )
 }

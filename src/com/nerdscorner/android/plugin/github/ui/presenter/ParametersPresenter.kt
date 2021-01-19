@@ -20,13 +20,13 @@ class ParametersPresenter(private val view: ParametersView, private val model: P
                 model.getGithubToken(),
                 model.getCircleCiToken(),
                 model.getTravisCiToken(),
-                model.getShowReposFromOutsideOrganization()
+                model.getShowOrganizationReposOnly()
         )
     }
 
     @Subscribe
     fun onSaveButtonClicked(event: SaveButtonClickedEvent) {
-        model.saveParameters(event.organizationName, event.githubToken, event.circleCiToken, event.travisToken, event.showReposOutsideOrganization)
+        model.saveParameters(event.organizationName, event.githubToken, event.circleCiToken, event.travisToken, event.showOrganizationReposOnly)
         view.updateMessageLabel(SAVED_MESSAGE)
         view.showMessageLabel()
         executeDelayed(SAVED_MESSAGE_DELAY) {
@@ -41,7 +41,7 @@ class ParametersPresenter(private val view: ParametersView, private val model: P
                 model.getGithubToken(),
                 model.getCircleCiToken(),
                 model.getTravisCiToken(),
-                model.getShowReposFromOutsideOrganization()
+                model.getShowOrganizationReposOnly()
         )
     }
 

@@ -69,10 +69,13 @@ abstract class BaseReposModel(val selectedRepo: String) {
         }
     }
 
-    fun allowNonOrganizationRepos() = propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_OUTSIDE_ORGANIZATION)
+    fun canShowReposFromOutsideOrganization(): Boolean {
+        // Either che checkbox is unchecked or the user didn't set any organization
+        return propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_ORGANIZATION_ONLY).not() || GitHubManager.hasOrganizations().not()
+    }
 
     private fun shouldAddRepository(repository: GHRepository): Boolean {
-        val validSource = allowNonOrganizationRepos() || GitHubManager.repoBelongsToAnyOrganization(repository)
+        val validSource = canShowReposFromOutsideOrganization() || GitHubManager.repoBelongsToAnyOrganization(repository)
         return validSource && repository.isFork.not()
     }
 

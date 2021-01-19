@@ -68,7 +68,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JTextField organizationName;
     private JButton saveButton;
     private JLabel parametersMessageLabel;
-    private JCheckBox showReposOutsideOrganization;
+    private JCheckBox showOrganizationReposOnly;
     private ParametersPresenter parametersPresenter;
 
     private JPanel loginPanel;
@@ -143,9 +143,11 @@ public class GitHubTool implements ToolWindowFactory {
             public void actionPerformed(ActionEvent e) {
                 ViewUtils.INSTANCE.show(loginPanel);
                 ViewUtils.INSTANCE.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
-                propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-                propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK);
-                propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK);
+                propertiesComponent.unsetValue(Strings.OAUTH_TOKEN_PROPERTY);
+                propertiesComponent.unsetValue(Strings.TRAVIS_CI_TOKEN_PROPERTY);
+                propertiesComponent.unsetValue(Strings.CIRCLE_CI_TOKEN_PROPERTY);
+                propertiesComponent.unsetValue(Strings.ORGANIZATION_NAMES_PROPERTY);
+                propertiesComponent.unsetValue(Strings.SHOW_REPOS_FROM_ORGANIZATION_ONLY);
                 EventBus.getDefault().post(new ParameterUpdatedEvent());
                 GitHubManager.clear();
                 allAllReposPresenter = null;
@@ -160,21 +162,21 @@ public class GitHubTool implements ToolWindowFactory {
             public void actionPerformed(ActionEvent e) {
                 final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
                 String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-                String organizations = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);
+                String organizationNames = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);
                 GitHubManager.clear();
-                githubTokenLogin(oauthToken, organizations);
+                githubTokenLogin(oauthToken, organizationNames);
             }
         });
 
         loadParametersPanel();
     }
 
-    private boolean githubTokenLogin(String oauthKey, String organizations) {
+    private boolean githubTokenLogin(String oauthKey, String organizationNames) {
         try {
-            GitHubManager.setup(oauthKey, organizations);
+            GitHubManager.setup(oauthKey, organizationNames);
             loggedAsField.setVisible(true);
             loggedAsField.setText(String.format(Strings.LOGGED_AS, GitHubManager.getMyLogin(), GitHubManager.getMyName()));
-            loadTablesInfo();
+            loadTablesInfo(organizationNames);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -190,7 +192,7 @@ public class GitHubTool implements ToolWindowFactory {
                             circleCiToken,
                             travisToken,
                             organizationName,
-                            showReposOutsideOrganization,
+                            showOrganizationReposOnly,
                             saveButton,
                             parametersMessageLabel
                     ),
@@ -200,9 +202,8 @@ public class GitHubTool implements ToolWindowFactory {
         }
     }
 
-    private void loadTablesInfo() {
-        String organizationName = organizationField.getText();
-        if (!GitHubManager.hasOrganizations() && !StringUtils.isEmpty(organizationName)) {
+    private void loadTablesInfo(String organizationNames) {
+        if (!GitHubManager.hasOrganizations() && !StringUtils.isEmpty(organizationNames)) {
             final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
             String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
             String organizations = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);

@@ -658,13 +658,14 @@
                               </component>
                             </children>
                           </grid>
-                          <component id="5a209" class="javax.swing.JCheckBox" binding="showReposOutsideOrganization">
+                          <component id="5a209" class="javax.swing.JCheckBox" binding="showOrganizationReposOnly">
                             <constraints>
                               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                             </constraints>
                             <properties>
-                              <selected value="true"/>
-                              <text value="Show all repos, including those outside my organization(s)"/>
+                              <enabled value="true"/>
+                              <selected value="false"/>
+                              <text value="Show only repos that belong to my organization(s)"/>
                             </properties>
                           </component>
                         </children>
