@@ -6,7 +6,7 @@ import org.kohsuke.github.GHContent
 abstract class VersionInfo(protected val ghRepositoryWrapper: GHRepositoryWrapper) {
     abstract val versionFilePath: String
 
-    fun getVersionFileContent(): GHContent? = ghRepositoryWrapper.ghRepository.getFileContent(versionFilePath)
+    protected fun getVersionFileContent(): GHContent? = ghRepositoryWrapper.ghRepository.getFileContent(versionFilePath)
 
     abstract fun getUpdatedFile(nextVersion: String): String?
 }

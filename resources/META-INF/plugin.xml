@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.nerdscorner.android.plugin.github</id>
     <name>Github Tools</name>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <vendor email="diego@marcher.com.uy" url="http://diego.marcher.com.uy">Nerd's Corner</vendor>
 
     <description><![CDATA[
@@ -42,11 +42,11 @@
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Github Tools" anchor="right" factoryClass="com.nerdscorner.android.plugin.github.ui.windows.GitHubTool"/>
+        <toolWindow id="Github Tools" anchor="right" icon="PluginIcons.GitHubToolsAction" factoryClass="com.nerdscorner.android.plugin.github.ui.windows.GitHubTool"/>
     </extensions>
 
     <actions>
-        <group id="nerdscorner.tools.menu" text="Github Tools" popup="true">
+        <group id="nerdscorner.tools.menu" text="Github Tools" icon="PluginIcons.GitHubToolsAction" popup="true">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
         </group>
         <action id="Dependencies Comparator" class="com.nerdscorner.android.plugin.android.actions.DependenciesComparator"

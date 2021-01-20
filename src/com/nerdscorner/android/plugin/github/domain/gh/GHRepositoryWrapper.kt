@@ -22,7 +22,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
     val lastChangelogEntry: String?
         get() {
             val fullChangelog = fullChangelog ?: return null
-            var match = changelogStartRegex.find(fullChangelog)
+            var match = changelogStartRegex.find(fullChangelog) ?: oldChangelogStartRegex.find(fullChangelog)
             val firstIndex = match?.range?.first() ?: 0
             match = match?.next()
             val lastIndex = match?.range?.first() ?: fullChangelog.length
@@ -99,6 +99,7 @@ class GHRepositoryWrapper(@field:Transient val ghRepository: GHRepository) : Wra
 
     companion object {
         private val changelogStartRegex = "# \\d+\\.\\d+\\.\\d+".toRegex()
+        private val oldChangelogStartRegex = "# v\\d+\\.\\d+\\.\\d+".toRegex()
         private val libraryVersionRegex = "\\d+\\.\\d+\\.\\d+".toRegex()
         private const val CHANGELOG_FILE_PATH = "CHANGELOG.MD"
     }
