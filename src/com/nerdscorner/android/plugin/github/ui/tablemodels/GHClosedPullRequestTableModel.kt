@@ -5,7 +5,7 @@ import com.nerdscorner.android.plugin.utils.Strings
 import java.io.Serializable
 import java.text.SimpleDateFormat
 
-class GHPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper>, colNames: Array<String>) :
+class GHClosedPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper>, colNames: Array<String>) :
         BaseModel<GHPullRequestWrapper>(pullRequests, colNames), Serializable {
 
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {

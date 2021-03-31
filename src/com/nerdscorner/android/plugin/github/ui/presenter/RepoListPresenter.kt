@@ -29,10 +29,12 @@ import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.NewOpenPull
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.ReleasesLoadedEvent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel.UpdateRepositoryInfoTablesEvent
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
-import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHClosedPullRequestTableModel
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHOpenPullRequestTableModel
 import com.nerdscorner.android.plugin.github.ui.view.ReposView
 import com.nerdscorner.android.plugin.github.ui.view.ReposView.BranchClickedEvent
-import com.nerdscorner.android.plugin.github.ui.view.ReposView.PullRequestClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ReposView.ClosedPullRequestClickedEvent
+import com.nerdscorner.android.plugin.github.ui.view.ReposView.OpenPullRequestClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ReposView.ReleaseClickedEvent
 import com.nerdscorner.android.plugin.github.ui.view.ReposView.RepoClickedEvent
 import com.nerdscorner.android.plugin.github.ui.windows.ResultDialog.PrimaryButtonClickedEvent
@@ -109,10 +111,19 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
     }
 
     @Subscribe
-    fun onPullRequestClicked(event: PullRequestClickedEvent) {
+    fun onOpenPullRequestClicked(event: OpenPullRequestClickedEvent) {
         when (event.column) {
-            GHPullRequestTableModel.COLUMN_CI_STATUS -> BrowserUtils.openWebLink(event.pullRequest?.buildStatusUrl)
-            GHPullRequestTableModel.COLUMN_AUTHOR -> BrowserUtils.openWebLink(model.getGithubProfileUrl(event.pullRequest?.ghPullRequest))
+            GHOpenPullRequestTableModel.COLUMN_CI_STATUS -> BrowserUtils.openWebLink(event.pullRequest?.buildStatusUrl)
+            GHOpenPullRequestTableModel.COLUMN_AUTHOR -> BrowserUtils.openWebLink(model.getGithubProfileUrl(event.pullRequest?.ghPullRequest))
+            else -> BrowserUtils.openWebLink(event.pullRequest?.fullUrl)
+        }
+    }
+
+    @Subscribe
+    fun onClosedPullRequestClicked(event: ClosedPullRequestClickedEvent) {
+        when (event.column) {
+            GHClosedPullRequestTableModel.COLUMN_CI_STATUS -> BrowserUtils.openWebLink(event.pullRequest?.buildStatusUrl)
+            GHClosedPullRequestTableModel.COLUMN_AUTHOR -> BrowserUtils.openWebLink(model.getGithubProfileUrl(event.pullRequest?.ghPullRequest))
             else -> BrowserUtils.openWebLink(event.pullRequest?.fullUrl)
         }
     }

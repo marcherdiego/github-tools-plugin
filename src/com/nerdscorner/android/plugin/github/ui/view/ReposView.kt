@@ -6,7 +6,8 @@ import com.nerdscorner.android.plugin.github.domain.gh.GHReleaseWrapper
 import com.nerdscorner.android.plugin.github.domain.gh.GHRepositoryWrapper
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
-import com.nerdscorner.android.plugin.github.ui.tablemodels.GHPullRequestTableModel
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHClosedPullRequestTableModel
+import com.nerdscorner.android.plugin.github.ui.tablemodels.GHOpenPullRequestTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
 import com.nerdscorner.android.plugin.github.ui.windows.ResultDialog
@@ -56,14 +57,14 @@ class ReposView(
         })
         openPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val pullRequest = (openPullRequestsTable.model as? GHPullRequestTableModel)?.getRow(row)
-                bus.post(PullRequestClickedEvent(column, pullRequest))
+                val pullRequest = (openPullRequestsTable.model as? GHOpenPullRequestTableModel)?.getRow(row)
+                bus.post(OpenPullRequestClickedEvent(column, pullRequest))
             }
         })
         closedPullRequestsTable.addMouseListener(object : SimpleDoubleClickAdapter() {
             override fun onDoubleClick(row: Int, column: Int) {
-                val pullRequest = (closedPullRequestsTable.model as? GHPullRequestTableModel)?.getRow(row)
-                bus.post(PullRequestClickedEvent(column, pullRequest))
+                val pullRequest = (closedPullRequestsTable.model as? GHClosedPullRequestTableModel)?.getRow(row)
+                bus.post(ClosedPullRequestClickedEvent(column, pullRequest))
             }
         })
         branchesTable.addMouseListener(object : SimpleDoubleClickAdapter() {
@@ -104,24 +105,33 @@ class ReposView(
     }
 
     fun setPullRequestTableModels() {
-        openPullRequestsTable.model = GHPullRequestTableModel(
+        openPullRequestsTable.model = GHOpenPullRequestTableModel(
+                ArrayList(),
+                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.PR_STATUS, Strings.BUILD_STATUS)
+        )
+        closedPullRequestsTable.model = GHClosedPullRequestTableModel(
                 ArrayList(),
                 arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_STATUS)
         )
-        closedPullRequestsTable.model = GHPullRequestTableModel(
-                ArrayList(),
-                arrayOf(Strings.TITLE, Strings.AUTHOR, Strings.DATE, Strings.BUILD_STATUS)
+        JTableUtils.centerColumns(
+                openPullRequestsTable,
+                GHOpenPullRequestTableModel.COLUMN_DATE,
+                GHOpenPullRequestTableModel.COLUMN_PR_STATUS,
+                GHOpenPullRequestTableModel.COLUMN_CI_STATUS
         )
-        JTableUtils.centerColumns(openPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
-        JTableUtils.centerColumns(closedPullRequestsTable, GHPullRequestTableModel.COLUMN_DATE, GHPullRequestTableModel.COLUMN_CI_STATUS)
+        JTableUtils.centerColumns(
+                closedPullRequestsTable,
+                GHClosedPullRequestTableModel.COLUMN_DATE,
+                GHClosedPullRequestTableModel.COLUMN_CI_STATUS
+        )
     }
 
     fun addOpenPullRequest(pullRequest: GHPullRequestWrapper) {
-        (openPullRequestsTable.model as? GHPullRequestTableModel)?.addRow(pullRequest)
+        (openPullRequestsTable.model as? GHOpenPullRequestTableModel)?.addRow(pullRequest)
     }
 
     fun addClosedPullRequest(pullRequest: GHPullRequestWrapper) {
-        (closedPullRequestsTable.model as? GHPullRequestTableModel)?.addRow(pullRequest)
+        (closedPullRequestsTable.model as? GHClosedPullRequestTableModel)?.addRow(pullRequest)
     }
 
     fun clearTables() {
@@ -168,6 +178,7 @@ class ReposView(
     //Posted events
     class RepoClickedEvent(val row: Int, val column: Int, val clickCount: Int)
     class ReleaseClickedEvent(val release: GHReleaseWrapper?)
-    class PullRequestClickedEvent(val column: Int, val pullRequest: GHPullRequestWrapper?)
+    class OpenPullRequestClickedEvent(val column: Int, val pullRequest: GHPullRequestWrapper?)
+    class ClosedPullRequestClickedEvent(val column: Int, val pullRequest: GHPullRequestWrapper?)
     class BranchClickedEvent(val column: Int, val branch: GHBranchWrapper)
 }
