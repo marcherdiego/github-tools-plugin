@@ -15,13 +15,11 @@ class GHPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper>, c
         val pullRequestWrapper = items[rowIndex]
         val pullRequest = pullRequestWrapper.ghPullRequest
         return when (columnIndex) {
-            COLUMN_TITLE -> return pullRequest.title
-            COLUMN_AUTHOR -> {
-                try {
-                    pullRequest.user.login
-                } catch (e: Exception) {
-                    null
-                }
+            COLUMN_TITLE -> pullRequest.title
+            COLUMN_AUTHOR -> try {
+                pullRequest.user.login
+            } catch (e: Exception) {
+                null
             }
             COLUMN_DATE -> try {
                 SimpleDateFormat(Strings.DATE_FORMAT).format(pullRequest.updatedAt)

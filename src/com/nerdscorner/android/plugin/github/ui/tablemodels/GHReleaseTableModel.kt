@@ -13,11 +13,11 @@ class GHReleaseTableModel(releases: MutableList<GHReleaseWrapper>, colNames: Arr
             return null
         }
         val release = items[rowIndex]
-        when (columnIndex) {
-            COLUMN_TAG -> return release.ghRelease.name
-            COLUMN_DATE -> return SimpleDateFormat(Strings.DATE_FORMAT).format(release.ghRelease.published_at)
+        return when (columnIndex) {
+            COLUMN_TAG -> release.ghRelease.name
+            COLUMN_DATE -> SimpleDateFormat(Strings.DATE_FORMAT).format(release.ghRelease.published_at)
+            else -> null
         }
-        return null
     }
 
     companion object {
