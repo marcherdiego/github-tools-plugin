@@ -20,13 +20,31 @@ class ParametersPresenter(private val view: ParametersView, private val model: P
                 model.getGithubToken(),
                 model.getCircleCiToken(),
                 model.getTravisCiToken(),
-                model.getShowOrganizationReposOnly()
+                model.getShowOrganizationReposOnly(),
+                model.getShowDeploymentPanel()
         )
+        if (model.getShowDeploymentPanel()) {
+            view.showDeploymentPanel()
+        } else {
+            view.hideDeploymentPanel()
+        }
     }
 
     @Subscribe
     fun onSaveButtonClicked(event: SaveButtonClickedEvent) {
-        model.saveParameters(event.organizationName, event.githubToken, event.circleCiToken, event.travisToken, event.showOrganizationReposOnly)
+        model.saveParameters(
+                event.organizationName,
+                event.githubToken,
+                event.circleCiToken,
+                event.travisToken,
+                event.showOrganizationReposOnly,
+                event.showDeploymentPanel
+        )
+        if (event.showDeploymentPanel) {
+            view.showDeploymentPanel()
+        } else {
+            view.hideDeploymentPanel()
+        }
         view.updateMessageLabel(SAVED_MESSAGE)
         view.showMessageLabel()
         executeDelayed(SAVED_MESSAGE_DELAY) {
@@ -41,7 +59,8 @@ class ParametersPresenter(private val view: ParametersView, private val model: P
                 model.getGithubToken(),
                 model.getCircleCiToken(),
                 model.getTravisCiToken(),
-                model.getShowOrganizationReposOnly()
+                model.getShowOrganizationReposOnly(),
+                model.getShowDeploymentPanel()
         )
     }
 

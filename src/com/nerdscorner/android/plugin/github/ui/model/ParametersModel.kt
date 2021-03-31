@@ -19,13 +19,16 @@ class ParametersModel {
 
     fun getShowOrganizationReposOnly() = propertiesComponent.isTrueValue(Strings.SHOW_REPOS_FROM_ORGANIZATION_ONLY)
 
+    fun getShowDeploymentPanel() = propertiesComponent.isTrueValue(Strings.SHOW_DEPLOYMENT_PANEL)
+
     fun saveParameters(organizationName: String?, githubToken: String?, circleCiToken: String?, travisToken: String?,
-                       showOrganizationReposOnly: Boolean) {
+                       showOrganizationReposOnly: Boolean, showDeploymentPanel: Boolean) {
         propertiesComponent.setValue(Strings.ORGANIZATION_NAMES_PROPERTY, organizationName)
         propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, githubToken)
         propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, circleCiToken)
         propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, travisToken)
         propertiesComponent.setValue(Strings.SHOW_REPOS_FROM_ORGANIZATION_ONLY, showOrganizationReposOnly)
+        propertiesComponent.setValue(Strings.SHOW_DEPLOYMENT_PANEL, showDeploymentPanel)
 
         GitHubManager.initGithub(githubToken)
         GitHubManager.initOrganizations(organizationName)

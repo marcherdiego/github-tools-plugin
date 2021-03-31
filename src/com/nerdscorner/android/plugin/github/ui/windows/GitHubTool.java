@@ -33,6 +33,7 @@ import com.nerdscorner.android.plugin.utils.ViewUtils;
 public class GitHubTool implements ToolWindowFactory {
 
     private JPanel content;
+    private JTabbedPane tabsPane;
 
     private JTable allReposTable;
     private JTable allRepoReleases;
@@ -69,6 +70,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JButton saveButton;
     private JLabel parametersMessageLabel;
     private JCheckBox showOrganizationReposOnly;
+    private JCheckBox showDeploymentPanel;
     private ParametersPresenter parametersPresenter;
 
     private JPanel loginPanel;
@@ -79,6 +81,7 @@ public class GitHubTool implements ToolWindowFactory {
     private JButton logoutButton;
     private JLabel loggedAsField;
     private JButton reloadViewButton;
+    private JPanel deploymentPanel;
 
     private Project project;
 
@@ -148,6 +151,7 @@ public class GitHubTool implements ToolWindowFactory {
                 propertiesComponent.unsetValue(Strings.CIRCLE_CI_TOKEN_PROPERTY);
                 propertiesComponent.unsetValue(Strings.ORGANIZATION_NAMES_PROPERTY);
                 propertiesComponent.unsetValue(Strings.SHOW_REPOS_FROM_ORGANIZATION_ONLY);
+                propertiesComponent.unsetValue(Strings.SHOW_DEPLOYMENT_PANEL);
                 EventBus.getDefault().post(new ParameterUpdatedEvent());
                 GitHubManager.clear();
                 allAllReposPresenter = null;
@@ -193,6 +197,9 @@ public class GitHubTool implements ToolWindowFactory {
                             travisToken,
                             organizationName,
                             showOrganizationReposOnly,
+                            showDeploymentPanel,
+                            tabsPane,
+                            deploymentPanel,
                             saveButton,
                             parametersMessageLabel
                     ),

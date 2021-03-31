@@ -169,6 +169,7 @@ class DeploymentModel {
                     loadProgress.addAndGet(progressStep)
                     result
                 }
+                deferredRelease.start()
                 deferredReleases.add(deferredRelease)
             }
             runBlocking {
@@ -238,6 +239,7 @@ class DeploymentModel {
                     loadProgress.addAndGet(progressStep)
                     result
                 }
+                deferredBump.start()
                 deferredBumps.add(deferredBump)
             }
             runBlocking {

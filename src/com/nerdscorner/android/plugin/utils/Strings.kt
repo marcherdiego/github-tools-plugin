@@ -7,6 +7,7 @@ object Strings {
     const val TRAVIS_CI_TOKEN_PROPERTY = "travis_ci_property"
     const val CIRCLE_CI_TOKEN_PROPERTY = "circle_ci_property"
     const val SHOW_REPOS_FROM_ORGANIZATION_ONLY = "show_repos_from_organizations_only"
+    const val SHOW_DEPLOYMENT_PANEL = "show_deployment_panel"
 
     const val HASH_POUND = "#"
     const val BLANK = ""

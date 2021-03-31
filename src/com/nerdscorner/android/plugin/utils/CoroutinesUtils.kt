@@ -1,9 +1,8 @@
 package com.nerdscorner.android.plugin.utils
 
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.kohsuke.github.PagedIterable
 
 fun <T> Any.asyncFetch(
@@ -11,11 +10,10 @@ fun <T> Any.asyncFetch(
         filterFunc: (T) -> Boolean = { true },
         resultFunc: (T) -> Unit
 ) {
-    val deferredFetch = GlobalScope.async(Dispatchers.IO) {
-        fetchFunc()?.map { it }
-    }
     runBlocking {
-        deferredFetch.await()?.forEach { t ->
+        withContext(Dispatchers.IO) {
+            fetchFunc()?.map { it }
+        }?.forEach { t ->
             if (filterFunc(t)) {
                 resultFunc(t)
             }
