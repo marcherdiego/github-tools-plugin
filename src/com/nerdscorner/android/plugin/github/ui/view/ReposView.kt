@@ -18,7 +18,6 @@ import com.nerdscorner.android.plugin.utils.JTableUtils.SimpleMouseAdapter
 import com.nerdscorner.android.plugin.utils.Strings
 import org.greenrobot.eventbus.EventBus
 import java.util.ArrayList
-import java.util.Date
 import javax.swing.JTable
 import javax.swing.ListSelectionModel
 
@@ -34,13 +33,6 @@ class ReposView(
 
     private var currentRepository: GHRepositoryWrapper? = null
 
-    val latestReleaseDate: Date?
-        get() {
-            return (releasesTable.model as? GHReleaseTableModel)
-                    ?.getRow(0)
-                    ?.ghRelease
-                    ?.published_at
-        }
     private var loadingDialog: ResultDialog? = null
 
     init {
@@ -126,12 +118,16 @@ class ReposView(
         )
     }
 
+    fun getOpenPullRequestTableModel() = (openPullRequestsTable.model as? GHOpenPullRequestTableModel)
+
+    fun getClosedPullRequestTableModel() = (closedPullRequestsTable.model as? GHClosedPullRequestTableModel)
+
     fun addOpenPullRequest(pullRequest: GHPullRequestWrapper) {
-        (openPullRequestsTable.model as? GHOpenPullRequestTableModel)?.addRow(pullRequest)
+        getOpenPullRequestTableModel()?.addRow(pullRequest)
     }
 
     fun addClosedPullRequest(pullRequest: GHPullRequestWrapper) {
-        (closedPullRequestsTable.model as? GHClosedPullRequestTableModel)?.addRow(pullRequest)
+        getClosedPullRequestTableModel()?.addRow(pullRequest)
     }
 
     fun clearTables() {

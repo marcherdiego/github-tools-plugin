@@ -66,38 +66,37 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
     fun onUpdateRepositoryInfoTables(event: UpdateRepositoryInfoTablesEvent) {
         view.setPullRequestTableModels()
         view.updateRepositoryInfoTables(model.selectedRepo, event.tableModel)
-        model.loadRepoReleasesAndBranches()
+        model.loadRepoTablesData(view.getOpenPullRequestTableModel(), view.getClosedPullRequestTableModel())
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onReleasesLoaded(event: ReleasesLoadedEvent) {
         view.setReleasesTableModel(event.repoReleasesModel)
-        model.loadPullRequests(view.latestReleaseDate)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onBranchesLoaded(event: BranchesLoadedEvent) {
         view.setBranchesTableModel(event.repoBranchesModel)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onNewOpenPullRequests(event: NewOpenPullRequestsEvent) {
         view.addOpenPullRequest(event.pullRequest)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onNewClosedPullRequests(event: NewClosedPullRequestsEvent) {
         view.addClosedPullRequest(event.pullRequest)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onRepoClicked(event: RepoClickedEvent) {
         if (event.clickCount == 1) {
             if (model.selectedRepoRow == event.row || event.row == -1) {
                 return
             }
             model.currentRepository = view.getRepoAt(event.row, view.dataColumn) as GHRepositoryWrapper
-            model.loadRepoReleasesAndBranches()
+            model.loadRepoTablesData(view.getOpenPullRequestTableModel(), view.getClosedPullRequestTableModel())
             view.clearTables()
         } else if (event.clickCount == 2) {
             BrowserUtils.openWebLink(model.getCurrentRepoUrl())
@@ -105,12 +104,12 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
         model.selectedRepoRow = event.row
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onReleaseClicked(event: ReleaseClickedEvent) {
         BrowserUtils.openWebLink(event.release?.fullUrl)
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onOpenPullRequestClicked(event: OpenPullRequestClickedEvent) {
         when (event.column) {
             GHOpenPullRequestTableModel.COLUMN_CI_STATUS -> BrowserUtils.openWebLink(event.pullRequest?.buildStatusUrl)
@@ -119,7 +118,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
         }
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onClosedPullRequestClicked(event: ClosedPullRequestClickedEvent) {
         when (event.column) {
             GHClosedPullRequestTableModel.COLUMN_CI_STATUS -> BrowserUtils.openWebLink(event.pullRequest?.buildStatusUrl)
@@ -128,7 +127,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
         }
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onBranchClicked(event: BranchClickedEvent) {
         when (event.column) {
             GHBranchTableModel.COLUMN_NAME -> BrowserUtils.openWebLink(event.branch.url)
@@ -153,7 +152,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
         }
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onPrimaryButtonClicked(event: PrimaryButtonClickedEvent) {
         when (event.requestCode) {
             REQUEST_CODE_LAUNCH_BUILD -> model.cancelRebuildRequest()
@@ -172,14 +171,14 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
         }
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onSecondaryButtonClicked(event: SecondaryButtonClickedEvent) {
         when (event.requestCode) {
             REQUEST_CODE_BUILD_FAILED -> model.clearCiToken()
         }
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onBuildSucceededEvent(event: BuildSucceededEventEvent) {
         view.updateResultDialog(
                 title = BUILD_TRIGGERED,
@@ -189,7 +188,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
         )
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onBuildFailedEvent(event: BuildFailedEventEvent) {
         view.updateResultDialog(
                 message = "$BUILD_TRIGGER_FAILED_MESSAGE${event.message}",
@@ -199,7 +198,7 @@ class RepoListPresenter(private val view: ReposView, private val model: BaseRepo
         )
     }
 
-    @Subscribe
+    @Subscribe(threadMode = MAIN)
     fun onInputEntered(event: InputEnteredEvent) {
         when (event.requestCode) {
             REQUEST_CODE_MISSING_TRAVIS_TOKEN -> model.saveTravisToken(event.text)

@@ -18,8 +18,6 @@ import com.nerdscorner.android.plugin.ci.TravisCi
 import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent
 import com.nerdscorner.android.plugin.github.exceptions.UndefinedCiEnvironmentException
 import com.nerdscorner.android.plugin.github.managers.GitHubManager
-import com.nerdscorner.android.plugin.utils.asyncFetch
-import com.nerdscorner.android.plugin.utils.cancel
 import com.nerdscorner.android.plugin.utils.cancelThreads
 import com.nerdscorner.android.plugin.utils.shouldAddRepository
 import com.nerdscorner.android.plugin.utils.startThread
@@ -29,10 +27,7 @@ import org.kohsuke.github.GHIssueState
 import org.kohsuke.github.GHMyself
 import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort
-import org.kohsuke.github.GHRepository
-import java.io.IOException
-import java.util.ArrayList
-import java.util.Date
+import javax.swing.table.AbstractTableModel
 
 abstract class BaseReposModel(val selectedRepo: String) {
     lateinit var bus: EventBus
@@ -53,17 +48,18 @@ abstract class BaseReposModel(val selectedRepo: String) {
     abstract fun loadRepositories()
 
     fun loadMyRepos(myselfGitHub: GHMyself?, tableModel: GHRepoTableModel) {
-        asyncFetch<GHRepository>(
-                fetchFunc = {
-                    myselfGitHub?.listSubscriptions()?.withPageSize(LARGE_PAGE_SIZE)
-                },
-                filterFunc = {
+        if (myselfGitHub == null) {
+            return
+        }
+        myselfGitHub
+                .listSubscriptions()
+                .withPageSize(LARGE_PAGE_SIZE)
+                .filter {
                     it.shouldAddRepository()
-                },
-                resultFunc = {
+                }
+                .forEach {
                     tableModel.addRow(GHRepositoryWrapper(it))
                 }
-        )
     }
 
     fun loadOrganizationRepos(tableModel: GHRepoTableModel) {
@@ -81,8 +77,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
         cancelThreads(loaderThread, releasesLoaderThread, prsLoaderThread, branchesLoaderThread)
     }
 
-    @Throws(IOException::class)
-    protected fun loadReleases() {
+    private fun loadReleases() {
         val repoReleasesModel = GHReleaseTableModel(ArrayList(), arrayOf(Strings.TAG, Strings.DATE))
         currentRepository
                 ?.ghRepository
@@ -98,8 +93,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
         bus.post(ReleasesLoadedEvent(repoReleasesModel))
     }
 
-    @Throws(IOException::class)
-    protected fun loadBranches() {
+    private fun loadBranches() {
         val repoBranchesModel = GHBranchTableModel(ArrayList(), arrayOf(Strings.NAME, Strings.STATUS, Strings.CI_ACTIONS))
         currentRepository
                 ?.ghRepository
@@ -109,12 +103,12 @@ abstract class BaseReposModel(val selectedRepo: String) {
                     if (Thread.interrupted()) {
                         return
                     }
-                    repoBranchesModel.addRow(GHBranchWrapper(branch))
+                    repoBranchesModel.addRow(GHBranchWrapper(repoBranchesModel, branch))
                 }
         bus.post(BranchesLoadedEvent(repoBranchesModel))
     }
 
-    private fun loadPRs(latestReleaseDate: Date?) {
+    private fun loadPRs(openPrTableModel: AbstractTableModel, closedPrTableModel: AbstractTableModel) {
         val closedPrs = mutableListOf<GHPullRequestWrapper>()
         currentRepository
                 ?.ghRepository
@@ -129,10 +123,10 @@ abstract class BaseReposModel(val selectedRepo: String) {
                         return
                     }
                     if (pullRequest.state == GHIssueState.OPEN) {
-                        bus.post(NewOpenPullRequestsEvent(GHPullRequestWrapper(pullRequest)))
+                        bus.post(NewOpenPullRequestsEvent(GHPullRequestWrapper(openPrTableModel, pullRequest)))
                     } else if (pullRequest.state == GHIssueState.CLOSED) {
-                        if (latestReleaseDate == null || pullRequest.mergedAt?.after(latestReleaseDate) == true) {
-                            val pullRequestWrapper = GHPullRequestWrapper(pullRequest)
+                        if (closedPrs.size < MINI_PAGE_SIZE) {
+                            val pullRequestWrapper = GHPullRequestWrapper(closedPrTableModel, pullRequest)
                             closedPrs.add(pullRequestWrapper)
                             bus.post(NewClosedPullRequestsEvent(pullRequestWrapper))
                         }
@@ -140,7 +134,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
                 }
     }
 
-    fun loadRepoReleasesAndBranches() {
+    fun loadRepoTablesData(openPrTableModel: AbstractTableModel?, closedPrTableModel: AbstractTableModel?) {
         try {
             commentsUpdated = false
             cancelThreads(releasesLoaderThread, branchesLoaderThread, prsLoaderThread)
@@ -159,25 +153,22 @@ abstract class BaseReposModel(val selectedRepo: String) {
                     e.printStackTrace()
                 }
             }
+            if (openPrTableModel != null && closedPrTableModel != null) {
+                prsLoaderThread = startThread {
+                    try {
+                        loadPRs(openPrTableModel, closedPrTableModel)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun loadPullRequests(latestReleaseDate: Date?) {
-        prsLoaderThread.cancel()
-        prsLoaderThread = startThread {
-            try {
-                loadPRs(latestReleaseDate)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
     fun getCurrentRepoUrl() = currentRepository?.fullUrl
 
-    @Throws(MissingTravisCiTokenException::class, MissingCircleCiTokenException::class, UndefinedCiEnvironmentException::class)
     fun requestRebuild(branch: GHBranchWrapper) {
         currentBranchBuild = branch
         val ciEnvironment = when {
@@ -275,6 +266,7 @@ abstract class BaseReposModel(val selectedRepo: String) {
 
         const val LARGE_PAGE_SIZE = 500
         const val SMALL_PAGE_SIZE = 40
+        const val MINI_PAGE_SIZE = 15
 
         const val RE_RUNNING_BUILD = "Re-running build..."
 

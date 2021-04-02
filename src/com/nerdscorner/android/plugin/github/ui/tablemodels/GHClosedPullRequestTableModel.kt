@@ -1,9 +1,7 @@
 package com.nerdscorner.android.plugin.github.ui.tablemodels
 
 import com.nerdscorner.android.plugin.github.domain.gh.GHPullRequestWrapper
-import com.nerdscorner.android.plugin.utils.Strings
 import java.io.Serializable
-import java.text.SimpleDateFormat
 
 class GHClosedPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper>, colNames: Array<String>) :
         BaseModel<GHPullRequestWrapper>(pullRequests, colNames), Serializable {
@@ -16,16 +14,8 @@ class GHClosedPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapp
         val pullRequest = pullRequestWrapper.ghPullRequest
         return when (columnIndex) {
             COLUMN_TITLE -> pullRequest.title
-            COLUMN_AUTHOR -> try {
-                pullRequest.user.login
-            } catch (e: Exception) {
-                null
-            }
-            COLUMN_DATE -> try {
-                SimpleDateFormat(Strings.DATE_FORMAT).format(pullRequest.updatedAt)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            COLUMN_AUTHOR -> pullRequestWrapper.author
+            COLUMN_DATE -> pullRequestWrapper.updatedAt
             COLUMN_CI_STATUS -> pullRequestWrapper.buildStatus?.capitalize()
             else -> null
         }

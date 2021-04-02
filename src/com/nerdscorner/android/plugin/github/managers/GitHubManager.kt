@@ -3,7 +3,6 @@ package com.nerdscorner.android.plugin.github.managers
 import com.intellij.ide.util.PropertiesComponent
 import com.nerdscorner.android.plugin.github.ui.model.BaseReposModel
 import com.nerdscorner.android.plugin.utils.Strings
-import com.nerdscorner.android.plugin.utils.asyncFetch
 import com.nerdscorner.android.plugin.utils.shouldAddRepository
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.OkUrlFactory
@@ -82,15 +81,15 @@ object GitHubManager {
 
     fun forEachOrganizationsRepo(block: (repository: GHRepository) -> Unit) {
         ghOrganizations.forEach { ghOrganization ->
-            asyncFetch<GHRepository>(
-                    fetchFunc = {
-                        ghOrganization.listRepositories()?.withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
-                    },
-                    filterFunc = {
+            ghOrganization
+                    .listRepositories()
+                    .withPageSize(BaseReposModel.LARGE_PAGE_SIZE)
+                    .filter {
                         it.shouldAddRepository()
-                    },
-                    resultFunc = block
-            )
+                    }
+                    .forEach {
+                        block(it)
+                    }
         }
     }
 

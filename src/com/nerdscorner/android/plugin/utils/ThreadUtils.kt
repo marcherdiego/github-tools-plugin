@@ -14,11 +14,13 @@ fun Any.executeDelayed(delay: Long = 0, block: () -> Unit): Thread {
         if (delay > 0) {
             try {
                 Thread.sleep(delay)
+                block()
             } catch (e: InterruptedException) {
                 // Nothing to do here
             }
+        } else {
+            block()
         }
-        block()
     }
     thread.start()
     return thread

@@ -1,9 +1,7 @@
 package com.nerdscorner.android.plugin.github.ui.tablemodels
 
 import com.nerdscorner.android.plugin.github.domain.gh.GHReleaseWrapper
-import com.nerdscorner.android.plugin.utils.Strings
 import java.io.Serializable
-import java.text.SimpleDateFormat
 
 class GHReleaseTableModel(releases: MutableList<GHReleaseWrapper>, colNames: Array<String>)
     : BaseModel<GHReleaseWrapper>(releases, colNames), Serializable {
@@ -15,7 +13,7 @@ class GHReleaseTableModel(releases: MutableList<GHReleaseWrapper>, colNames: Arr
         val release = items[rowIndex]
         return when (columnIndex) {
             COLUMN_TAG -> release.ghRelease.name
-            COLUMN_DATE -> SimpleDateFormat(Strings.DATE_FORMAT).format(release.ghRelease.published_at)
+            COLUMN_DATE -> release.publishedAt
             else -> null
         }
     }

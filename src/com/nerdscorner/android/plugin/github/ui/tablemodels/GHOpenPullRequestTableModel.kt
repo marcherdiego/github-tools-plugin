@@ -1,10 +1,7 @@
 package com.nerdscorner.android.plugin.github.ui.tablemodels
 
 import com.nerdscorner.android.plugin.github.domain.gh.GHPullRequestWrapper
-import com.nerdscorner.android.plugin.utils.Strings
-import org.kohsuke.github.GHPullRequestReviewState
 import java.io.Serializable
-import java.text.SimpleDateFormat
 
 class GHOpenPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper>, colNames: Array<String>) :
         BaseModel<GHPullRequestWrapper>(pullRequests, colNames), Serializable {
@@ -17,25 +14,9 @@ class GHOpenPullRequestTableModel(pullRequests: MutableList<GHPullRequestWrapper
         val pullRequest = pullRequestWrapper.ghPullRequest
         return when (columnIndex) {
             COLUMN_TITLE -> pullRequest.title
-            COLUMN_AUTHOR -> try {
-                pullRequest.user.login
-            } catch (e: Exception) {
-                null
-            }
-            COLUMN_DATE -> try {
-                SimpleDateFormat(Strings.DATE_FORMAT).format(pullRequest.updatedAt)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            COLUMN_PR_STATUS -> {
-                val reviews = pullRequest.listReviews().toList()
-                when {
-                    reviews.any { it.state == GHPullRequestReviewState.APPROVED } -> GHPullRequestReviewState.APPROVED
-                    reviews.any { it.state == GHPullRequestReviewState.CHANGES_REQUESTED } -> GHPullRequestReviewState.CHANGES_REQUESTED
-                    reviews.any { it.state == GHPullRequestReviewState.COMMENTED } -> GHPullRequestReviewState.COMMENTED
-                    else -> GHPullRequestReviewState.PENDING
-                }
-            }
+            COLUMN_AUTHOR -> pullRequestWrapper.author
+            COLUMN_DATE -> pullRequestWrapper.updatedAt
+            COLUMN_PR_STATUS -> pullRequestWrapper.prStatus
             COLUMN_CI_STATUS -> pullRequestWrapper.buildStatus?.capitalize()
             else -> null
         }
