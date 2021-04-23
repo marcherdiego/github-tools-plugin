@@ -1,18 +1,22 @@
 # Github Tools Plugin for Intellij
-Plugin: https://plugins.jetbrains.com/plugin/13366-github-tools
+
+[![Get from Marketplace](button.png "Download plugin")](https://plugins.jetbrains.com/plugin/13366-github-tools)
+
+## Elemental features diagram
+![Elemental Diagram](https://user-images.githubusercontent.com/4492972/88056345-c6ab2980-cb36-11ea-834e-3b0352a452ed.png)
 
 ## Github Login
 To use this plugin's basic features you should authenticate with Github using a Github Personal Access Token and your organization's name.
 
-To get your Personal Access Token simply go to your `Settings` -> `Developer settings` -> `Personal access tokens` -> `Generate new token`
+To get your Personal Access Token simply go to your `Settings` -> `Developer settings` -> `Personal access tokens` -> `Generate new token` (https://github.com/settings/tokens)
 
 Check the following permissions needed to read and list repos
 
-![sd](https://i.ibb.co/309vkDw/Screenshot-2020-06-25-at-11-46-42.png)
+![sd](https://i.ibb.co/DRJQ0dr/Screenshot-2020-07-27-at-14-26-27.png)
 
-![sd](https://i.ibb.co/FDrGgps/Screenshot-2020-06-25-at-11-46-46.png)
+![sd](https://i.ibb.co/MBpMd6g/Screenshot-2020-07-27-at-14-26-32.png)
 
-![sd](https://i.ibb.co/kBHSnzk/Screenshot-2020-06-25-at-11-46-52.png)
+![sd](https://i.ibb.co/WG22nV3/Screenshot-2020-07-27-at-14-26-38.png)
 
 ## Travis CI Login
 To be able to trigger Travis builds from the IDE you need to authenticate with your Travis Personal Access Token

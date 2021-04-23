@@ -9,4 +9,6 @@ class GHRepoTableModel(repositories: MutableList<GHRepositoryWrapper>, colNames:
     override fun getColumnClass(columnIndex: Int): Class<*> {
         return GHRepositoryWrapper::class.java
     }
+
+    override fun compare(one: GHRepositoryWrapper, other: GHRepositoryWrapper) = super.compare(other, one)
 }

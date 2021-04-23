@@ -1,9 +1,12 @@
 package com.nerdscorner.android.plugin.github.domain.gh
 
 import com.nerdscorner.android.plugin.utils.Strings
+import com.nerdscorner.android.plugin.utils.startThread
 import org.kohsuke.github.GHBranch
+import org.kohsuke.github.GHCheckRun
+import javax.swing.table.AbstractTableModel
 
-class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
+class GHBranchWrapper(private val tableModel: AbstractTableModel, val ghBranch: GHBranch) : Wrapper() {
 
     val url: String
         get() = ghBranch
@@ -19,28 +22,30 @@ class GHBranchWrapper(val ghBranch: GHBranch) : Wrapper() {
     var externalBuildId: String = Strings.BLANK
 
     init {
-        ghBranch
-                .owner
-                ?.getCheckRuns(ghBranch.shA1)
-                ?.forEach {
-                    travisBuild = it
-                            .detailsUrl
-                            .toString()
-                            .contains(TRAVIS_CI)
-                    circleBuild = it
-                            .detailsUrl
-                            .toString()
-                            .contains(CIRCLE_CI)
-                    if (travisBuild || circleBuild) {
-                        buildStatus = it.status.capitalize()
-                        it.conclusion?.let { conclusion ->
-                            buildStatus += ": ${conclusion.capitalize()}"
+        startThread {
+            ghBranch
+                    .owner
+                    ?.getCheckRuns(ghBranch.shA1)
+                    ?.forEach {
+                        if (it.detailsUrl.toString().contains(TRAVIS_CI)) {
+                            travisBuild = true
+                            extractBranchStatus(it)
+                        } else if (it.detailsUrl.toString().contains(CIRCLE_CI)) {
+                            circleBuild = true
+                            extractBranchStatus(it)
                         }
-                        buildStatusUrl = it.detailsUrl.toString()
-                        externalBuildId = it.externalId
-                        return@forEach
                     }
-                }
+        }
+    }
+
+    private fun extractBranchStatus(ghCheckRun: GHCheckRun) {
+        buildStatus = ghCheckRun.status.capitalize()
+        ghCheckRun.conclusion?.let { conclusion ->
+            buildStatus += ": ${conclusion.capitalize()}"
+        }
+        buildStatusUrl = ghCheckRun.detailsUrl.toString()
+        externalBuildId = ghCheckRun.externalId
+        tableModel.fireTableDataChanged()
     }
 
     override fun toString(): String {

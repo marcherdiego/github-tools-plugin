@@ -76,6 +76,7 @@ public class ModuleSelectorForm extends JDialog {
                 String basePath = project.getBasePath();
                 CommandExecutor commandExecutor = new CommandExecutor(basePath);
                 String moduleName = modulesList.getSelectedValue();
+
                 // Save original branch
                 progressThread.setMessage("Saving original branch");
                 String gitStatusResult = commandExecutor.execute("git status");
@@ -88,7 +89,7 @@ public class ModuleSelectorForm extends JDialog {
                 String sourceBranch = sourceBranchList.getSelectedValue();
                 commandExecutor.execute("git checkout " + sourceBranch);
 
-                //Run dependencies for source branch
+                // Run dependencies for source branch
                 progressThread.setMessage("Running dependencies for source branch");
                 String sourceBranchDependenciesResult = commandExecutor.execute("./gradlew " + moduleName + ":dependencies -q");
                 FileCreator.INSTANCE.createFile(basePath, sourceBranch + "_dependencies.txt", sourceBranchDependenciesResult);
@@ -98,7 +99,7 @@ public class ModuleSelectorForm extends JDialog {
                 String targetBranch = targetBranchList.getSelectedValue();
                 commandExecutor.execute("git checkout " + targetBranch);
 
-                //Run dependencies for target branch
+                // Run dependencies for target branch
                 progressThread.setMessage("Running dependencies for target branch");
                 String targetBranchDependenciesResult = commandExecutor.execute("./gradlew " + moduleName + ":dependencies -q");
                 FileCreator.INSTANCE.createFile(basePath, targetBranch + "_dependencies.txt", targetBranchDependenciesResult);

@@ -1,6 +1,7 @@
 package com.nerdscorner.android.plugin.github.ui.tablemodels
 
 import com.nerdscorner.android.plugin.github.domain.gh.Wrapper
+import com.nerdscorner.android.plugin.utils.addIfNotPresent
 import java.io.Serializable
 import java.util.Comparator
 import javax.swing.table.AbstractTableModel
@@ -12,9 +13,10 @@ abstract class BaseModel<T : Wrapper> internal constructor(internal val items: M
 
     fun addRow(item: T) {
         val row = items.size
-        items.add(item)
-        items.sortWith(this)
-        fireTableRowsInserted(row, row)
+        if (items.addIfNotPresent(item)) {
+            items.sortWith(this)
+            fireTableRowsInserted(row, row)
+        }
     }
 
     fun removeAllRows() {
@@ -55,7 +57,7 @@ abstract class BaseModel<T : Wrapper> internal constructor(internal val items: M
     }
 
     override fun compare(one: T, other: T): Int {
-        return other.compare(one)
+        return one.compare(other)
     }
 
     companion object {

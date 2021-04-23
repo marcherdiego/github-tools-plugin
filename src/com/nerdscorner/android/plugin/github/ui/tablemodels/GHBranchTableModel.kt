@@ -19,6 +19,10 @@ class GHBranchTableModel(branches: MutableList<GHBranchWrapper>, colNames: Array
         }
     }
 
+    override fun compare(one: GHBranchWrapper, other: GHBranchWrapper): Int {
+        return super.compare(other, one)
+    }
+
     companion object {
         const val COLUMN_NAME = 0
         const val COLUMN_STATUS = 1

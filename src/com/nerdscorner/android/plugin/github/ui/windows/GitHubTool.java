@@ -3,9 +3,6 @@ package com.nerdscorner.android.plugin.github.ui.windows;
 import org.apache.commons.lang.StringUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.jetbrains.annotations.NotNull;
-import org.kohsuke.github.GHMyself;
-import org.kohsuke.github.GHOrganization;
-import org.kohsuke.github.GitHub;
 
 import java.awt.event.ActionEvent;
 
@@ -17,21 +14,26 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import com.nerdscorner.android.plugin.github.ui.presenter.RepoListPresenter;
+import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent;
+import com.nerdscorner.android.plugin.github.managers.GitHubManager;
 import com.nerdscorner.android.plugin.github.ui.model.AllReposModel;
+import com.nerdscorner.android.plugin.github.ui.model.DeploymentModel;
 import com.nerdscorner.android.plugin.github.ui.model.MyReposModel;
+import com.nerdscorner.android.plugin.github.ui.model.ParametersModel;
+import com.nerdscorner.android.plugin.github.ui.presenter.DeploymentPresenter;
+import com.nerdscorner.android.plugin.github.ui.presenter.ParametersPresenter;
+import com.nerdscorner.android.plugin.github.ui.presenter.RepoListPresenter;
 import com.nerdscorner.android.plugin.github.ui.tablemodels.BaseModel;
+import com.nerdscorner.android.plugin.github.ui.view.DeploymentView;
+import com.nerdscorner.android.plugin.github.ui.view.ParametersView;
 import com.nerdscorner.android.plugin.github.ui.view.ReposView;
 import com.nerdscorner.android.plugin.utils.Strings;
 import com.nerdscorner.android.plugin.utils.ViewUtils;
 
 public class GitHubTool implements ToolWindowFactory {
 
-    private GHMyself myselfGitHub;
-    private GHOrganization ghOrganization;
-    private GitHub github;
-
     private JPanel content;
+    private JTabbedPane tabsPane;
 
     private JTable allReposTable;
     private JTable allRepoReleases;
@@ -47,16 +49,40 @@ public class GitHubTool implements ToolWindowFactory {
     private JTable myReposClosedPrTable;
     private RepoListPresenter myReposPresenter;
 
+    private JButton createAppsChangelogButton;
+    private JButton addLibraryButton;
+    private JButton removeLibraryButton;
+    private JTable excludedRepos;
+    private JTable includedRepos;
+    private JButton releaseLibrariesButton;
+    private JLabel changelogProgress;
+    private JButton createVersionBumpsButton;
+    private JLabel includedReposLabel;
+    private JTextField reviewersTeam;
+    private JTextField individualReviewers;
+    private JLabel releaseProcessLink;
+    private DeploymentPresenter deploymentPresenter;
+
+    private JTextField githubToken;
+    private JTextField circleCiToken;
+    private JTextField travisToken;
+    private JTextField organizationName;
+    private JButton saveButton;
+    private JLabel parametersMessageLabel;
+    private JCheckBox showOrganizationReposOnly;
+    private JCheckBox showDeploymentPanel;
+    private ParametersPresenter parametersPresenter;
+
     private JPanel loginPanel;
     private JPanel pluginPanel;
+    private JTextField organizationField;
     private JTextField oauthTokenField;
     private JButton loginButton;
     private JButton logoutButton;
     private JLabel loggedAsField;
     private JButton reloadViewButton;
-    private JLabel repoComments;
-    private JPanel repoCommentsContainer;
-    private JTextField organizationField;
+    private JPanel deploymentPanel;
+
     private Project project;
 
     @Override
@@ -67,85 +93,94 @@ public class GitHubTool implements ToolWindowFactory {
         toolWindow.getContentManager().addContent(content);
         final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-        String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
-        if (StringUtils.isEmpty(oauthToken) || StringUtils.isEmpty(organization)) {
-            organizationField.setText(organization);
+        String organizations = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);
+        organizationField.setText(organizations);
+        if (StringUtils.isEmpty(oauthToken)) {
             ViewUtils.INSTANCE.show(loginPanel);
-            ViewUtils.INSTANCE.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField, repoCommentsContainer);
-            loginButton.addActionListener(new AbstractAction() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String oauthToken = oauthTokenField.getText();
+            ViewUtils.INSTANCE.hide(logoutButton, reloadViewButton, pluginPanel, loggedAsField);
+        } else {
+            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
+            ViewUtils.INSTANCE.hide(loginPanel);
+            githubTokenLogin(oauthToken, organizations);
+        }
+        loginButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String oauthToken = oauthTokenField.getText();
+                if (StringUtils.isEmpty(oauthToken)) {
+                    String message;
+                    if (StringUtils.isEmpty(oauthToken)) {
+                        message = Strings.EMPTY_OAUTH_TOKEN;
+                    } else {
+                        message = Strings.EMPTY_ORGANIZATION_NAME;
+                    }
+                    ResultDialog resultDialog = new ResultDialog(message);
+                    resultDialog.pack();
+                    resultDialog.setLocationRelativeTo(null);
+                    resultDialog.setTitle(Strings.LOGIN_ERROR);
+                    resultDialog.setResizable(false);
+                    resultDialog.setVisible(true);
+                } else {
                     String organization = organizationField.getText();
-                    if (StringUtils.isEmpty(oauthToken) || StringUtils.isEmpty(organization)) {
-                        String message;
-                        if (StringUtils.isEmpty(oauthToken)) {
-                            message = Strings.EMPTY_OAUTH_TOKEN;
-                        } else {
-                            message = Strings.EMPTY_ORGANIZATION_NAME;
-                        }
-                        ResultDialog resultDialog = new ResultDialog(message);
+                    boolean success = githubTokenLogin(oauthToken, organization);
+                    if (success) {
+                        ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
+                        ViewUtils.INSTANCE.hide(loginPanel);
+                        propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
+                        propertiesComponent.setValue(Strings.ORGANIZATION_NAMES_PROPERTY, organization);
+                        EventBus.getDefault().post(new ParameterUpdatedEvent());
+                        oauthTokenField.setText(null);
+                    } else {
+                        ResultDialog resultDialog = new ResultDialog(Strings.VERIFY_OAUTH_TOKEN);
                         resultDialog.pack();
                         resultDialog.setLocationRelativeTo(null);
                         resultDialog.setTitle(Strings.LOGIN_ERROR);
                         resultDialog.setResizable(false);
                         resultDialog.setVisible(true);
-                    } else {
-                        boolean success = githubTokenLogin(oauthToken, organization);
-                        if (success) {
-                            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
-                            ViewUtils.INSTANCE.hide(loginPanel);
-                            propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, oauthToken);
-                            propertiesComponent.setValue(Strings.ORGANIZATION_NAME_PROPERTY, organization);
-                            oauthTokenField.setText(null);
-                        } else {
-                            ResultDialog resultDialog = new ResultDialog(Strings.VERIFY_OAUTH_TOKEN);
-                            resultDialog.pack();
-                            resultDialog.setLocationRelativeTo(null);
-                            resultDialog.setTitle(Strings.LOGIN_ERROR);
-                            resultDialog.setResizable(false);
-                            resultDialog.setVisible(true);
-                        }
                     }
                 }
-            });
-        } else {
-            ViewUtils.INSTANCE.show(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
-            ViewUtils.INSTANCE.hide(loginPanel);
-            githubTokenLogin(oauthToken, organization);
-        }
-
+            }
+        });
         logoutButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ViewUtils.INSTANCE.show(loginPanel);
-                ViewUtils.INSTANCE.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton, repoCommentsContainer);
-                propertiesComponent.setValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-                propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, Strings.BLANK);
-                propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK);
-                github = null;
-                ghOrganization = null;
-                myselfGitHub = null;
+                ViewUtils.INSTANCE.hide(pluginPanel, logoutButton, loggedAsField, reloadViewButton);
+                propertiesComponent.unsetValue(Strings.OAUTH_TOKEN_PROPERTY);
+                propertiesComponent.unsetValue(Strings.TRAVIS_CI_TOKEN_PROPERTY);
+                propertiesComponent.unsetValue(Strings.CIRCLE_CI_TOKEN_PROPERTY);
+                propertiesComponent.unsetValue(Strings.ORGANIZATION_NAMES_PROPERTY);
+                propertiesComponent.unsetValue(Strings.SHOW_REPOS_FROM_ORGANIZATION_ONLY);
+                propertiesComponent.unsetValue(Strings.SHOW_DEPLOYMENT_PANEL);
+                EventBus.getDefault().post(new ParameterUpdatedEvent());
+                GitHubManager.clear();
+                allAllReposPresenter = null;
+                myReposPresenter = null;
+                parametersPresenter = null;
+                deploymentPresenter = null;
             }
         });
 
         reloadViewButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                loadTablesInfo();
+                final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+                String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
+                String organizationNames = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);
+                GitHubManager.clear();
+                githubTokenLogin(oauthToken, organizationNames);
             }
         });
+
+        loadParametersPanel();
     }
 
-    private boolean githubTokenLogin(String oauthKey, String organization) {
+    private boolean githubTokenLogin(String oauthKey, String organizationNames) {
         try {
-            // Github personal token (https://github.com/settings/tokens)
-            github = GitHub.connectUsingOAuth(oauthKey);
-            ghOrganization = github.getOrganization(organization);
-            myselfGitHub = github.getMyself();
+            GitHubManager.setup(oauthKey, organizationNames);
             loggedAsField.setVisible(true);
-            loggedAsField.setText(String.format(Strings.LOGGED_AS, myselfGitHub.getLogin(), myselfGitHub.getName()));
-            loadTablesInfo();
+            loggedAsField.setText(String.format(Strings.LOGGED_AS, GitHubManager.getMyLogin(), GitHubManager.getMyName()));
+            loadTablesInfo(organizationNames);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,14 +188,35 @@ public class GitHubTool implements ToolWindowFactory {
         return false;
     }
 
-    private void loadTablesInfo() {
-        repoComments.setText(null);
+    private void loadParametersPanel() {
+        if (parametersPresenter == null) {
+            parametersPresenter = new ParametersPresenter(
+                    new ParametersView(
+                            githubToken,
+                            circleCiToken,
+                            travisToken,
+                            organizationName,
+                            showOrganizationReposOnly,
+                            showDeploymentPanel,
+                            tabsPane,
+                            deploymentPanel,
+                            saveButton,
+                            parametersMessageLabel
+                    ),
+                    new ParametersModel(),
+                    new EventBus()
+            );
+        }
+    }
 
-        if (ghOrganization == null) {
+    private void loadTablesInfo(String organizationNames) {
+        if (!GitHubManager.hasOrganizations() && !StringUtils.isEmpty(organizationNames)) {
             final PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
             String oauthToken = propertiesComponent.getValue(Strings.OAUTH_TOKEN_PROPERTY, Strings.BLANK);
-            String organization = propertiesComponent.getValue(Strings.ORGANIZATION_NAME_PROPERTY, Strings.BLANK);
-            githubTokenLogin(oauthToken, organization);
+            String organizations = propertiesComponent.getValue(Strings.ORGANIZATION_NAMES_PROPERTY, Strings.BLANK);
+            if (githubTokenLogin(oauthToken, organizations)) {
+                return;
+            }
         }
 
         if (allAllReposPresenter == null) {
@@ -171,16 +227,36 @@ public class GitHubTool implements ToolWindowFactory {
                             allRepoBranches,
                             allRepoOpenPullRequestsTable,
                             allRepoClosedPullRequestsTable,
-                            repoComments,
                             BaseModel.COLUMN_NAME
                     ),
-                    new AllReposModel(ghOrganization),
+                    new AllReposModel(project.getName()),
                     new EventBus()
             );
         }
         allAllReposPresenter.init();
-        allAllReposPresenter.setSelectedRepo(project.getName());
         allAllReposPresenter.loadRepositories();
+
+        if (deploymentPresenter == null) {
+            deploymentPresenter = new DeploymentPresenter(
+                    new DeploymentView(
+                            createAppsChangelogButton,
+                            changelogProgress,
+                            addLibraryButton,
+                            removeLibraryButton,
+                            excludedRepos,
+                            includedReposLabel,
+                            includedRepos,
+                            releaseLibrariesButton,
+                            createVersionBumpsButton,
+                            reviewersTeam,
+                            individualReviewers,
+                            releaseProcessLink
+                    ),
+                    new DeploymentModel(),
+                    new EventBus()
+            );
+        }
+        deploymentPresenter.loadRepositories();
 
         if (myReposPresenter == null) {
             myReposPresenter = new RepoListPresenter(
@@ -190,15 +266,13 @@ public class GitHubTool implements ToolWindowFactory {
                             myReposBranchesTable,
                             myReposOpenPrTable,
                             myReposClosedPrTable,
-                            repoComments,
                             BaseModel.COLUMN_NAME
                     ),
-                    new MyReposModel(ghOrganization, myselfGitHub),
+                    new MyReposModel(project.getName()),
                     new EventBus()
             );
         }
         myReposPresenter.init();
-        myReposPresenter.setSelectedRepo(project.getName());
         myReposPresenter.loadRepositories();
     }
 }

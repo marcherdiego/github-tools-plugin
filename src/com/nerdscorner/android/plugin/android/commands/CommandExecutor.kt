@@ -6,7 +6,7 @@ import com.intellij.execution.process.ScriptRunnerUtil
 import com.nerdscorner.android.plugin.utils.Constants
 import java.nio.charset.Charset
 
-class CommandExecutor(var basePath: String? = null) {
+class CommandExecutor(private var basePath: String? = null) {
 
     fun execute(command: String): String {
         val commandLine = GeneralCommandLine(

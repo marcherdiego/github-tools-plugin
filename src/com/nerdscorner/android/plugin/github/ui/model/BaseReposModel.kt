@@ -10,24 +10,26 @@ import com.nerdscorner.android.plugin.github.exceptions.MissingTravisCiTokenExce
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHBranchTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHReleaseTableModel
 import com.nerdscorner.android.plugin.github.ui.tablemodels.GHRepoTableModel
-import com.nerdscorner.android.plugin.utils.CiEnvironment
-import com.nerdscorner.android.plugin.utils.CircleCiUtils
-import com.nerdscorner.android.plugin.utils.GithubUtils
+import com.nerdscorner.android.plugin.ci.CiEnvironment
+import com.nerdscorner.android.plugin.ci.CircleCi
+import com.nerdscorner.android.plugin.utils.BrowserUtils
 import com.nerdscorner.android.plugin.utils.Strings
-import com.nerdscorner.android.plugin.utils.ThreadUtils
-import com.nerdscorner.android.plugin.utils.TravisCiUtils
-import com.nerdscorner.android.plugin.utils.cancel
+import com.nerdscorner.android.plugin.ci.TravisCi
+import com.nerdscorner.android.plugin.github.events.ParameterUpdatedEvent
+import com.nerdscorner.android.plugin.github.exceptions.UndefinedCiEnvironmentException
+import com.nerdscorner.android.plugin.github.managers.GitHubManager
+import com.nerdscorner.android.plugin.utils.cancelThreads
+import com.nerdscorner.android.plugin.utils.shouldAddRepository
+import com.nerdscorner.android.plugin.utils.startThread
 import org.greenrobot.eventbus.EventBus
 import org.kohsuke.github.GHDirection
 import org.kohsuke.github.GHIssueState
-import org.kohsuke.github.GHOrganization
+import org.kohsuke.github.GHMyself
+import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHPullRequestQueryBuilder.Sort
-import java.io.IOException
-import java.util.ArrayList
-import java.util.Date
-import java.util.HashMap
+import javax.swing.table.AbstractTableModel
 
-abstract class BaseReposModel(val ghOrganization: GHOrganization) {
+abstract class BaseReposModel(val selectedRepo: String) {
     lateinit var bus: EventBus
 
     //Loader threads
@@ -36,10 +38,7 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
     private var prsLoaderThread: Thread? = null
     private var branchesLoaderThread: Thread? = null
 
-    val organizationName: String
-        get() = ghOrganization.login
-
-    var commentsUpdated: Boolean = false
+    private var commentsUpdated: Boolean = false
     var currentRepository: GHRepositoryWrapper? = null
     var selectedRepoRow = -1
 
@@ -48,8 +47,37 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
 
     abstract fun loadRepositories()
 
-    @Throws(IOException::class)
-    protected fun loadReleases() {
+    fun loadMyRepos(myselfGitHub: GHMyself?, tableModel: GHRepoTableModel) {
+        if (myselfGitHub == null) {
+            return
+        }
+        myselfGitHub
+                .listSubscriptions()
+                .withPageSize(LARGE_PAGE_SIZE)
+                .filter {
+                    it.shouldAddRepository()
+                }
+                .forEach {
+                    tableModel.addRow(GHRepositoryWrapper(it))
+                }
+    }
+
+    fun loadOrganizationRepos(tableModel: GHRepoTableModel) {
+        GitHubManager.forEachOrganizationsRepo { repository ->
+            tableModel.addRow(GHRepositoryWrapper(repository))
+        }
+    }
+
+    fun init() {
+        commentsUpdated = false
+        currentRepository = null
+        selectedRepoRow = -1
+        currentBranchBuild = null
+        currentCiEnvironment = null
+        cancelThreads(loaderThread, releasesLoaderThread, prsLoaderThread, branchesLoaderThread)
+    }
+
+    private fun loadReleases() {
         val repoReleasesModel = GHReleaseTableModel(ArrayList(), arrayOf(Strings.TAG, Strings.DATE))
         currentRepository
                 ?.ghRepository
@@ -57,30 +85,31 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 ?.withPageSize(SMALL_PAGE_SIZE)
                 ?.toList()
                 ?.forEach { ghRelease ->
+                    if (Thread.interrupted()) {
+                        return
+                    }
                     repoReleasesModel.addRow(GHReleaseWrapper(ghRelease))
                 }
         bus.post(ReleasesLoadedEvent(repoReleasesModel))
     }
 
-    @Throws(IOException::class)
-    protected fun loadBranches() {
+    private fun loadBranches() {
         val repoBranchesModel = GHBranchTableModel(ArrayList(), arrayOf(Strings.NAME, Strings.STATUS, Strings.CI_ACTIONS))
         currentRepository
                 ?.ghRepository
                 ?.branches
                 ?.values
                 ?.forEach { branch ->
-                    repoBranchesModel.addRow(GHBranchWrapper(branch))
+                    if (Thread.interrupted()) {
+                        return
+                    }
+                    repoBranchesModel.addRow(GHBranchWrapper(repoBranchesModel, branch))
                 }
         bus.post(BranchesLoadedEvent(repoBranchesModel))
     }
 
-    private fun loadPRs(latestReleaseDate: Date?) {
-        var commentsUpdated = false
-        if (latestReleaseDate == null) {
-            commentsUpdated = true
-            bus.post(RepoNoReleasesYetEvent())
-        }
+    private fun loadPRs(openPrTableModel: AbstractTableModel, closedPrTableModel: AbstractTableModel) {
+        val closedPrs = mutableListOf<GHPullRequestWrapper>()
         currentRepository
                 ?.ghRepository
                 ?.queryPullRequests()
@@ -90,81 +119,56 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 ?.list()
                 ?.withPageSize(SMALL_PAGE_SIZE)
                 ?.forEach { pullRequest ->
+                    if (Thread.interrupted()) {
+                        return
+                    }
                     if (pullRequest.state == GHIssueState.OPEN) {
-                        bus.post(NewOpenPullRequestsEvent(GHPullRequestWrapper(pullRequest)))
+                        bus.post(NewOpenPullRequestsEvent(GHPullRequestWrapper(openPrTableModel, pullRequest)))
                     } else if (pullRequest.state == GHIssueState.CLOSED) {
-                        if (pullRequest.mergedAt?.after(latestReleaseDate ?: return@forEach) == true) {
-                            bus.post(NewClosedPullRequestsEvent(GHPullRequestWrapper(pullRequest)))
-                            if (!commentsUpdated) {
-                                commentsUpdated = true
-                                bus.post(RepoNeedsReleaseEvent())
-                            }
+                        if (closedPrs.size < MINI_PAGE_SIZE) {
+                            val pullRequestWrapper = GHPullRequestWrapper(closedPrTableModel, pullRequest)
+                            closedPrs.add(pullRequestWrapper)
+                            bus.post(NewClosedPullRequestsEvent(pullRequestWrapper))
                         }
                     }
                 }
-        // If we haven't found any closed PR after the latest release, then this repo does not need to be released
-        if (!commentsUpdated) {
-            commentsUpdated = true
-            bus.post(RepoDoesNotNeedReleaseEvent())
-        }
     }
 
-    fun loadRepoReleasesAndBranches() {
+    fun loadRepoTablesData(openPrTableModel: AbstractTableModel?, closedPrTableModel: AbstractTableModel?) {
         try {
             commentsUpdated = false
-            ThreadUtils.cancelThreads(releasesLoaderThread, branchesLoaderThread)
+            cancelThreads(releasesLoaderThread, branchesLoaderThread, prsLoaderThread)
 
-            branchesLoaderThread = Thread {
+            branchesLoaderThread = startThread {
                 try {
                     loadBranches()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-            releasesLoaderThread = Thread {
+            releasesLoaderThread = startThread {
                 try {
                     loadReleases()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-
-            branchesLoaderThread?.start()
-            releasesLoaderThread?.start()
+            if (openPrTableModel != null && closedPrTableModel != null) {
+                prsLoaderThread = startThread {
+                    try {
+                        loadPRs(openPrTableModel, closedPrTableModel)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun loadPullRequests(latestReleaseDate: Date?) {
-        prsLoaderThread.cancel()
-        prsLoaderThread = Thread {
-            try {
-                loadPRs(latestReleaseDate)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        prsLoaderThread?.start()
-    }
-
-
-    fun getCurrentRepoName(): String? {
-        return currentRepository?.ghRepository?.name
-    }
-
-    fun cancel() {
-        commentsUpdated = false
-        currentRepository = null
-        selectedRepoRow = -1
-        currentBranchBuild = null
-        currentCiEnvironment = null
-        ThreadUtils.cancelThreads(loaderThread, releasesLoaderThread, prsLoaderThread, branchesLoaderThread)
-    }
-
     fun getCurrentRepoUrl() = currentRepository?.fullUrl
 
-    @Throws(MissingTravisCiTokenException::class, MissingCircleCiTokenException::class)
     fun requestRebuild(branch: GHBranchWrapper) {
         currentBranchBuild = branch
         val ciEnvironment = when {
@@ -173,18 +177,16 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
                 if (travisCiToken.isEmpty()) {
                     throw MissingTravisCiTokenException()
                 }
-                TravisCiUtils
+                TravisCi
             }
             branch.circleBuild -> {
                 val circleCiToken = propertiesComponent.getValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, Strings.BLANK)
                 if (circleCiToken.isEmpty()) {
                     throw MissingCircleCiTokenException()
                 }
-                CircleCiUtils
+                CircleCi
             }
-            else -> {
-                return
-            }
+            else -> throw UndefinedCiEnvironmentException()
         }
         currentCiEnvironment = ciEnvironment.triggerRebuild(
                 externalId = branch.externalBuildId,
@@ -197,9 +199,12 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
         )
     }
 
+    fun clearCurrentBranchBuild() {
+        currentBranchBuild = null
+    }
+
     fun triggerPendingRebuild() {
         requestRebuild(currentBranchBuild ?: return)
-        currentBranchBuild = null
     }
 
     fun cancelRebuildRequest() {
@@ -208,38 +213,48 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
 
     fun saveTravisToken(token: String?) {
         propertiesComponent.setValue(Strings.TRAVIS_CI_TOKEN_PROPERTY, token)
+        EventBus.getDefault()
+                .post(ParameterUpdatedEvent())
     }
 
     fun saveCircleToken(token: String?) {
         propertiesComponent.setValue(Strings.CIRCLE_CI_TOKEN_PROPERTY, token)
+        EventBus.getDefault()
+                .post(ParameterUpdatedEvent())
     }
 
     fun openBuildInBrowser(branch: GHBranchWrapper? = null) {
-        GithubUtils.openWebLink((branch ?: currentBranchBuild)?.buildStatusUrl)
+        BrowserUtils.openWebLink((branch ?: currentBranchBuild)?.buildStatusUrl)
     }
 
     fun clearCiToken() {
         propertiesComponent.setValue(
                 when {
-                    currentBranchBuild?.circleBuild == true -> Strings.TRAVIS_CI_TOKEN_PROPERTY
+                    currentBranchBuild?.circleBuild == true -> Strings.CIRCLE_CI_TOKEN_PROPERTY
                     currentBranchBuild?.travisBuild == true -> Strings.TRAVIS_CI_TOKEN_PROPERTY
                     else -> return
                 },
                 Strings.BLANK
         )
+        EventBus.getDefault()
+                .post(ParameterUpdatedEvent())
+    }
+
+    fun getGithubProfileUrl(pullRequest: GHPullRequest?): String? {
+        return try {
+            "$GITHUB_PROFILE_PREFIX${pullRequest?.user?.login}"
+        } catch (e: Exception) {
+            null
+        }
     }
 
     //Posted events
-    class UpdateRepositoryInfoTablesEvent(val tableModel: GHRepoTableModel, val tooltips: HashMap<String, String>)
+    class UpdateRepositoryInfoTablesEvent(val tableModel: GHRepoTableModel)
 
     class BranchesLoadedEvent(val repoBranchesModel: GHBranchTableModel)
     class ReleasesLoadedEvent(val repoReleasesModel: GHReleaseTableModel)
     class NewOpenPullRequestsEvent(val pullRequest: GHPullRequestWrapper)
     class NewClosedPullRequestsEvent(val pullRequest: GHPullRequestWrapper)
-
-    class RepoNoReleasesYetEvent
-    class RepoNeedsReleaseEvent
-    class RepoDoesNotNeedReleaseEvent
 
     class BuildSucceededEventEvent
     class BuildFailedEventEvent(val message: String?)
@@ -247,13 +262,17 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
     companion object {
         private val propertiesComponent = PropertiesComponent.getInstance()
 
+        private const val GITHUB_PROFILE_PREFIX = "https://github.com/"
+
         const val LARGE_PAGE_SIZE = 500
         const val SMALL_PAGE_SIZE = 40
+        const val MINI_PAGE_SIZE = 15
 
         const val RE_RUNNING_BUILD = "Re-running build..."
 
         const val CANCEL = "Cancel"
         const val RETRY = "Retry"
+        const val OK = "OK"
         const val VIEW_BUILD = "View build"
         const val CLEAR_TOKEN = "Clear token"
         const val BRANCH_BUILD = "Branch build"
@@ -266,6 +285,7 @@ abstract class BaseReposModel(val ghOrganization: GHOrganization) {
         const val REQUEST_CODE_MISSING_TRAVIS_TOKEN = 2
         const val REQUEST_CODE_MISSING_CIRCLE_TOKEN = 3
         const val REQUEST_CODE_BUILD_SUCCEEDED = 4
-        const val REQUEST_CODE_BUILD_FAILED = 5
+        const val REQUEST_CODE_BUILD_FAILED_UNDEFINED_CI_ENVIRONMENT = 5
+        const val REQUEST_CODE_BUILD_FAILED = 6
     }
 }

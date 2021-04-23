@@ -70,5 +70,6 @@
     <orderEntry type="library" name="github-api-1.114" level="project" />
     <orderEntry type="library" name="okhttp-2.3.0" level="project" />
     <orderEntry type="library" name="okio-1.3.0" level="project" />
+    <orderEntry type="library" name="kotlin-reflect" level="project" />
   </component>
 </module>
